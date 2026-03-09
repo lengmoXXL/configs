@@ -13,12 +13,11 @@ vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
   {
-    "yonatan-perel/lake-dweller.nvim",
+    'lunarvim/darkplus.nvim',
     lazy = false,
     priority = 1000,
     config = function()
-      require("lake-dweller").setup({})
-      vim.cmd.colorscheme("lake-dweller")
+      vim.cmd.colorscheme("darkplus")
     end,
   },
   {
@@ -38,6 +37,15 @@ require('lazy').setup({
     lazy = false,
     build = ':TSUpdate',
   },
+  {
+    'saghen/blink.cmp',
+    opts = {
+      sources = {
+        default = { 'lsp', 'path', 'buffer' },
+      },
+      fuzzy = { implementation = "lua" },
+    },
+  },
 })
 
 -- common
@@ -55,6 +63,13 @@ vim.keymap.set('n', '<leader>fS', builtin.lsp_workspace_symbols, { desc = 'Teles
 
 -- lsp
 vim.lsp.enable('clangd')
+vim.lsp.enable('pyright')
+vim.lsp.enable('gopls')
+vim.keymap.set('n', 'gd', vim.lsp.buf.definition)        -- 跳转到定义（包括头文件）
+vim.keymap.set('n', 'gr', vim.lsp.buf.references)        -- 查看引用
+vim.keymap.set('n', 'K', vim.lsp.buf.hover)              -- 查看文档
+
+-- diagnostic
 vim.diagnostic.config({
   signs = false,
   underline = true,         -- 错误代码下划线
@@ -65,9 +80,6 @@ vim.diagnostic.config({
     severity = { min = vim.diagnostic.severity.ERROR, max = vim.diagnostic.severity.ERROR },
   },
 })
-vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)        -- 跳转到定义（包括头文件）
-vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)        -- 查看引用
-vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)              -- 查看文档
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)      -- 上一个错误
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)      -- 下一个错误
-vim.keymap.set('n', '<C-o>', '<C-o>', opts)                    -- 跳回之前的位置
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)      -- 上一个错误
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next)      -- 下一个错误
+vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位置
