@@ -43,6 +43,24 @@ require('lazy').setup({
     opts = {
     },
   },
+  { 'nvim-mini/mini.files', version = '*',
+    keys = {
+      {
+        "<leader>e",
+        function()
+          MiniFiles.open(vim.api.nvim_buf_get_name(0))
+        end,
+        desc = "Open mini.files (current file location)",
+      },
+      {
+        "<leader>eC",
+        function()
+          MiniFiles.open(vim.fn.getcwd())
+        end,
+        desc = "Open mini.files (cwd)",
+      },
+    },
+  },
 })
 
 -- common
@@ -80,3 +98,6 @@ vim.diagnostic.config({
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)      -- 上一个错误
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)      -- 下一个错误
 vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位置
+
+-- mini.files
+require('mini.files').setup()
