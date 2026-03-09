@@ -39,11 +39,8 @@ require('lazy').setup({
   },
   {
     'saghen/blink.cmp',
+    version = '1.*',
     opts = {
-      sources = {
-        default = { 'lsp', 'path', 'buffer' },
-      },
-      fuzzy = { implementation = "lua" },
     },
   },
 })
