@@ -18,11 +18,14 @@ vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
   {
-    'lunarvim/darkplus.nvim',
+    "yonatan-perel/lake-dweller.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme("darkplus")
+        require("lake-dweller").setup({
+            -- your options here
+        })
+        vim.cmd.colorscheme("lake-dweller")
     end,
   },
   {
