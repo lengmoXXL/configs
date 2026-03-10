@@ -25,7 +25,20 @@ require('lazy').setup({
     dependencies = {
       'nvim-lua/plenary.nvim',
       { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
-    }
+    },
+    keys = {
+      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+      { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
+      { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
+      { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
+      { "<leader>fH", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
+      { "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Commands" },
+      { "<leader>fC", "<cmd>Telescope command_history<cr>", desc = "Command history" },
+      { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
+      { "<leader>fm", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
+    },
   },
   { 'neovim/nvim-lspconfig' },
   { 
@@ -61,20 +74,17 @@ require('lazy').setup({
       },
     },
   },
+  { 'sindrets/diffview.nvim',
+    dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Toggle Diffview window" },
+    },
+  },
 })
 
 -- common
 vim.opt.number = true
 vim.g.mapleader = " "
-
--- telescope
-local builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
-vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
-vim.keymap.set('n', '<leader>fs', builtin.lsp_document_symbols, { desc = 'Telescope find document symbols' })
-vim.keymap.set('n', '<leader>fS', builtin.lsp_workspace_symbols, { desc = 'Telescope find workspace symbols' })
 
 -- lsp
 vim.lsp.enable('clangd')
@@ -101,3 +111,4 @@ vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位�
 
 -- mini.files
 require('mini.files').setup()
+require('diffview').setup()
