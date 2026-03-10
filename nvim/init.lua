@@ -1,3 +1,8 @@
+vim.opt.number = true
+-- put in front of lazy
+vim.g.mapleader = " "
+
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -75,16 +80,16 @@ require('lazy').setup({
     },
   },
   { 'sindrets/diffview.nvim',
-    dependencies = { "nvim-lua/plenary.nvim" },
+    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons' },
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory' },
     keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Toggle Diffview window" },
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview window" },
+      { "<leader>gh", "<cmd>DiffviewOpen HEAD^<cr>", desc = "Open Diffview window" },
+      { "<leader>gH", "<cmd>DiffviewFileHistory<cr>", desc = "Open Diffview window" },
+      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Close Diffview window" },
     },
   },
 })
-
--- common
-vim.opt.number = true
-vim.g.mapleader = " "
 
 -- lsp
 vim.lsp.enable('clangd')
@@ -109,6 +114,5 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)      -- 上一个错误
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)      -- 下一个错误
 vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位置
 
--- mini.files
+-- mini.files, TODO: why should call setup
 require('mini.files').setup()
-require('diffview').setup()
