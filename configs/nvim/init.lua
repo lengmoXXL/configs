@@ -39,6 +39,10 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)      -- 上一个错误
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)      -- 下一个错误
 vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位置
 
+-- 系统剪贴板
+vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
+vim.keymap.set('n', '<leader>yy', '"+yy', { desc = 'Yank line to clipboard' })
+
 -- mini.files, TODO: why should call setup
 require('mini.files').setup()
 require('mini.diff').setup()
