@@ -127,7 +127,7 @@ _pj_savecmd() {
 
     [[ -z "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中 (PJ_CMDS 未设置)"; return 1; }
 
-    cmd=$(fc -ln 1 | fzf --height=40% --layout=reverse --header="Select Command from History")
+    cmd=$(fc -ln 1 | sed 's/^[[:space:]]*//' | fzf --height=40% --layout=reverse --header="Select Command from History")
 
     [[ -z "$cmd" ]] && return
 
