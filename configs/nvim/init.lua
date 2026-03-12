@@ -17,7 +17,14 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require('lazy').setup({ import = "plugins" })
+require('lazy').setup({
+  { import = "plugins" },
+  { import = "themes" },
+})
+
+-- theme
+vim.cmd.colorscheme("kanagawa-dragon")
+vim.api.nvim_set_hl(0, "DiffDelete", { bg = "#3c1c1c", fg = "#ff5555" })
 
 -- lsp
 vim.lsp.enable('clangd')
