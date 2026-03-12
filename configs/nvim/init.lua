@@ -16,90 +16,12 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require('lazy').setup({
-  {
-    "yonatan-perel/lake-dweller.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-        vim.cmd.colorscheme("lake-dweller")
-        vim.api.nvim_set_hl(0, "DiffDelete", { bg = "#3c1c1c", fg = "#ff5555" })
-        vim.opt.fillchars:append({ diff = " " })
-    end,
-  },
-  {
-    'nvim-telescope/telescope.nvim', version = '*',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
-    },
-    keys = {
-      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-      { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
-      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
-      { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-      { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
-      { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
-      { "<leader>fH", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
-      { "<leader>fc", "<cmd>Telescope commands<cr>", desc = "Commands" },
-      { "<leader>fC", "<cmd>Telescope command_history<cr>", desc = "Command history" },
-      { "<leader>fk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
-      { "<leader>fm", "<cmd>Telescope man_pages<cr>", desc = "Man pages" },
-    },
-  },
-  { 'neovim/nvim-lspconfig' },
-  { 
-    'nmac427/guess-indent.nvim',
-    config = function() require('guess-indent').setup {} end,
-  },
-  {
-    'nvim-treesitter/nvim-treesitter',
-    lazy = false,
-    build = ':TSUpdate',
-  },
-  {
-    'saghen/blink.cmp',
-    version = '1.*',
-    opts = {
-    },
-  },
-  { 'nvim-mini/mini.files', version = '*',
-    keys = {
-      {
-        "<leader>e",
-        function()
-          MiniFiles.open(vim.api.nvim_buf_get_name(0))
-        end,
-        desc = "Open mini.files (current file location)",
-      },
-      {
-        "<leader>eC",
-        function()
-          MiniFiles.open(vim.fn.getcwd())
-        end,
-        desc = "Open mini.files (cwd)",
-      },
-    },
-  },
-  { 'sindrets/diffview.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons' },
-    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory' },
-    keys = {
-      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview window" },
-      { "<leader>gh", "<cmd>DiffviewOpen HEAD^<cr>", desc = "Open Diffview window" },
-      { "<leader>gH", "<cmd>DiffviewFileHistory<cr>", desc = "Open Diffview window" },
-      { "<leader>gc", "<cmd>DiffviewClose<cr>", desc = "Close Diffview window" },
-    },
-  },
-})
+require('lazy').setup({ import = "plugins" })
 
 -- lsp
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
-vim.keymap.set('n', 'gd', vim.lsp.buf.definition)        -- 跳转到定义（包括头文件）
-vim.keymap.set('n', 'gr', vim.lsp.buf.references)        -- 查看引用
-vim.keymap.set('n', 'K', vim.lsp.buf.hover)              -- 查看文档
 
 -- diagnostic
 vim.diagnostic.config({
@@ -118,3 +40,4 @@ vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位�
 
 -- mini.files, TODO: why should call setup
 require('mini.files').setup()
+require('mini.diff').setup()

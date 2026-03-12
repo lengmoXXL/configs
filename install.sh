@@ -6,17 +6,17 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 install_nvim() {
-    local source="$SCRIPT_DIR/configs/nvim/init.lua"
-    local dest="$HOME/.config/nvim/init.lua"
+    local source_dir="$SCRIPT_DIR/configs/nvim"
+    local dest_dir="$HOME/.config/nvim"
 
-    if [[ ! -f "$source" ]]; then
-        echo "错误: 源文件不存在: $source"
+    if [[ ! -d "$source_dir" ]]; then
+        echo "错误: 源目录不存在: $source_dir"
         exit 1
     fi
 
-    mkdir -p "$HOME/.config/nvim"
-    cp "$source" "$dest"
-    echo "已安装: $source -> $dest"
+    mkdir -p "$dest_dir"
+    cp -r "$source_dir"/* "$dest_dir/"
+    echo "已安装: $source_dir -> $dest_dir"
 }
 
 install_pj() {
