@@ -30,6 +30,16 @@ _pj_get_path() {
     sed -n 's/^# Path: *//p' "$env_file" 2>/dev/null | head -1
 }
 
+_pj_truncate_path() {
+    local path="$1"
+    local max_len="${2:-40}"
+    if [[ ${#path} -gt $max_len ]]; then
+        echo "${path: -$max_len}"
+    else
+        echo "$path"
+    fi
+}
+
 _pj_fzf_select() {
     local envs desc path name selection
     envs=$(_pj_list_envs)
@@ -38,7 +48,7 @@ _pj_fzf_select() {
     selection=$(while IFS= read -r name; do
         desc=$(_pj_get_description "$name")
         path=$(_pj_get_path "$name")
-        printf "%s\t%s\t%s\n" "$name" "$desc" "$path"
+        printf "%s\t%s\t%s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
     done <<< "$envs" | fzf --height=40% --layout=reverse --header="Select Project Environment" --with-nth=1,2,3 --delimiter='\t')
 
     [[ -n "$selection" ]] && cut -f1 <<< "$selection"
@@ -155,12 +165,12 @@ _pj_delete() {
 
 _pj_list() {
     local name desc path
-    printf "%-15s %-30s %s\n" "NAME" "DESCRIPTION" "PATH"
-    printf "%-15s %-30s %s\n" "----" "-----------" "----"
+    printf "%-15s %-40s %s\n" "NAME" "PATH" "DESCRIPTION"
+    printf "%-15s %-40s %s\n" "----" "----" "-----------"
     while IFS= read -r name; do
         desc=$(_pj_get_description "$name")
         path=$(_pj_get_path "$name")
-        printf "%-15s %-30s %s\n" "$name" "$desc" "$path"
+        printf "%-15s %-40s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
     done < <(_pj_list_envs)
 }
 
