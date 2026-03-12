@@ -5,6 +5,6 @@
 
 switch() {
     cd /path/to/project
-    export ROOT="/path/to/project"
-    export PJ_CMDS="$ROOT/.pjcmds"
+    export PJ_ROOT="/path/to/project"
+    export PJ_CMDS="$PJ_ROOT/.pjcmds"
 }
