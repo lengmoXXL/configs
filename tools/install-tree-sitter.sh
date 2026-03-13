@@ -26,8 +26,8 @@ mkdir -p "$BIN_DIR"
 echo "编译安装 tree-sitter-cli..."
 "$CARGO_HOME/bin/cargo" install tree-sitter-cli
 
-# 复制到目标目录
-cp "$CARGO_HOME/bin/tree-sitter" "$BIN_DIR/tree-sitter"
+# 创建符号链接
+ln -sf "$CARGO_HOME/bin/tree-sitter" "$BIN_DIR/tree-sitter"
 
 echo ""
 echo "安装完成: $BIN_DIR/tree-sitter"

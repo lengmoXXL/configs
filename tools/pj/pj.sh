@@ -5,7 +5,6 @@ _PJ_LIB="${HOME}"
 
 _pj_ensure_dirs() {
     mkdir -p "$_PJ_DIR"
-    mkdir -p "$_PJ_LIB"
 }
 
 _pj_list_envs() {
@@ -81,7 +80,7 @@ _pj_exec() {
 
     [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && return
 
-    cmd=$(cat "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
+    cmd=$(fzf --height=40% --layout=reverse --header="Select Command" < "$PJ_CMDS")
 
     if [[ -n "$cmd" ]]; then
         echo "执行: $cmd"
