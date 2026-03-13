@@ -1,5 +1,6 @@
 vim.opt.number = true
 vim.opt.tabstop = 4
+vim.opt.exrc = true
 -- put in front of lazy
 vim.g.mapleader = " "
 
