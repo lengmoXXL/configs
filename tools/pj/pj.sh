@@ -47,10 +47,10 @@ _pj_fzf_select() {
     selection=$(while IFS= read -r name; do
         desc=$(_pj_get_description "$name")
         path=$(_pj_get_path "$name")
-        printf "%s\t%s\t%s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
-    done <<< "$envs" | fzf --height=40% --layout=reverse --header="Select Project Environment" --with-nth=1,2,3 --delimiter='\t')
+        printf "%-20s %-40s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
+    done <<< "$envs" | fzf --height=40% --layout=reverse --header="Select Project Environment")
 
-    [[ -n "$selection" ]] && cut -f1 <<< "$selection"
+    [[ -n "$selection" ]] && awk '{print $1}' <<< "$selection"
 }
 
 _pj_switch() {
