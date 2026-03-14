@@ -51,8 +51,6 @@ return
     { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
     { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
     { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
-    -- Other
-    { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
   },
   init = function()
     vim.api.nvim_create_autocmd("User", {
