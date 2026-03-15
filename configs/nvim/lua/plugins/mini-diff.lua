@@ -1,1 +1,5 @@
-return { 'nvim-mini/mini.nvim', version = '*' }
+return {
+  'nvim-mini/mini.diff',
+  version = '*',
+  opts = {},
+}

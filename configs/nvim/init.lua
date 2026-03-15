@@ -51,6 +51,3 @@ vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位�
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 vim.keymap.set('n', '<leader>yy', '"+yy', { desc = 'Yank line to clipboard' })
 
--- mini.files, TODO: why should call setup
-require('mini.files').setup()
-require('mini.diff').setup()
