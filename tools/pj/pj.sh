@@ -76,7 +76,7 @@ _pj_switch() {
 }
 
 _pj_exec() {
-    local cmd cmds tmp_file
+    local cmd
 
     [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && return
 
@@ -85,12 +85,6 @@ _pj_exec() {
     if [[ -n "$cmd" ]]; then
         echo "执行: $cmd"
         eval "$cmd"
-
-        # LRU: 把执行的命令移到文件顶部
-        tmp_file=$(mktemp)
-        echo "$cmd" > "$tmp_file"
-        grep -vF -x "$cmd" "$PJ_CMDS" >> "$tmp_file" 2>/dev/null || true
-        mv "$tmp_file" "$PJ_CMDS"
     fi
 }
 
@@ -125,8 +119,8 @@ _pj_edit() {
 
     if [[ -z "$name" ]]; then
         # 如果在环境中，编辑当前环境；否则 fzf 选择
-        if [[ -n "$PJ_ROOT" ]]; then
-            name=$(basename "$PJ_ROOT")
+        if [[ -n "$PJ_NAME" ]]; then
+            name="$PJ_NAME"
         else
             name=$(_pj_fzf_select) || return 1
         fi
