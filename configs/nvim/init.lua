@@ -28,6 +28,9 @@ vim.cmd.colorscheme("kanagawa-dragon")
 vim.opt.fillchars:append({ diff = ' ' })
 
 -- lsp
+vim.lsp.config('clangd', {
+  cmd = { 'clangd', '--header-insertion=never' },
+})
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
