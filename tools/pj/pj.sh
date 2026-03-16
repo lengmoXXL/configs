@@ -110,7 +110,7 @@ _pj_save() {
     sed "s|/path/to/project|$current_dir|g; s/myproject/$name/g" "$template" > "$env_file"
 
     echo "已创建环境: $name"
-    echo "编辑配置: pj -e $name"
+    _pj_switch "$name"
 }
 
 _pj_edit() {
