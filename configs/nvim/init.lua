@@ -55,3 +55,15 @@ vim.keymap.set('n', '<C-o>', '<C-o>')                    -- 跳回之前的位�
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 vim.keymap.set('n', '<leader>yy', '"+yy', { desc = 'Yank line to clipboard' })
 
+-- 复制文件位置 (可视模式下)
+vim.keymap.set('v', '<leader>yl', function()
+  local start_line = vim.fn.line('v')
+  local end_line = vim.fn.line('.')
+  local file = vim.fn.expand('%:p')
+  local location = file .. ':' .. start_line
+  if start_line ~= end_line then
+    location = location .. '-' .. end_line
+  end
+  vim.fn.setreg('+', location)
+end, { desc = 'Yank file location' })
+
