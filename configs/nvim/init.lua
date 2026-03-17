@@ -1,9 +1,9 @@
 vim.opt.number = true
 vim.opt.tabstop = 4
+vim.opt.wrap = false
 vim.opt.exrc = true
 -- put in front of lazy
 vim.g.mapleader = " "
-
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -34,6 +34,7 @@ vim.lsp.config('clangd', {
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
+vim.lsp.enable('typos_lsp')
 
 -- diagnostic
 vim.diagnostic.config({
