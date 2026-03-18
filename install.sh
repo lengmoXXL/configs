@@ -20,6 +20,12 @@ install_nvim() {
 }
 
 install_pj() {
+    # 检查 fzf 依赖
+    if ! command -v fzf &>/dev/null; then
+        echo "错误: fzf 未安装，请先安装 fzf"
+        exit 1
+    fi
+
     local pj_source="$SCRIPT_DIR/tools/pj/pj.sh"
     local template_source="$SCRIPT_DIR/tools/pj/pj.env.sh"
     local pj_dest="$HOME/pj.sh"
