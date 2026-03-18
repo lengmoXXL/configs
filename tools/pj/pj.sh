@@ -31,7 +31,7 @@ _pj_get_path() {
 
 _pj_truncate_path() {
     local path="$1"
-    local max_len="${2:-40}"
+    local max_len="${2:-60}"
     if [[ ${#path} -gt $max_len ]]; then
         echo "${path: -$max_len}"
     else
@@ -47,7 +47,7 @@ _pj_fzf_select() {
     selection=$(while IFS= read -r name; do
         desc=$(_pj_get_description "$name")
         path=$(_pj_get_path "$name")
-        printf "%-20s %-40s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
+        printf "%-20s %-60s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
     done <<< "$envs" | fzf --height=40% --layout=reverse --header="Select Project Environment")
 
     [[ -n "$selection" ]] && awk '{print $1}' <<< "$selection"
@@ -169,12 +169,12 @@ _pj_delete() {
 
 _pj_list() {
     local name desc path
-    printf "%-15s %-40s %s\n" "NAME" "PATH" "DESCRIPTION"
-    printf "%-15s %-40s %s\n" "----" "----" "-----------"
+    printf "%-15s %-60s %s\n" "NAME" "PATH" "DESCRIPTION"
+    printf "%-15s %-60s %s\n" "----" "----" "-----------"
     while IFS= read -r name; do
         desc=$(_pj_get_description "$name")
         path=$(_pj_get_path "$name")
-        printf "%-15s %-40s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
+        printf "%-15s %-60s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
     done < <(_pj_list_envs)
 }
 
