@@ -1,7 +1,7 @@
-vim.opt.number = true
-vim.opt.tabstop = 4
-vim.opt.wrap = false
-vim.opt.exrc = true
+vim.o.number = true
+vim.o.tabstop = 4
+vim.o.wrap = false
+vim.o.exrc = true
 -- put in front of lazy
 vim.g.mapleader = " "
 
