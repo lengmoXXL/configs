@@ -39,7 +39,9 @@ mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
 echo "下载中..."
-curl -sL "$DOWNLOAD_URL" | tar -xJ -C "$INSTALL_DIR" --strip-components=1
+curl -fL "$DOWNLOAD_URL" -o /tmp/node.tar.xz
+tar -xJf /tmp/node.tar.xz -C "$INSTALL_DIR" --strip-components=1
+rm /tmp/node.tar.xz
 
 # 创建符号链接
 ln -sf "$INSTALL_DIR/bin/node" "$BIN_DIR/node"
