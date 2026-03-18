@@ -107,7 +107,12 @@ _pj_save() {
         return 1
     fi
 
-    sed "s|/path/to/project|$current_dir|g; s/myproject/$name/g" "$template" > "$env_file"
+    # 使用 bash 字符串替换避免 sed 特殊字符问题
+    local content
+    content=$(<"$template")
+    content="${content//\/path\/to\/project/$current_dir}"
+    content="${content//myproject/$name}"
+    echo "$content" > "$env_file"
 
     echo "已创建环境: $name"
     _pj_switch "$name"
