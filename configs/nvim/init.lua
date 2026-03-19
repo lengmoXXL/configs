@@ -47,8 +47,6 @@ vim.diagnostic.config({
     severity = { min = vim.diagnostic.severity.ERROR, max = vim.diagnostic.severity.ERROR },
   },
 })
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)      -- 上一个错误
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)      -- 下一个错误
 
 -- 系统剪贴板
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
