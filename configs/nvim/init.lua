@@ -56,7 +56,7 @@ vim.keymap.set('n', '<leader>yy', '"+yy', { desc = 'Yank line to clipboard' })
 vim.keymap.set('v', '<leader>yl', function()
   local start_line = vim.fn.line('v')
   local end_line = vim.fn.line('.')
-  local file = vim.fn.expand('%:p')
+  local file = vim.fn.expand('%:t')
   local location = file .. ':' .. start_line
   if start_line ~= end_line then
     location = location .. '-' .. end_line
