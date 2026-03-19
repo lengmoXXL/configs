@@ -1,7 +1,7 @@
 return {
   'nvim-mini/mini.diff',
   version = '*',
-  lazy = false,
+  event = 'VeryLazy',
   opts = {},
   keys = {
     { '<leader>to', function() require('mini.diff').toggle_overlay() end, desc = 'Toggle diff overlay' },
