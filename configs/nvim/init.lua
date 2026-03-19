@@ -29,7 +29,12 @@ vim.opt.fillchars:append({ diff = ' ' })
 
 -- lsp
 vim.lsp.config('clangd', {
-  cmd = { 'clangd', '--header-insertion=never' },
+  cmd = {
+    'clangd',
+    '--header-insertion=never',
+    '--function-arg-placeholders=0',
+    '--background-index',
+  },
 })
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
