@@ -63,16 +63,12 @@ _pj_switch() {
         return 1
     fi
 
+    # 清除所有 PJ_ 开头的环境变量
+    unset "${!PJ_@}"
+
     # shellcheck source=/dev/null
     source "$env_file"
-
-    if declare -f switch &>/dev/null; then
-        switch
-        echo "已切换到环境: $name"
-    else
-        echo "错误: 环境脚本缺少 switch 函数: $env_file"
-        return 1
-    fi
+    echo "已切换到环境: $name"
 }
 
 _pj_exec() {
@@ -154,6 +150,25 @@ _pj_savecmd() {
     echo "已添加命令: $cmd"
 }
 
+_pj_migrate() {
+    local count=0
+    for env_file in "$_PJ_DIR"/*.env.sh; do
+        [[ -f "$env_file" ]] || continue
+        # 检查是否有 switch() 函数
+        grep -q '^switch() {' "$env_file" || continue
+
+        # 提取 switch 函数内容，去缩进，保留头部注释
+        sed -i -n '/^#!/p; /^# Project:/p; /^# Description:/p; /^# Path:/p; /^switch() {$/,/^}$/{
+            /^switch() {$/d
+            /^}$/d
+            s/^    //
+            p
+        }' "$env_file"
+        ((count++))
+    done
+    echo "已迁移 $count 个环境脚本"
+}
+
 _pj_delete() {
     local name="$1"
 
@@ -205,6 +220,9 @@ pj() {
         -d|--delete)
             _pj_delete "${2:-}"
             ;;
+        -m|--migrate)
+            _pj_migrate
+            ;;
         -h|--help)
             cat << 'EOF'
 pj - 项目环境切换器
@@ -218,6 +236,7 @@ pj - 项目环境切换器
     pj -a <name>    添加当前目录为新环境
     pj -s           从 history 选择命令保存到 PJ_CMDS
     pj -c           执行当前环境的命令
+    pj -m           迁移旧格式环境脚本（移除 switch 函数包装）
 
 环境脚本目录: ~/.pjs/
 EOF
