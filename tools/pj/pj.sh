@@ -72,16 +72,34 @@ _pj_switch() {
 }
 
 _pj_exec() {
-    local cmd
+    local label="$1"
 
     [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && return
 
-    cmd=$(fzf --height=40% --layout=reverse --header="Select Command" < "$PJ_CMDS")
+    local cmd line
+    if [[ -n "$label" ]]; then
+        # 按标签直接执行
+        cmd=$(grep "^$label:" "$PJ_CMDS" | head -1 | cut -d: -f2-)
+        if [[ -z "$cmd" ]]; then
+            echo "错误: 未找到标签 '$label'"
+            return 1
+        fi
+    else
+        # fzf 选择，格式化显示
+        local selection
+        selection=$(awk -F: '{printf "%-15s %s\n", $1, $2}' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
+        cmd=$(echo "$selection" | awk '{$1=""; print substr($0,2)}')
+    fi
 
     if [[ -n "$cmd" ]]; then
-        # LRU: 移到最前面
-        sed -i "\|^$cmd\$|d" "$PJ_CMDS"
-        sed -i "1i $cmd" "$PJ_CMDS"
+        # LRU: 移到最前面（保留标签）
+        line=$(grep -n ":$cmd$" "$PJ_CMDS" | cut -d: -f1)
+        if [[ -n "$line" ]]; then
+            local full_line
+            full_line=$(sed -n "${line}p" "$PJ_CMDS")
+            sed -i "${line}d" "$PJ_CMDS"
+            sed -i "1i $full_line" "$PJ_CMDS"
+        fi
 
         echo "执行: $cmd"
         eval "$cmd"
@@ -142,16 +160,43 @@ _pj_edit() {
 }
 
 _pj_savecmd() {
-    local cmd
+    local label=""
+
+    # 检查是否有 -l 参数
+    if [[ "${1:-}" == "-l" && -n "${2:-}" ]]; then
+        label="$2"
+        shift 2
+    fi
 
     [[ -z "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中 (PJ_CMDS 未设置)"; return 1; }
 
+    local cmd
     cmd=$(fc -ln 1 | sed 's/^[[:space:]]*//' | fzf --height=40% --layout=reverse --header="Select Command from History")
 
     [[ -z "$cmd" ]] && return
 
-    echo "$cmd" >> "$PJ_CMDS"
-    echo "已添加命令: $cmd"
+    # 如果标签已存在，清空原标签
+    if [[ -n "$label" ]]; then
+        sed -i "s/^$label:/:/" "$PJ_CMDS"
+    fi
+
+    # 检查命令是否已存在
+    local line
+    line=$(grep -n ":$cmd$" "$PJ_CMDS" | cut -d: -f1 | head -1)
+
+    if [[ -n "$line" ]]; then
+        # 命令存在，更新标签
+        if [[ -n "$label" ]]; then
+            sed -i "${line}s/^[^:]*:/$label:/" "$PJ_CMDS"
+            echo "已更新标签: [$label] $cmd"
+        else
+            echo "命令已存在: $cmd"
+        fi
+    else
+        # 命令不存在，添加新行
+        echo "${label:-}:$cmd" >> "$PJ_CMDS"
+        [[ -n "$label" ]] && echo "已添加命令: [$label] $cmd" || echo "已添加命令: $cmd"
+    fi
 }
 
 _pj_migrate() {
@@ -216,10 +261,10 @@ pj() {
             _pj_save "${2:-}"
             ;;
         -s|--savecmd)
-            _pj_savecmd
+            _pj_savecmd "${2:-}" "${3:-}"
             ;;
         -c|--cmd)
-            _pj_exec
+            _pj_exec "${2:-}"
             ;;
         -d|--delete)
             _pj_delete "${2:-}"
@@ -238,10 +283,11 @@ pj - 项目环境切换器
     pj -e [name]    编辑环境脚本
     pj -d [name]    删除环境
     pj -a <name>    添加当前目录为新环境
-    pj -s           从 history 选择命令保存到 PJ_CMDS
-    pj -c           执行当前环境的命令
+    pj -s [-l <label>]  从 history 选择命令保存到 PJ_CMDS
+    pj -c [label]   执行命令（指定标签则直接执行，否则 fzf 选择）
     pj -m           迁移旧格式环境脚本（移除 switch 函数包装）
 
+命令格式: label:command
 环境脚本目录: ~/.pjs/
 EOF
             ;;
