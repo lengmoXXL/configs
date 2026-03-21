@@ -165,7 +165,6 @@ _pj_savecmd() {
     # 检查是否有 -l 参数
     if [[ "${1:-}" == "-l" && -n "${2:-}" ]]; then
         label="$2"
-        shift 2
     fi
 
     [[ -z "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中 (PJ_CMDS 未设置)"; return 1; }
