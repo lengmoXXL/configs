@@ -251,7 +251,7 @@ pj() {
     _pj_ensure_dirs
 
     case "${1:-}" in
-        -l|--list)
+        --list-envs)
             _pj_list
             ;;
         -e|--edit)
@@ -283,7 +283,7 @@ pj - 项目环境切换器
 用法:
     pj              fzf 交互式选择环境
     pj <name>       切换到指定环境
-    pj -l           列出所有环境
+    pj --list-envs  列出所有环境
     pj -e [name]    编辑环境脚本
     pj -d [name]    删除环境
     pj -a <name>    添加当前目录为新环境
