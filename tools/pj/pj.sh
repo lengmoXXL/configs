@@ -87,7 +87,7 @@ _pj_exec() {
     else
         # fzf 选择，格式化显示
         local selection
-        selection=$(awk -F: '{printf "%-15s %s\n", $1, $2}' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
+        selection=$(awk -F: '{label=$1; sub(/^[^:]*:/, ""); printf "%-15s %s\n", label, $0}' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
         cmd=$(echo "$selection" | awk '{$1=""; print substr($0,2)}')
     fi
 
@@ -251,7 +251,7 @@ pj() {
             ;;
         --list-cmds)
             [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中"; return 1; }
-            awk -F: '{printf "%-15s %s\n", $1, $2}' "$PJ_CMDS"
+            awk -F: '{label=$1; sub(/^[^:]*:/, ""); printf "%-15s %s\n", label, $0}' "$PJ_CMDS"
             ;;
         -h|--help)
             cat << 'EOF'
