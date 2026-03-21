@@ -79,6 +79,10 @@ _pj_exec() {
     cmd=$(fzf --height=40% --layout=reverse --header="Select Command" < "$PJ_CMDS")
 
     if [[ -n "$cmd" ]]; then
+        # LRU: 移到最前面
+        sed -i "\|^$cmd\$|d" "$PJ_CMDS"
+        sed -i "1i $cmd" "$PJ_CMDS"
+
         echo "执行: $cmd"
         eval "$cmd"
     fi
