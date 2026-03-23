@@ -12,7 +12,6 @@ trap "rm -rf $TEST_DIR" EXIT
 
 # 模拟环境
 export _PJ_DIR="$TEST_DIR/.pjs"
-export _PJ_LIB="$TEST_DIR"
 PJ_CMDS="$TEST_DIR/.pjcmds"
 
 # 复制模板文件
@@ -67,6 +66,35 @@ fi
 echo -n "8. 删除环境... "
 pj -d testproj >/dev/null
 [[ ! -f "$_PJ_DIR/testproj.env.sh" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+
+# 9. 测试环境不存在报错
+echo -n "9. 环境不存在报错... "
+if pj nonexistent 2>&1 | grep -q "环境不存在"; then
+    echo "OK"
+else
+    echo "FAIL"
+    exit 1
+fi
+
+# 10. 测试无冒号前缀命令（LRU）
+echo -n "10. 无冒号命令 LRU... "
+echo "echo plain" > "$PJ_CMDS"
+echo "test:echo test" >> "$PJ_CMDS"
+pj -c test >/dev/null
+result=$(grep -n "echo plain" "$PJ_CMDS" | cut -d: -f1)
+[[ "$result" == "2" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+
+# 11. 测试正则特殊字符命令
+echo -n "11. 正则特殊字符命令... "
+echo "spec:echo 'a.b*c[d]e'" > "$PJ_CMDS"
+pj -c spec >/dev/null
+result=$(grep -F "echo 'a.b*c[d]e'" "$PJ_CMDS")
+[[ -n "$result" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+
+# 12. 测试帮助
+echo -n "12. 帮助显示... "
+result=$(pj -h)
+[[ "$result" == *"项目环境切换器"* ]] && echo "OK" || { echo "FAIL"; exit 1; }
 
 echo ""
 echo "=== 所有测试通过 ==="
