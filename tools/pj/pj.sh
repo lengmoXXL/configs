@@ -88,7 +88,8 @@ _pj_exec() {
         # fzf 选择，格式化显示
         local selection
         selection=$(awk -F: '{label=$1; sub(/^[^:]*:/, ""); printf "%-15s %s\n", label, $0}' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
-        cmd=$(echo "$selection" | awk '{$1=""; print substr($0,2)}')
+        # 用冒号分隔，取第2个字段之后的所有内容
+        cmd=$(echo "$selection" | cut -d: -f2- | sed 's/^[[:space:]]*//')
     fi
 
     if [[ -n "$cmd" ]]; then
