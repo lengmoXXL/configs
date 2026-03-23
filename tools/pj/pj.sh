@@ -87,7 +87,14 @@ _pj_exec() {
     else
         # fzf 选择，格式化显示
         local selection
-        selection=$(awk -F: '{label=$1; sub(/^[^:]*:/, ""); printf "%-15s %s\n", label, $0}' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
+        selection=$(awk -F: '{
+            if (NF == 1) {
+                # 没有冒号，整行是命令，label 为空
+                printf "%-15s: %s\n", "", $0
+            } else {
+                label=$1; sub(/^[^:]*:/, ""); printf "%-15s: %s\n", label, $0
+            }
+        }' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
         # 用冒号分隔，取第2个字段之后的所有内容
         cmd=$(echo "$selection" | cut -d: -f2- | sed 's/^[[:space:]]*//')
     fi
