@@ -94,7 +94,9 @@ _pj_exec() {
 
     if [[ -n "$cmd" ]]; then
         # LRU: 移到最前面（保留标签）
-        line=$(grep -n ":$cmd$" "$PJ_CMDS" | cut -d: -f1)
+        local escaped_cmd
+        escaped_cmd=$(printf '%s' "$cmd" | sed 's/[[\.*^$()+?{|\\]/\\&/g')
+        line=$(grep -n ":$escaped_cmd$" "$PJ_CMDS" | cut -d: -f1)
         if [[ -n "$line" ]]; then
             local full_line
             full_line=$(sed -n "${line}p" "$PJ_CMDS")
@@ -181,8 +183,9 @@ _pj_savecmd() {
     fi
 
     # 检查命令是否已存在
-    local line
-    line=$(grep -n ":$cmd$" "$PJ_CMDS" | cut -d: -f1 | head -1)
+    local line escaped_cmd
+    escaped_cmd=$(printf '%s' "$cmd" | sed 's/[[\.*^$()+?{|\\]/\\&/g')
+    line=$(grep -n ":$escaped_cmd$" "$PJ_CMDS" | cut -d: -f1 | head -1)
 
     if [[ -n "$line" ]]; then
         # 命令存在，更新标签
