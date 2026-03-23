@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 _PJ_DIR="${HOME}/.pjs"
-_PJ_LIB="${HOME}"
 
 _pj_ensure_dirs() {
     mkdir -p "$_PJ_DIR"
@@ -15,19 +14,20 @@ _pj_list_envs() {
     done
 }
 
-_pj_get_description() {
-    local name="$1"
-    local env_file="$_PJ_DIR/${name}.env.sh"
-    [[ -f "$env_file" ]] || return
-    sed -n 's/^# Description: *//p' "$env_file" 2>/dev/null | head -1
+_pj_env_file() {
+    echo "$_PJ_DIR/${1}.env.sh"
 }
 
-_pj_get_path() {
-    local name="$1"
-    local env_file="$_PJ_DIR/${name}.env.sh"
+_pj_get_metadata() {
+    local name="$1" field="$2"
+    local env_file
+    env_file=$(_pj_env_file "$name")
     [[ -f "$env_file" ]] || return
-    sed -n 's/^# Path: *//p' "$env_file" 2>/dev/null | head -1
+    sed -n "s/^# ${field}: *//p" "$env_file" 2>/dev/null | head -1
 }
+
+_pj_get_description() { _pj_get_metadata "$1" "Description"; }
+_pj_get_path() { _pj_get_metadata "$1" "Path"; }
 
 _pj_truncate_path() {
     local path="$1"
@@ -55,7 +55,8 @@ _pj_fzf_select() {
 
 _pj_switch() {
     local name="$1"
-    local env_file="$_PJ_DIR/${name}.env.sh"
+    local env_file
+    env_file=$(_pj_env_file "$name")
 
     if [[ ! -f "$env_file" ]]; then
         echo "错误: 环境不存在: $name"
@@ -63,12 +64,15 @@ _pj_switch() {
         return 1
     fi
 
-    # 清除所有 PJ_ 开头的环境变量
     unset "${!PJ_@}"
 
     # shellcheck source=/dev/null
     source "$env_file"
     echo "已切换到环境: $name"
+}
+
+_pj_escape_regex() {
+    printf '%s' "$1" | sed 's/[[\].*^$()+?{|\\]/\\&/g'
 }
 
 _pj_exec() {
@@ -78,31 +82,26 @@ _pj_exec() {
 
     local cmd line
     if [[ -n "$label" ]]; then
-        # 按标签直接执行
         cmd=$(grep "^$label:" "$PJ_CMDS" | head -1 | cut -d: -f2-)
         if [[ -z "$cmd" ]]; then
             echo "错误: 未找到标签 '$label'"
             return 1
         fi
     else
-        # fzf 选择，格式化显示
         local selection
         selection=$(awk -F: '{
             if (NF == 1) {
-                # 没有冒号，整行是命令，label 为空
                 printf "%-15s: %s\n", "", $0
             } else {
                 label=$1; sub(/^[^:]*:/, ""); printf "%-15s: %s\n", label, $0
             }
         }' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
-        # 用冒号分隔，取第2个字段之后的所有内容
         cmd=$(echo "$selection" | cut -d: -f2- | sed 's/^[[:space:]]*//')
     fi
 
     if [[ -n "$cmd" ]]; then
-        # LRU: 移到最前面（保留标签）
         local escaped_cmd
-        escaped_cmd=$(printf '%s' "$cmd" | sed 's/[[\.*^$()+?{|\\]/\\&/g')
+        escaped_cmd=$(_pj_escape_regex "$cmd")
         line=$(grep -n ":$escaped_cmd$" "$PJ_CMDS" | cut -d: -f1)
         if [[ -n "$line" ]]; then
             local full_line
@@ -118,8 +117,7 @@ _pj_exec() {
 
 _pj_save() {
     local name="$1"
-    local env_file="$_PJ_DIR/${name}.env.sh"
-    local current_dir template
+    local env_file current_dir template
 
     if [[ -z "$name" ]]; then
         echo "错误: 请指定环境名称"
@@ -128,14 +126,14 @@ _pj_save() {
     fi
 
     current_dir="$(pwd)"
-    template="$_PJ_LIB/pj.env.sh"
+    template="${HOME}/pj.env.sh"
+    env_file=$(_pj_env_file "$name")
 
     if [[ ! -f "$template" ]]; then
         echo "错误: 模板文件不存在: $template"
         return 1
     fi
 
-    # 使用 bash 字符串替换避免 sed 特殊字符问题
     local content
     content=$(<"$template")
     content="${content//\/path\/to\/project/$current_dir}"
@@ -151,7 +149,6 @@ _pj_edit() {
     local env_file
 
     if [[ -z "$name" ]]; then
-        # 如果在环境中，编辑当前环境；否则 fzf 选择
         if [[ -n "$PJ_NAME" ]]; then
             name="$PJ_NAME"
         else
@@ -159,7 +156,7 @@ _pj_edit() {
         fi
     fi
 
-    env_file="$_PJ_DIR/${name}.env.sh"
+    env_file=$(_pj_env_file "$name")
 
     if [[ ! -f "$env_file" ]]; then
         echo "错误: 环境不存在: $name"
@@ -172,7 +169,6 @@ _pj_edit() {
 _pj_savecmd() {
     local label=""
 
-    # 检查是否有 -l 参数
     if [[ "${1:-}" == "-l" && -n "${2:-}" ]]; then
         label="$2"
     fi
@@ -184,18 +180,15 @@ _pj_savecmd() {
 
     [[ -z "$cmd" ]] && return
 
-    # 如果标签已存在，清空原标签
     if [[ -n "$label" ]]; then
         sed -i "s/^$label:/:/" "$PJ_CMDS"
     fi
 
-    # 检查命令是否已存在
     local line escaped_cmd
-    escaped_cmd=$(printf '%s' "$cmd" | sed 's/[[\.*^$()+?{|\\]/\\&/g')
+    escaped_cmd=$(_pj_escape_regex "$cmd")
     line=$(grep -n ":$escaped_cmd$" "$PJ_CMDS" | cut -d: -f1 | head -1)
 
     if [[ -n "$line" ]]; then
-        # 命令存在，更新标签
         if [[ -n "$label" ]]; then
             sed -i "${line}s/^[^:]*:/$label:/" "$PJ_CMDS"
             echo "已更新标签: [$label] $cmd"
@@ -203,7 +196,6 @@ _pj_savecmd() {
             echo "命令已存在: $cmd"
         fi
     else
-        # 命令不存在，添加新行
         echo "${label:-}:$cmd" >> "$PJ_CMDS"
         [[ -n "$label" ]] && echo "已添加命令: [$label] $cmd" || echo "已添加命令: $cmd"
     fi
@@ -211,12 +203,13 @@ _pj_savecmd() {
 
 _pj_delete() {
     local name="$1"
+    local env_file
 
     if [[ -z "$name" ]]; then
         name=$(_pj_fzf_select) || return 1
     fi
 
-    local env_file="$_PJ_DIR/${name}.env.sh"
+    env_file=$(_pj_env_file "$name")
 
     if [[ ! -f "$env_file" ]]; then
         echo "错误: 环境不存在: $name"
