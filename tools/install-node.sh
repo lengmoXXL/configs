@@ -51,8 +51,12 @@ ln -sf "$INSTALL_DIR/bin/npx" "$BIN_DIR/npx"
 # 配置 npm 淘宝镜像
 "$INSTALL_DIR/bin/npm" config set registry https://registry.npmmirror.com
 
+# 配置 npm prefix，确保全局安装的包在 ~/.local
+"$INSTALL_DIR/bin/npm" config set prefix "$HOME/.local"
+
 echo ""
 echo "Node.js 安装完成"
 echo "  node: $($INSTALL_DIR/bin/node --version)"
 echo "  npm: $($INSTALL_DIR/bin/npm --version)"
 echo "  registry: https://registry.npmmirror.com"
+echo "  npm global packages will be installed to ~/.local/bin"
