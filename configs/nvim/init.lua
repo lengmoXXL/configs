@@ -41,6 +41,7 @@ vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
 vim.lsp.enable('typos_lsp')
 vim.lsp.enable('ts_ls')
+vim.lsp.enable('bashls')
 
 -- switch source/header (clangd)
 vim.keymap.set('n', '<leader>ch', '<cmd>LspClangdSwitchSourceHeader<cr>', { desc = 'Switch source/header' })
