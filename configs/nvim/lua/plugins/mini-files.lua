@@ -1,7 +1,14 @@
 return {
   'nvim-mini/mini.files',
   version = '*',
-  opts = {},
+  opts = {
+    mappings = {
+      go_in = '<C-l>',
+      go_in_plus = 'L',
+      go_out = '<C-h>',
+      go_out_plus = 'H',
+    },
+  },
   keys = {
     {
       "<leader>e",
