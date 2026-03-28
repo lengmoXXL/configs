@@ -40,6 +40,7 @@ vim.lsp.config('clangd', {
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
+vim.lsp.enable('marksman')
 vim.lsp.enable('typos_lsp')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('bashls')
