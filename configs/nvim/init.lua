@@ -36,6 +36,17 @@ vim.lsp.config('clangd', {
     '--function-arg-placeholders=0',
     '--background-index',
   },
+  root_dir = function(bufnr, on_dir)
+    -- 虚拟 buffer (如 diffview://) 不调用 on_dir，LSP 不启动
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    if bufname:match('^diffview://') then
+      return
+    end
+    local root = vim.fs.root(bufnr, { '.clangd', '.git', 'compile_commands.json' })
+    if root then
+      on_dir(root)
+    end
+  end,
 })
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')

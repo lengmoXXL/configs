@@ -4,6 +4,7 @@
 configs/
 ├── install.sh                  # 确保 bashrc 加载 ~/.config/env.d/*.sh
 ├── configs/
+│   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
@@ -20,7 +21,6 @@ configs/
     ├── install-lua-lsp.sh      # 安装 lua-language-server
     ├── install-mytask.sh       # 安装 mytask 工具
     ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
-    ├── install-nvim.sh         # 安装 nvim 配置到 ~/.config/nvim
     ├── install-pj.sh           # 安装 pj 环境切换器
     ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
     ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
