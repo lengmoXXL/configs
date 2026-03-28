@@ -15,6 +15,7 @@ configs/
 │       └── ...
 └── tools/
     ├── install-bash-lsp.sh     # 安装 bash-language-server
+    ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp (拼音输入法)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
     ├── install-lua-lsp.sh      # 安装 lua-language-server
     ├── install-mytask.sh       # 安装 mytask 工具
