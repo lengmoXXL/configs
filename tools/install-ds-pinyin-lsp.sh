@@ -7,6 +7,7 @@ set -e
 BIN_DIR="${HOME}/.local/bin"
 DATA_DIR="${HOME}/.local/share/ds-pinyin-lsp"
 BINARY="$BIN_DIR/ds-pinyin-lsp"
+REPO_URL="https://github.com/iamcco/ds-pinyin-lsp.git"
 
 # 设置 Rust 环境
 export RUSTUP_HOME="${HOME}/.local/rust/rustup"
@@ -29,11 +30,19 @@ echo "安装 ds-pinyin-lsp"
 mkdir -p "$BIN_DIR"
 mkdir -p "$DATA_DIR"
 
-# 使用 cargo 安装
-"$CARGO_HOME/bin/cargo" install ds-pinyin-lsp
+# 克隆并构建
+TMPDIR=$(mktemp -d)
+trap "rm -rf $TMPDIR" EXIT
 
-# 创建符号链接
-ln -sf "$CARGO_HOME/bin/ds-pinyin-lsp" "$BINARY"
+echo "克隆仓库..."
+git clone "$REPO_URL" "$TMPDIR/ds-pinyin-lsp"
+
+echo "构建中..."
+cd "$TMPDIR/ds-pinyin-lsp/packages/ds-pinyin-lsp"
+"$CARGO_HOME/bin/cargo" build --release
+
+# 复制二进制文件
+cp target/release/ds-pinyin-lsp "$BINARY"
 
 # 下载字典文件
 echo "下载字典文件 dict.db3..."

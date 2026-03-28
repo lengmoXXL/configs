@@ -13,6 +13,7 @@ if [[ ! -d "$NVIM_SOURCE" ]]; then
     exit 1
 fi
 
+rm -rf "$NVIM_DEST"
 mkdir -p "$NVIM_DEST"
 cp -r "$NVIM_SOURCE"/* "$NVIM_DEST/"
 echo "nvim 配置已安装: $NVIM_DEST"
