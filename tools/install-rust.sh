@@ -45,7 +45,20 @@ ln -sf "$INSTALL_DIR/bin/cargo" "$BIN_DIR/cargo"
 ln -sf "$INSTALL_DIR/bin/rustc" "$BIN_DIR/rustc"
 ln -sf "$INSTALL_DIR/bin/rustup" "$BIN_DIR/rustup"
 
+# 配置 Rust 环境变量
+ENV_DIR="$HOME/.config/env.d"
+mkdir -p "$ENV_DIR"
+cat > "$ENV_DIR/rust.sh" << 'EOF'
+# Rust 环境配置
+export RUSTUP_HOME="$HOME/.local/rust/rustup"
+export CARGO_HOME="$HOME/.local/rust"
+export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
+export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
+EOF
+
 echo ""
 echo "Rust 安装完成"
 echo "  rustc: $($INSTALL_DIR/bin/rustc --version)"
 echo "  cargo: $($INSTALL_DIR/bin/cargo --version)"
+echo ""
+echo "请运行 'source ~/.bashrc' 使环境变量生效"
