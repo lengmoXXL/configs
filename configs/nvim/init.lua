@@ -44,6 +44,14 @@ vim.lsp.enable('typos_lsp')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('bashls')
 
+-- ds-pinyin-lsp 拼音输入法
+vim.lsp.config('ds_pinyin_lsp', {
+  init_options = {
+    db_path = vim.fn.expand('~/.local/share/ds-pinyin-lsp/dict.db3'),
+  },
+})
+vim.lsp.enable('ds_pinyin_lsp')
+
 -- switch source/header (clangd)
 vim.keymap.set('n', '<leader>ch', '<cmd>LspClangdSwitchSourceHeader<cr>', { desc = 'Switch source/header' })
 
