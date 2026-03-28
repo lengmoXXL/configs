@@ -29,6 +29,7 @@ vim.opt.fillchars:append({ diff = ' ' })
 
 -- lsp
 vim.lsp.config('clangd', {
+  filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
   cmd = {
     'clangd',
     '--header-insertion=never',
