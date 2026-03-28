@@ -4,13 +4,15 @@
 configs/
 ├── install.sh                  # 确保 bashrc 加载 ~/.config/env.d/*.sh
 ├── configs/
-│   └── nvim/                   # Neovim 配置
-│       ├── init.lua
-│       └── lua/
-│           ├── plugins/        # 插件配置
-│           │   └── ...
-│           └── themes/         # 主题配置
-│               └── ...
+│   ├── nvim/                   # Neovim 配置
+│   │   ├── init.lua
+│   │   └── lua/
+│   │       ├── plugins/        # 插件配置
+│   │       │   └── ...
+│   │       └── themes/         # 主题配置
+│   │           └── ...
+│   └── wezterm/                # WezTerm 配置
+│       └── ...
 └── tools/
     ├── install-bash-lsp.sh     # 安装 bash-language-server
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
@@ -23,6 +25,7 @@ configs/
     ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
     ├── install-typescript-lsp.sh # 安装 typescript-language-server
     ├── install-typos-lsp.sh    # 安装 typos-lsp (拼写检查)
+    ├── install-wezterm.sh      # 安装 wezterm 配置到 ~/.config/wezterm
     └── pj/                     # pj 工具源码
         └── ...
 ```
