@@ -6,7 +6,7 @@
 set -e
 
 INSTALL_DIR="${HOME}/.local/bin"
-PROXY="${GITHUB_PROXY:-https://ghproxy.com/}"
+PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 echo "Installing Marksman Markdown LSP Server..."
 

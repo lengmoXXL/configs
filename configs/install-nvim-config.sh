@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NVIM_SOURCE="$SCRIPT_DIR/../configs/nvim"
+NVIM_SOURCE="$SCRIPT_DIR/nvim"
 NVIM_DEST="$HOME/.config/nvim"
 
 if [[ ! -d "$NVIM_SOURCE" ]]; then
