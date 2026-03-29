@@ -40,13 +40,6 @@ fi
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
-# 设置代理用于 git 和 cmake 下载依赖
-if [[ -n "$PROXY" ]]; then
-    export HTTPS_PROXY="$PROXY"
-    export HTTP_PROXY="$PROXY"
-    echo "使用代理: $PROXY"
-fi
-
 echo "克隆 Neovim 源码..."
 git clone --depth 1 --branch "$VERSION" "$NVIM_REPO" "$TMPDIR/neovim"
 
