@@ -7,7 +7,7 @@ set -e
 
 INSTALL_DIR="${HOME}/.local/bin"
 PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
-VERSION="2025-12-13"
+VERSION="2024-12-18"
 
 echo "Installing Marksman ${VERSION}..."
 
