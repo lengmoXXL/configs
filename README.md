@@ -19,7 +19,8 @@ configs/
     ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp (拼音输入法)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
     ├── install-lua-lsp.sh      # 安装 lua-language-server
-    ├── install-marksman.sh     # 安装 marksman (Markdown LSP)
+    ├── install-markdown-oxide.sh # 安装 markdown-oxide (Markdown LSP)
+    ├── install-marksman.sh     # 安装 marksman (Markdown LSP, 已弃用)
     ├── install-mytask.sh       # 安装 mytask 工具
     ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
     ├── install-nvim.sh         # 从源码编译安装 Neovim
