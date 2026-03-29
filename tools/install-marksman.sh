@@ -7,8 +7,9 @@ set -e
 
 INSTALL_DIR="${HOME}/.local/bin"
 PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
+VERSION="2025-12-13"
 
-echo "Installing Marksman Markdown LSP Server..."
+echo "Installing Marksman ${VERSION}..."
 
 mkdir -p "$INSTALL_DIR"
 
@@ -19,7 +20,7 @@ case "$ARCH" in
     *)         echo "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
-DOWNLOAD_URL="${PROXY}https://github.com/artempyanykh/marksman/releases/latest/download/marksman-linux-${ARCH}"
+DOWNLOAD_URL="${PROXY}https://github.com/artempyanykh/marksman/releases/download/${VERSION}/marksman-linux-${ARCH}"
 
 echo "Downloading from $DOWNLOAD_URL"
 curl -L -o "${INSTALL_DIR}/marksman" "$DOWNLOAD_URL"
@@ -27,5 +28,5 @@ curl -L -o "${INSTALL_DIR}/marksman" "$DOWNLOAD_URL"
 chmod +x "${INSTALL_DIR}/marksman"
 
 echo ""
-echo "✓ Marksman installed to ${INSTALL_DIR}/marksman"
+echo "✓ Marksman ${VERSION} installed to ${INSTALL_DIR}/marksman"
 echo "Verify: marksman --version"
