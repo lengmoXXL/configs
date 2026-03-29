@@ -52,19 +52,8 @@ vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
 
--- marksman markdown LSP
-vim.lsp.config('marksman', {
-  settings = {
-    core = {
-      incremental_references = true,
-      text_sync = "incremental",
-    },
-    completion = {
-      candidates = 20,
-    },
-  },
-})
-vim.lsp.enable('marksman')
+-- markdown-oxide LSP (替代 marksman，性能更好)
+vim.lsp.enable('markdown_oxide')
 
 vim.lsp.enable('typos_lsp')
 vim.lsp.enable('ts_ls')
