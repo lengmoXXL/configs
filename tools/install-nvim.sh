@@ -3,12 +3,10 @@
 # 从源码编译安装 Neovim v0.11
 # https://github.com/neovim/neovim
 
-set -e
-
 INSTALL_DIR="${HOME}/.local"
+SRC_DIR="${HOME}/.local/src/neovim"
 NVIM_REPO="https://github.com/neovim/neovim.git"
 VERSION="v0.11.7"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 NVIM_BIN="${INSTALL_DIR}/bin/nvim"
 
@@ -37,13 +35,18 @@ if [[ -x "$NVIM_BIN" ]]; then
     fi
 fi
 
-TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
-
-echo "克隆 Neovim 源码..."
-git clone --depth 1 --branch "$VERSION" "$NVIM_REPO" "$TMPDIR/neovim"
-
-cd "$TMPDIR/neovim"
+# 克隆或更新源码
+if [[ -d "$SRC_DIR/.git" ]]; then
+    echo "源码目录已存在，更新中..."
+    cd "$SRC_DIR"
+    git fetch --depth 1 origin tag "$VERSION"
+    git checkout "$VERSION"
+else
+    echo "克隆 Neovim 源码..."
+    mkdir -p "$(dirname "$SRC_DIR")"
+    git clone --depth 1 --branch "$VERSION" "$NVIM_REPO" "$SRC_DIR"
+    cd "$SRC_DIR"
+fi
 
 echo "编译中..."
 make CMAKE_BUILD_TYPE=Release \
@@ -56,4 +59,5 @@ make install
 echo ""
 echo "✓ Neovim ${VERSION} 安装完成"
 echo "  binary: $NVIM_BIN"
+echo "  source: $SRC_DIR"
 $NVIM_BIN --version | head -1
