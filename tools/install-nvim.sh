@@ -16,7 +16,7 @@ echo "安装 Neovim ${VERSION} 从源码编译"
 
 # 检查依赖
 check_deps() {
-    local deps=("cmake" "gettext" "libtoolize" "unzip" "curl" "git")
+    local deps=("cmake" "gettext" "unzip" "curl" "git")
     for dep in "${deps[@]}"; do
         if ! command -v "$dep" &> /dev/null; then
             echo "错误: 缺少依赖 $dep"
