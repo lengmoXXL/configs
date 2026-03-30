@@ -8,5 +8,9 @@ return {
     indent = { enabled = true, skip_heading = true },
     sign = { enabled = false },
     heading = { icons = { '󰉫 ', '󰉬 ', '󰉭 ', '󰉮 ', '󰉯 ', '󰉰 ' } },
+    completions = {
+      blink = { enabled = true },
+      lsp = { enabled = true },
+    }
   },
 }
