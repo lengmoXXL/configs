@@ -5,7 +5,12 @@ return
   lazy = false,
   ---@type snacks.Config
   opts = {
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      sources = {
+        lsp_symbols = { filter = { yaml = true } },
+      },
+    },
     dashboard = { enabled = true },
     indent = { enabled = true, filter = function(buf) return vim.bo[buf].filetype ~= "markdown" end },
     scroll = { enabled = true },
