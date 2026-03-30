@@ -8,7 +8,7 @@ return
     picker = {
       enabled = true,
       sources = {
-        lsp_symbols = { filter = { yaml = true } },
+        lsp_symbols = { keep_parents = true, filter = { yaml = true } },
       },
     },
     dashboard = { enabled = true },
