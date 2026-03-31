@@ -8,7 +8,7 @@ set -e
 BIN_DIR="${HOME}/.local/bin"
 DATA_DIR="${HOME}/.local/share/ds-pinyin-lsp"
 BINARY="$BIN_DIR/ds-pinyin-lsp"
-REPO_URL="https://github.com/iamcco/ds-pinyin-lsp.git"
+REPO_URL="https://github.com/lengmoXXL/ds-pinyin-lsp.git"
 PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 export RUSTUP_HOME="${HOME}/.local/rust/rustup"
