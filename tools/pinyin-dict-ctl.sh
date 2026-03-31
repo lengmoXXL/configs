@@ -1,5 +1,5 @@
 #!/bin/bash
-# 添加新词到 ds-pinyin-lsp 词典
+# ds-pinyin-lsp 词典管理
 
 set -e
 
@@ -90,9 +90,70 @@ print('已添加')
     fi
 }
 
-if [[ -n "$1" ]]; then
-    add_word "$1"
+delete_word() {
+    local word="$1"
+
+    # 检查是否存在
+    exists=$(python3 -c "
+import sqlite3
+conn = sqlite3.connect('$DICT_DB')
+cursor = conn.cursor()
+cursor.execute('SELECT COUNT(*) FROM dict WHERE hanzi = ?', ('$word',))
+print(cursor.fetchone()[0])
+")
+
+    if [[ "$exists" -eq 0 ]]; then
+        echo "词不存在: $word"
+        return 1
+    fi
+
+    # 获取现有拼音
+    pinyin=$(python3 -c "
+import sqlite3
+conn = sqlite3.connect('$DICT_DB')
+cursor = conn.cursor()
+cursor.execute('SELECT pinyin FROM dict WHERE hanzi = ?', ('$word',))
+print(cursor.fetchone()[0])
+")
+
+    echo "词: $word"
+    echo "拼音: $pinyin"
+    read -p "确认删除? [y/N] " choice
+    if [[ "$choice" =~ ^[Yy]$ ]]; then
+        python3 -c "
+import sqlite3
+conn = sqlite3.connect('$DICT_DB')
+cursor = conn.cursor()
+cursor.execute('DELETE FROM dict WHERE hanzi = ?', ('$word',))
+conn.commit()
+print('已删除')
+"
+    else
+        echo "已跳过"
+    fi
+}
+
+usage() {
+    echo "用法: $0 [-d] <中文词>"
+    echo "  不带参数: 添加或更新词条"
+    echo "  -d: 删除词条"
+    echo ""
+    echo "示例:"
+    echo "  $0 羁绊    # 添加或更新"
+    echo "  $0 -d 羁绊 # 删除"
+}
+
+if [[ -z "$1" ]]; then
+    usage
+    exit 1
+fi
+
+if [[ "$1" == "-d" ]]; then
+    if [[ -z "$2" ]]; then
+        usage
+        exit 1
+    fi
+    delete_word "$2"
 else
-    echo "用法: $0 <中文词>"
-    echo "示例: $0 羁绊"
+    add_word "$1"
 fi
