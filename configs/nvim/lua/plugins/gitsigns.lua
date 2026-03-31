@@ -36,6 +36,7 @@ return {
       -- Actions
       map('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'Stage hunk' })
       map('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'Reset hunk' })
+      map('n', '<leader>hu', gitsigns.undo_stage_hunk, { desc = 'Undo stage hunk' })
 
       map('v', '<leader>hs', function()
         gitsigns.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
@@ -47,6 +48,7 @@ return {
 
       map('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'Stage buffer' })
       map('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'Reset buffer' })
+      map('n', '<leader>hU', gitsigns.reset_buffer_index, { desc = 'Unstage buffer' })
 
       map('n', '<leader>hb', function()
         gitsigns.blame_line({ full = true })
