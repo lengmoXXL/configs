@@ -47,8 +47,20 @@ print(cursor.fetchone()[0])
 ")
 
     if [[ "$exists" -gt 0 ]]; then
-        echo "词已存在，更新拼音..."
-        python3 -c "
+        # 获取现有拼音
+        old_pinyin=$(python3 -c "
+import sqlite3
+conn = sqlite3.connect('$DICT_DB')
+cursor = conn.cursor()
+cursor.execute('SELECT pinyin FROM dict WHERE hanzi = ?', ('$word',))
+print(cursor.fetchone()[0])
+")
+        echo "词已存在"
+        echo "  现有拼音: $old_pinyin"
+        echo "  新拼音:   $pinyin"
+        read -p "是否更新? [y/N] " choice
+        if [[ "$choice" =~ ^[Yy]$ ]]; then
+            python3 -c "
 import sqlite3
 conn = sqlite3.connect('$DICT_DB')
 cursor = conn.cursor()
@@ -56,6 +68,9 @@ cursor.execute('UPDATE dict SET pinyin = ? WHERE hanzi = ?', ('$pinyin', '$word'
 conn.commit()
 print('已更新')
 "
+        else
+            echo "已跳过"
+        fi
     else
         echo "添加新词..."
         python3 -c "
