@@ -58,11 +58,6 @@ return {
         gitsigns.diffthis('~')
       end, { desc = 'Diff this ~' })
 
-      map('n', '<leader>hQ', function()
-        gitsigns.setqflist('all')
-      end, { desc = 'Set qflist all' })
-      map('n', '<leader>hq', gitsigns.setqflist, { desc = 'Set qflist' })
-
       -- Toggles
       map('n', '<leader>tb', gitsigns.toggle_current_line_blame, { desc = 'Toggle blame' })
       map('n', '<leader>tw', gitsigns.toggle_word_diff, { desc = 'Toggle word diff' })
