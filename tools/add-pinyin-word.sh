@@ -21,12 +21,12 @@ add_word() {
     local word="$1"
     local pinyin
 
-    # 获取拼音（带声调）
+    # 获取拼音（不带声调，无空格）
     pinyin=$(python3 -c "
 import pypinyin
 word = '$word'
-result = pypinyin.lazy_pinyin(word, style=pypinyin.Style.TONE)
-print(' '.join(result))
+result = pypinyin.lazy_pinyin(word, style=pypinyin.Style.NORMAL)
+print(''.join(result))
 ")
 
     if [[ -z "$pinyin" ]]; then
