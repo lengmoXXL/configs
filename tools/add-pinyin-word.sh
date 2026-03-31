@@ -72,8 +72,13 @@ print('已更新')
             echo "已跳过"
         fi
     else
-        echo "添加新词..."
-        python3 -c "
+        echo "新词"
+        echo "  拼音: $pinyin"
+        read -p "是否添加? [Y/n] " choice
+        if [[ "$choice" =~ ^[Nn]$ ]]; then
+            echo "已跳过"
+        else
+            python3 -c "
 import sqlite3
 conn = sqlite3.connect('$DICT_DB')
 cursor = conn.cursor()
@@ -81,6 +86,7 @@ cursor.execute('INSERT INTO dict (pinyin, hanzi, priority) VALUES (?, ?, 0)', ('
 conn.commit()
 print('已添加')
 "
+        fi
     fi
 }
 
