@@ -47,8 +47,6 @@ return {
 
       map('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'Stage buffer' })
       map('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'Reset buffer' })
-      map('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'Preview hunk' })
-      map('n', '<leader>hi', gitsigns.preview_hunk_inline, { desc = 'Preview hunk inline' })
 
       map('n', '<leader>hb', function()
         gitsigns.blame_line({ full = true })

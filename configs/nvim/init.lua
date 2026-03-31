@@ -25,6 +25,7 @@ require('lazy').setup({
 
 -- theme
 vim.cmd.colorscheme("kanagawa-dragon")
+
 vim.opt.fillchars:append({ diff = ' ' })
 
 -- lsp
