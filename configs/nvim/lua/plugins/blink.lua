@@ -5,9 +5,7 @@ return {
   opts = {
     signature = { enabled = true },
     keymap = {
-      preset = 'default',
-      ['<Tab>'] = { 'select_next', 'fallback' },
-      ['<S-Tab>'] = { 'select_prev', 'fallback' },
+      preset = 'super-tab',
     },
     appearance = {
       use_nvim_cmp_as_default = true,
