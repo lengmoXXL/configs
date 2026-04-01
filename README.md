@@ -17,7 +17,7 @@ configs/
 └── tools/
     ├── install-bash-lsp.sh     # 安装 bash-language-server
     ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp (拼音输入法)
-    ├── install-fonts.sh        # 安装 Nerd Fonts 字体
+    ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
     ├── install-lua-lsp.sh      # 安装 lua-language-server
     ├── install-markdown-oxide.sh # 安装 markdown-oxide (Markdown LSP)
