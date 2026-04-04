@@ -56,6 +56,52 @@ print(''.join(result))
 
     echo "词: $word"
     echo "拼音: $pinyin"
+    echo ""
+
+    # 显示同拼音的所有候选词及建议权重
+    python3 -c "
+import sqlite3
+conn = sqlite3.connect('$DICT_DB')
+cursor = conn.cursor()
+cursor.execute(
+    'SELECT hanzi, priority FROM dict WHERE pinyin = ? ORDER BY priority DESC, hanzi ASC LIMIT 10',
+    ('$pinyin',)
+)
+rows = cursor.fetchall()
+if not rows:
+    print('同拼音候选词: (无)')
+    print()
+    print('建议权重: 10000 (排首位)')
+else:
+    print('同拼音候选词 (按权重降序):')
+    max_pri = rows[0][1]
+    second_pri = rows[1][1] if len(rows) > 1 else 0
+    target_rank = None
+    target_priority = None
+    for idx, (hanzi, priority) in enumerate(rows, 1):
+        marker = ''
+        if hanzi == '$word':
+            marker = ' *'
+            target_rank = idx
+            target_priority = priority
+        print(f'  {idx}. {hanzi}\tpriority={priority}{marker}')
+    print()
+    if '$word' in [r[0] for r in rows]:
+        print(f'当前词 \"$word\" 排第 {target_rank} 位，权重 {target_priority}')
+        if target_rank == 1:
+            print('已是首位，无需调整')
+        else:
+            suggest = max_pri + 1000
+            print(f'想排首位: 建议 {suggest} (当前首位 {max_pri})')
+    else:
+        print('建议权重:')
+        if max_pri < 10000:
+            print(f'  想排首位: {max_pri + 1000}')
+        else:
+            print(f'  想排首位: {max_pri + 1000}')
+        if second_pri > 0:
+            print(f'  想排第二: {(max_pri + second_pri) // 2}')
+"
 
     # 检查是否已存在
     exists=$(python3 -c "
@@ -67,34 +113,79 @@ print(cursor.fetchone()[0])
 ")
 
     if [[ "$exists" -gt 0 ]]; then
-        # 获取现有拼音
-        old_pinyin=$(python3 -c "
+        # 获取当前信息
+        current_info=$(python3 -c "
 import sqlite3
 conn = sqlite3.connect('$DICT_DB')
 cursor = conn.cursor()
-cursor.execute('SELECT pinyin FROM dict WHERE hanzi = ?', ('$word',))
-print(cursor.fetchone()[0])
+cursor.execute('SELECT pinyin, priority FROM dict WHERE hanzi = ?', ('$word',))
+pinyin, priority = cursor.fetchone()
+print(f'{pinyin}|{priority}')
 ")
-        echo "词已存在"
-        echo "  现有拼音: $old_pinyin"
-        echo "  新拼音:   $pinyin"
-        read -p "是否更新? [y/N] " choice
-        if [[ "$choice" =~ ^[Yy]$ ]]; then
-            python3 -c "
+        current_pinyin="${current_info%%|*}"
+        current_priority="${current_info##*|}"
+
+        echo ""
+        echo "当前: pinyin=$current_pinyin, priority=$current_priority"
+
+        update_pinyin=""
+        update_priority=""
+
+        # 问是否更新拼音
+        if [[ "$current_pinyin" != "$pinyin" ]]; then
+            echo "新拼音: $pinyin"
+            read -p "更新拼音? [y/N] " choice
+            if [[ "$choice" =~ ^[Yy]$ ]]; then
+                update_pinyin="$pinyin"
+            fi
+        fi
+
+        # 问是否更新权重
+        read -p "更新权重? (输入新权重或直接回车跳过) " new_priority
+        if [[ -n "$new_priority" ]]; then
+            if [[ "$new_priority" =~ ^-?[0-9]+$ ]]; then
+                update_priority="$new_priority"
+            else
+                echo "权重必须是整数，跳过权重更新"
+            fi
+        fi
+
+        # 确认更改
+        if [[ -n "$update_pinyin" || -n "$update_priority" ]]; then
+            echo ""
+            echo "即将更新 '$word':"
+            [[ -n "$update_pinyin" ]] && echo "  pinyin: $current_pinyin → $update_pinyin"
+            [[ -n "$update_priority" ]] && echo "  priority: $current_priority → $update_priority"
+            read -p "确认? [y/N] " choice
+            if [[ "$choice" =~ ^[Yy]$ ]]; then
+                python3 -c "
 import sqlite3
 conn = sqlite3.connect('$DICT_DB')
 cursor = conn.cursor()
-cursor.execute('UPDATE dict SET pinyin = ? WHERE hanzi = ?', ('$pinyin', '$word'))
+if '$update_pinyin':
+    cursor.execute('UPDATE dict SET pinyin = ? WHERE hanzi = ?', ('$update_pinyin', '$word'))
+if '$update_priority':
+    cursor.execute('UPDATE dict SET priority = ? WHERE hanzi = ?', ($update_priority, '$word'))
 conn.commit()
 print('已更新')
 "
+            else
+                echo "已取消"
+            fi
         else
-            echo "已跳过"
+            echo "无更改"
         fi
     else
-        echo "新词"
-        echo "  拼音: $pinyin"
-        read -p "是否添加? [Y/n] " choice
+        echo ""
+        read -p "添加新词，输入权重 (直接回车使用默认 0): " priority
+        if [[ -z "$priority" ]]; then
+            priority=0
+        elif ! [[ "$priority" =~ ^-?[0-9]+$ ]]; then
+            echo "权重必须是整数，使用默认值 0"
+            priority=0
+        fi
+
+        read -p "确认添加 '$word' (权重=$priority)? [Y/n] " choice
         if [[ "$choice" =~ ^[Nn]$ ]]; then
             echo "已跳过"
         else
@@ -102,9 +193,9 @@ print('已更新')
 import sqlite3
 conn = sqlite3.connect('$DICT_DB')
 cursor = conn.cursor()
-cursor.execute('INSERT INTO dict (pinyin, hanzi, priority) VALUES (?, ?, 0)', ('$pinyin', '$word'))
+cursor.execute('INSERT INTO dict (pinyin, hanzi, priority) VALUES (?, ?, ?)', ('$pinyin', '$word', $priority))
 conn.commit()
-print('已添加')
+print(f'已添加: $word ($pinyin) priority=$priority')
 "
         fi
     fi
