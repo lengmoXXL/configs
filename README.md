@@ -16,7 +16,7 @@ configs/
 │       └── ...
 └── tools/
     ├── install-bash-lsp.sh     # 安装 bash-language-server
-    ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp (拼音输入法)
+    ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp 二进制
     ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
     ├── install-lua-lsp.sh      # 安装 lua-language-server
@@ -30,7 +30,7 @@ configs/
     ├── install-typescript-lsp.sh # 安装 typescript-language-server
     ├── install-typos-lsp.sh    # 安装 typos-lsp (拼写检查)
     ├── install-wezterm.sh      # 安装 wezterm 配置到 ~/.config/wezterm
-    ├── pinyin-dict-ctl.sh      # 拼音词典管理
+    ├── pinyin-dict-ctl.sh      # 拼音词典管理与词典安装
     └── pj/                     # pj 工具源码
         └── ...
 ```

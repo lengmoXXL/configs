@@ -6,10 +6,8 @@
 set -e
 
 BIN_DIR="${HOME}/.local/bin"
-DATA_DIR="${HOME}/.local/share/ds-pinyin-lsp"
 BINARY="$BIN_DIR/ds-pinyin-lsp"
 REPO_URL="https://github.com/lengmoXXL/ds-pinyin-lsp.git"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 export RUSTUP_HOME="${HOME}/.local/rust/rustup"
 export CARGO_HOME="${HOME}/.local/rust"
@@ -27,7 +25,6 @@ fi
 echo "安装 ds-pinyin-lsp"
 
 mkdir -p "$BIN_DIR"
-mkdir -p "$DATA_DIR"
 
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
@@ -41,13 +38,7 @@ cd "$TMPDIR/ds-pinyin-lsp/packages/ds-pinyin-lsp"
 
 cp target/release/ds-pinyin-lsp "$BINARY"
 
-echo "下载字典文件 dict.db3..."
-DICT_URL="${PROXY}https://github.com/iamcco/ds-pinyin-lsp/releases/download/v0.4.0/dict.db3.zip"
-curl -fL "$DICT_URL" -o /tmp/dict.db3.zip
-unzip -o /tmp/dict.db3.zip -d "$DATA_DIR/"
-rm /tmp/dict.db3.zip
-
 echo ""
 echo "ds-pinyin-lsp 安装完成"
 echo "  binary: $BINARY"
-echo "  dict: $DATA_DIR/dict.db3"
+echo "  dict: 请使用 pinyin-dict-ctl.sh 初始化词典"
