@@ -1,3 +1,5 @@
+local markdown_utils = require("utils.markdown")
+
 return
 {
   "folke/snacks.nvim",
@@ -49,7 +51,16 @@ return
     { "<leader>sr", function() Snacks.picker.resume() end, desc = "Resume" },
     { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
     -- LSP
-    { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
+    {
+      "gd",
+      function()
+        if vim.bo.filetype == "markdown" and markdown_utils.open_or_create_wiki_link() then
+          return
+        end
+        Snacks.picker.lsp_definitions()
+      end,
+      desc = "Goto Definition",
+    },
     { "<leader>gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
     { "<leader>gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
     { "<leader>gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
