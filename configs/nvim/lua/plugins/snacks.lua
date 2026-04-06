@@ -9,6 +9,10 @@ return
   opts = {
     picker = {
       enabled = true,
+      layout = {
+        preset = "bottom",
+        hidden = { "preview" },
+      },
       sources = {
         lsp_symbols = { keep_parents = true, filter = { yaml = true } },
       },
