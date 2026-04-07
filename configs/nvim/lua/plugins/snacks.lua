@@ -1,5 +1,3 @@
-local markdown_utils = require("utils.markdown")
-
 return
 {
   "folke/snacks.nvim",
@@ -58,9 +56,6 @@ return
     {
       "gd",
       function()
-        if vim.bo.filetype == "markdown" and markdown_utils.open_or_create_wiki_link() then
-          return
-        end
         Snacks.picker.lsp_definitions()
       end,
       desc = "Goto Definition",
