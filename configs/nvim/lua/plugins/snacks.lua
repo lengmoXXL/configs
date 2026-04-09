@@ -18,6 +18,13 @@ return
     dashboard = { enabled = true },
     indent = { enabled = true, filter = function(buf) return vim.bo[buf].filetype ~= "markdown" end },
     scroll = { enabled = true },
+    terminal = {
+      shell = vim.fn.exepath("bash") ~= "" and vim.fn.exepath("bash") or vim.o.shell,
+      win = {
+        position = "bottom",
+        height = 0.3,
+      },
+    },
     words = { enabled = true },
   },
   keys = {
@@ -52,6 +59,22 @@ return
     { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Keymaps" },
     { "<leader>sr", function() Snacks.picker.resume() end, desc = "Resume" },
     { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
+    -- terminal
+    { "<C-/>", function() Snacks.terminal() end, mode = { "n", "t" }, desc = "Terminal" },
+    { "<C-_>", function() Snacks.terminal() end, mode = { "n", "t" }, desc = "which_key_ignore" },
+    { "<leader>tt", function() Snacks.terminal() end, mode = { "n", "t" }, desc = "Terminal (bottom)" },
+    { "<leader>tf", function() Snacks.terminal(nil, { win = { position = "float" } }) end, desc = "Terminal (float)" },
+    {
+      "<leader>t.",
+      function()
+        local cwd = vim.fn.expand("%:p:h")
+        if cwd == "" then
+          cwd = vim.fn.getcwd()
+        end
+        Snacks.terminal(nil, { cwd = cwd, win = { position = "float" } })
+      end,
+      desc = "Terminal (file dir)",
+    },
     -- LSP
     {
       "gd",
