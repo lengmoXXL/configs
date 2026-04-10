@@ -15,7 +15,7 @@ return
         lsp_symbols = { keep_parents = true, filter = { yaml = true } },
       },
     },
-    dashboard = { enabled = true },
+    dashboard = { enabled = false },
     indent = { enabled = true, filter = function(buf) return vim.bo[buf].filetype ~= "markdown" end },
     scroll = { enabled = true },
     words = { enabled = true },
