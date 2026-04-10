@@ -24,7 +24,7 @@ require('lazy').setup({
 })
 
 -- theme
-vim.cmd.colorscheme("kanagawa-dragon")
+vim.cmd.colorscheme("vscode")
 
 vim.opt.fillchars:append({ diff = ' ' })
 
@@ -116,4 +116,3 @@ vim.keymap.set('v', '<leader>yl', function()
   end
   vim.fn.setreg('+', location)
 end, { desc = 'Yank file location' })
-
