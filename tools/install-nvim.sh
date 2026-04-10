@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# 从源码编译安装 Neovim v0.12
+# 从源码编译安装 Neovim v0.12.1
 # https://github.com/neovim/neovim
 
 INSTALL_DIR="${HOME}/.local"
 SRC_DIR="${HOME}/.local/src/neovim"
 NVIM_REPO="https://github.com/neovim/neovim.git"
-VERSION="v0.12.0"
+VERSION="v0.12.1"
 
 NVIM_BIN="${INSTALL_DIR}/bin/nvim"
 
