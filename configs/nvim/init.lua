@@ -59,6 +59,7 @@ vim.lsp.enable('markdown_oxide')
 vim.lsp.enable('typos_lsp')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('bashls')
+vim.lsp.enable('lua_ls')
 
 -- ds-pinyin-lsp 拼音输入法
 -- 默认在 markdown/org 自动启动，其他文件可通过 :PinyinLspToggle 手动启动
