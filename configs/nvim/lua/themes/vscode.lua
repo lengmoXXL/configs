@@ -1,5 +1,5 @@
 return {
-  "Mofiqul/vscode.nvim",
+  "lengmoXXL/vscode.nvim",
   lazy = true,
   priority = 1000,
 }
