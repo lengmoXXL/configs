@@ -75,15 +75,17 @@ vim.api.nvim_create_user_command('PinyinLspToggle', function()
   local clients = vim.lsp.get_clients({ name = 'ds_pinyin_lsp', bufnr = 0 })
   if #clients > 0 then
     for _, client in ipairs(clients) do
-      vim.lsp.stop_client(client.id)
+      client:stop()
     end
     print('ds-pinyin-lsp stopped')
   else
     -- 获取内置配置并移除 filetype 限制
     local config = vim.lsp.config['ds_pinyin_lsp']
-    config.filetypes = nil
-    vim.lsp.start(config)
-    print('ds-pinyin-lsp started')
+    if config then
+      config.filetypes = nil
+      vim.lsp.start(config)
+      print('ds-pinyin-lsp started')
+    end
   end
 end, { desc = 'Toggle ds-pinyin-lsp for current buffer' })
 
