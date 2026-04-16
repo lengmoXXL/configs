@@ -29,6 +29,24 @@ vim.cmd.colorscheme("vscode")
 vim.opt.fillchars:append({ diff = ' ' })
 
 -- lsp
+-- Diffview uses virtual buffers. Do not start or attach any LSP client there.
+if not vim.lsp._start_without_diffview_guard then
+  vim.lsp._start_without_diffview_guard = vim.lsp.start
+  vim.lsp.start = function(config, opts)
+    local bufnr = opts and opts.bufnr or vim.api.nvim_get_current_buf()
+    if bufnr == 0 then
+      bufnr = vim.api.nvim_get_current_buf()
+    end
+
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    if bufname:match('^diffview://') then
+      return
+    end
+
+    return vim.lsp._start_without_diffview_guard(config, opts)
+  end
+end
+
 vim.lsp.config('clangd', {
   filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
   cmd = {
@@ -37,17 +55,6 @@ vim.lsp.config('clangd', {
     '--function-arg-placeholders=0',
     '--background-index',
   },
-  root_dir = function(bufnr, on_dir)
-    -- 虚拟 buffer (如 diffview://) 不调用 on_dir，LSP 不启动
-    local bufname = vim.api.nvim_buf_get_name(bufnr)
-    if bufname:match('^diffview://') then
-      return
-    end
-    local root = vim.fs.root(bufnr, { '.clangd', '.git', 'compile_commands.json' })
-    if root then
-      on_dir(root)
-    end
-  end,
 })
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
