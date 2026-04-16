@@ -17,21 +17,21 @@ return {
       end
 
       -- Navigation
-      map('n', ']c', function()
-        if vim.wo.diff then
-          vim.cmd.normal({ ']c', bang = true })
-        else
-          gitsigns.nav_hunk('next')
+      local function nav_hunk(direction, target)
+        return function()
+          if vim.wo.diff then
+            local key = direction == 'next' and ']c' or '[c'
+            vim.cmd.normal({ key, bang = true })
+          else
+            gitsigns.nav_hunk(direction, { target = target })
+          end
         end
-      end)
+      end
 
-      map('n', '[c', function()
-        if vim.wo.diff then
-          vim.cmd.normal({ '[c', bang = true })
-        else
-          gitsigns.nav_hunk('prev')
-        end
-      end)
+      map('n', ']c', nav_hunk('next', 'unstaged'), { desc = 'Next hunk' })
+      map('n', '[c', nav_hunk('prev', 'unstaged'), { desc = 'Previous hunk' })
+      map('n', ']s', nav_hunk('next', 'staged'), { desc = 'Next staged hunk' })
+      map('n', '[s', nav_hunk('prev', 'staged'), { desc = 'Previous staged hunk' })
 
       -- Actions
       map('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'Stage hunk' })
