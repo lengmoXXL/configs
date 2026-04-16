@@ -1,3 +1,48 @@
+local last_terminal_count = 1
+
+local function hide_visible_terminals()
+  local hidden = false
+  for _, terminal in ipairs(Snacks.terminal.list()) do
+    if terminal:valid() then
+      terminal:hide()
+      hidden = true
+    end
+  end
+  return hidden
+end
+
+local function open_terminal(count)
+  last_terminal_count = count
+
+  Snacks.terminal(nil, {
+    count = count,
+    win = {
+      position = "float",
+      width = 0.99,
+      height = 0.65,
+      row = 0.30,
+      border = "single",
+      title_pos = "left",
+      title = " Terminal " .. count .. " ",
+    },
+  })
+end
+
+local function toggle_recent_terminal()
+  return function()
+    if not hide_visible_terminals() then
+      open_terminal(last_terminal_count)
+    end
+  end
+end
+
+local function switch_terminal(count)
+  return function()
+    hide_visible_terminals()
+    open_terminal(count)
+  end
+end
+
 return
 {
   "folke/snacks.nvim",
@@ -18,6 +63,17 @@ return
     dashboard = { enabled = false },
     indent = { enabled = true, filter = function(buf) return vim.bo[buf].filetype ~= "markdown" end },
     scroll = { enabled = true },
+    terminal = {
+      win = {
+        position = "float",
+        width = 0.8,
+        height = 0.7,
+        row = 0.55,
+        border = "single",
+        title_pos = "left",
+        title = " Terminal ",
+      },
+    },
     words = { enabled = true },
   },
   keys = {
@@ -27,6 +83,13 @@ return
     { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
+    { "<C-t>t", toggle_recent_terminal(), desc = "Toggle Recent Terminal", mode = { "n", "t" } },
+    { "<C-t>1", switch_terminal(1), desc = "Switch to Terminal 1", mode = { "n", "t" } },
+    { "<C-t>2", switch_terminal(2), desc = "Switch to Terminal 2", mode = { "n", "t" } },
+    { "<C-t>3", switch_terminal(3), desc = "Switch to Terminal 3", mode = { "n", "t" } },
+    { "<C-t>4", switch_terminal(4), desc = "Switch to Terminal 4", mode = { "n", "t" } },
+    { "<C-t>5", switch_terminal(5), desc = "Switch to Terminal 5", mode = { "n", "t" } },
+    { "<C-t>6", switch_terminal(6), desc = "Switch to Terminal 6", mode = { "n", "t" } },
     { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
     { "<leader>f.", function() Snacks.picker.files({ cwd = vim.fn.expand('%:p:h'), hidden = true }) end, desc = "Find Files (current file dir)" },
     { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
