@@ -5,6 +5,11 @@ return {
     bullet = {
       icons = { '•', '◦' },
     },
+    checkbox = {
+      checked = {
+        icon = '󰄲 ',
+      }
+    },
     indent = { enabled = true, skip_heading = true },
     sign = { enabled = false },
     heading = { icons = { '󰉫 ', '󰉬 ', '󰉭 ', '󰉮 ', '󰉯 ', '󰉰 ' } },
