@@ -61,3 +61,22 @@ echo "✓ Neovim ${VERSION} 安装完成"
 echo "  binary: $NVIM_BIN"
 echo "  source: $SRC_DIR"
 $NVIM_BIN --version | head -1
+
+# 创建或更新 alias 配置
+ENV_DIR="${HOME}/.config/env.d"
+ALIAS_FILE="${ENV_DIR}/alias.sh"
+
+mkdir -p "$ENV_DIR"
+
+if [[ -f "$ALIAS_FILE" ]]; then
+    if grep -q '^alias v=' "$ALIAS_FILE"; then
+        sed -i 's|^alias v=.*|alias v="nvim"|' "$ALIAS_FILE"
+    else
+        echo 'alias v="nvim"' >> "$ALIAS_FILE"
+    fi
+else
+    echo 'alias v="nvim"' > "$ALIAS_FILE"
+fi
+
+echo ""
+echo "✓ 已配置 alias v='nvim' 在 $ALIAS_FILE"
