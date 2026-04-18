@@ -3,10 +3,20 @@
 
 set -e
 
+PYTHON_DIR="${HOME}/.local/python3.11"
 DATA_DIR="$HOME/.local/share/ds-pinyin-lsp"
 DICT_DB="$HOME/.local/share/ds-pinyin-lsp/dict.db3"
 PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 DICT_URL="${PROXY}https://github.com/iamcco/ds-pinyin-lsp/releases/download/v0.4.0/dict.db3.zip"
+
+# 检查 Python 环境
+if [[ ! -x "$PYTHON_DIR/bin/python3" ]]; then
+    echo "错误: Python 3.11 未安装，请先运行 install-python.sh"
+    exit 1
+fi
+
+# 使用本地 Python 环境
+export PATH="$PYTHON_DIR/bin:$PATH"
 
 ensure_dict_db() {
     if [[ -f "$DICT_DB" ]]; then
@@ -32,9 +42,9 @@ ensure_dict_db() {
 }
 
 # 检查 pypinyin
-if ! python3 -c "import pypinyin" 2>/dev/null; then
+if ! "$PYTHON_DIR/bin/python3" -c "import pypinyin" 2>/dev/null; then
     echo "安装 pypinyin..."
-    pip3 install pypinyin --quiet
+    "$PYTHON_DIR/bin/pip3" install pypinyin --quiet
 fi
 
 add_word() {
