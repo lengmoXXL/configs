@@ -2,6 +2,10 @@
 
 # 从源码编译安装 Neovim v0.12.1
 # https://github.com/neovim/neovim
+# 可重入：已安装时跳过
+# 剪贴板使用 OSC 52 终端协议，无需额外安装 xclip
+
+set -e
 
 INSTALL_DIR="${HOME}/.local"
 SRC_DIR="${HOME}/.local/src/neovim"
@@ -27,12 +31,8 @@ check_deps
 
 # 如果已安装则跳过
 if [[ -x "$NVIM_BIN" ]]; then
-    echo "Neovim 已安装: $NVIM_BIN"
-    $NVIM_BIN --version | head -1
-    read -p "是否重新安装? (y/N): " confirm
-    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-        exit 0
-    fi
+    echo "Neovim 已安装: $($NVIM_BIN --version | head -1)"
+    exit 0
 fi
 
 # 克隆或更新源码
@@ -57,9 +57,9 @@ echo "安装中..."
 make install
 
 echo ""
-echo "✓ Neovim ${VERSION} 安装完成"
+echo "Neovim ${VERSION} 安装完成"
 echo "  binary: $NVIM_BIN"
-echo "  source: $SRC_DIR"
+echo "  clipboard: OSC 52 (终端协议，无需额外工具)"
 $NVIM_BIN --version | head -1
 
 # 创建或更新 alias 配置
@@ -79,4 +79,4 @@ else
 fi
 
 echo ""
-echo "✓ 已配置 alias v='nvim' 在 $ALIAS_FILE"
+echo "已配置 alias v='nvim' 在 $ALIAS_FILE"
