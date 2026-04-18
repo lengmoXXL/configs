@@ -111,19 +111,6 @@ vim.diagnostic.config({
   },
 })
 
--- clipboard: OSC 52 for SSH/terminal without X11
-vim.g.clipboard = {
-  name = 'OSC 52',
-  copy = {
-    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-  },
-  paste = {
-    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-  },
-}
-
 -- system clipboard
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 vim.keymap.set('n', '<leader>yy', '"+yy', { desc = 'Yank line to clipboard' })
