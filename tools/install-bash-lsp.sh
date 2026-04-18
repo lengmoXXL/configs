@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-NPM="$HOME/.local/bin/npm"
+BIN_DIR="$HOME/.local/bin"
+NPM="$BIN_DIR/npm"
+BINARY="$BIN_DIR/bash-language-server"
 
 if [[ ! -x "$NPM" ]]; then
     echo "错误: npm 未安装在 $NPM"
@@ -9,7 +11,13 @@ if [[ ! -x "$NPM" ]]; then
     exit 1
 fi
 
+# 检查是否已安装
+if [[ -x "$BINARY" ]]; then
+    echo "bash-language-server 已安装"
+    exit 0
+fi
+
 echo "==> Installing bash-language-server..."
 "$NPM" install -g bash-language-server
 
-echo "==> Done! bash-language-server installed to ~/.local/bin"
+echo "==> Done! bash-language-server installed to $BIN_DIR"

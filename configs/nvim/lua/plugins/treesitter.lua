@@ -5,5 +5,14 @@ return {
   opts = {
     highlight = { enable = true },
     indent = { enable = true },
+    ensure_installed = {
+      'c',
+      'cpp',
+      'go',
+      'lua',
+      'markdown',
+      'python',
+      'regex',
+    },
   },
 }

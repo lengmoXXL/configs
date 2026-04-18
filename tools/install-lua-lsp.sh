@@ -15,7 +15,8 @@ if [[ -x "$BINARY" ]]; then
     exit 0
 fi
 
-API_URL="${PROXY}https://api.github.com/repos/LuaLS/lua-language-server/releases/latest"
+# API 请求不走代理
+API_URL="https://api.github.com/repos/LuaLS/lua-language-server/releases/latest"
 VERSION=$(curl -s "$API_URL" | grep -oP '"tag_name": "\K[^"]+')
 
 echo "安装 lua-language-server $VERSION"

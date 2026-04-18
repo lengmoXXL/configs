@@ -8,6 +8,7 @@ SHARE_DIR="${HOME}/.local/share"
 FZF_DIR="${SHARE_DIR}/fzf"
 FZF_REPO="https://github.com/junegunn/fzf.git"
 RIPGREP_API="https://api.github.com/repos/BurntSushi/ripgrep/releases/latest"
+FD_API="https://api.github.com/repos/sharkdp/fd/releases/latest"
 CMAKE_API="https://api.github.com/repos/Kitware/CMake/releases/latest"
 CMAKE_DIR="${HOME}/.local/cmake"
 ENV_DIR="${HOME}/.config/env.d"
@@ -158,9 +159,59 @@ install_cmake() {
     "$BIN_DIR/cmake" --version | head -1
 }
 
+install_fd() {
+    local version arch target url tmp_dir tarball fd_bin existing_fd
+
+    existing_fd="$(command -v fd 2>/dev/null || true)"
+    if [[ -z "$existing_fd" && -x "$BIN_DIR/fd" ]]; then
+        existing_fd="$BIN_DIR/fd"
+    fi
+
+    if [[ -n "$existing_fd" ]]; then
+        echo "fd 已安装: $existing_fd"
+        "$existing_fd" --version | head -1
+        return
+    fi
+
+    version=$(curl -fsSL "$FD_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
+    if [[ -z "$version" ]]; then
+        echo "错误: 无法获取 fd 最新版本"
+        exit 1
+    fi
+
+    arch=$(uname -m)
+    case "$arch" in
+        x86_64) target="x86_64-unknown-linux-musl" ;;
+        aarch64 | arm64) target="aarch64-unknown-linux-gnu" ;;
+        *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+    esac
+
+    url="https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz"
+    tmp_dir=$(mktemp -d)
+    tarball="${tmp_dir}/fd.tar.gz"
+
+    echo "下载 fd ${version}..."
+    curl -fL "$url" -o "$tarball"
+    tar -xzf "$tarball" -C "$tmp_dir"
+
+    fd_bin=$(find "$tmp_dir" -type f -name fd | head -1)
+    if [[ -z "$fd_bin" ]]; then
+        echo "错误: fd 压缩包中没有找到 fd"
+        rm -rf "$tmp_dir"
+        exit 1
+    fi
+
+    install -m 755 "$fd_bin" "$BIN_DIR/fd"
+    rm -rf "$tmp_dir"
+
+    echo "fd 安装完成: $BIN_DIR/fd"
+    "$BIN_DIR/fd" --version | head -1
+}
+
 check_deps
 install_fzf
 install_rg
+install_fd
 install_cmake
 
 echo ""
