@@ -74,6 +74,7 @@ return
         title = " Terminal ",
       },
     },
+    image = { enabled = true },
     words = { enabled = true },
   },
   keys = {
