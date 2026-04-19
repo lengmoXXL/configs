@@ -11,7 +11,7 @@ DICT_URL="${PROXY}https://github.com/iamcco/ds-pinyin-lsp/releases/download/v0.4
 
 # 检查 Python 环境
 if [[ ! -x "$PYTHON_DIR/bin/python3" ]]; then
-    echo "错误: Python 3.11 未安装，请先运行 install-python.sh"
+    echo "错误: Python 3.11 未安装，请先运行 ../sys/install-python.sh"
     exit 1
 fi
 

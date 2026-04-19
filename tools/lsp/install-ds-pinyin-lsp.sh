@@ -13,7 +13,7 @@ export RUSTUP_HOME="${HOME}/.local/rust/rustup"
 export CARGO_HOME="${HOME}/.local/rust"
 
 if [[ ! -x "$CARGO_HOME/bin/cargo" ]]; then
-    echo "错误: Rust 未安装，请先运行 install-rust.sh"
+    echo "错误: Rust 未安装，请先运行 ../install-rust.sh"
     exit 1
 fi
 
@@ -41,4 +41,4 @@ cp target/release/ds-pinyin-lsp "$BINARY"
 echo ""
 echo "ds-pinyin-lsp 安装完成"
 echo "  binary: $BINARY"
-echo "  dict: 请使用 pinyin-dict-ctl.sh 初始化词典"
+echo "  dict: 请使用 tools/lsp/pinyin-dict-ctl.sh 初始化词典"

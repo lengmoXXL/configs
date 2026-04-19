@@ -54,7 +54,7 @@ else
     export CARGO_HOME="$RUST_DIR"
 
     if [[ ! -x "$RUST_DIR/bin/cargo" ]]; then
-        echo "错误: Rust 未安装，请先运行 install-rust.sh 或使用 --binary 模式"
+        echo "错误: Rust 未安装，请先运行 ../install-rust.sh 或使用 --binary 模式"
         exit 1
     fi
 

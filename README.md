@@ -16,21 +16,25 @@ configs/
 │   └── wezterm/                # WezTerm 配置
 │       └── ...
 └── tools/
-    ├── install-bash-lsp.sh     # 安装 bash-language-server
-    ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp 二进制
     ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
-    ├── install-lua-lsp.sh      # 安装 lua-language-server
-    ├── install-markdown-oxide.sh # 安装 markdown-oxide (Markdown LSP)
     ├── install-mytask.sh       # 安装 mytask 工具
     ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
     ├── install-nvim.sh         # 从源码编译安装 Neovim
     ├── install-pj.sh           # 安装 pj 环境切换器
     ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
     ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
-    ├── install-typescript-lsp.sh # 安装 typescript-language-server
-    ├── install-typos-lsp.sh    # 安装 typos-lsp (拼写检查)
-    ├── pinyin-dict-ctl.sh      # 拼音词典管理与词典安装
-    └── pj/                     # pj 工具源码
-        └── ...
+    ├── lsp/                    # LSP 相关安装脚本
+    │   ├── install-bash-lsp.sh # 安装 bash-language-server
+    │   ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp 二进制
+    │   ├── install-lua-lsp.sh  # 安装 lua-language-server
+    │   ├── install-markdown-oxide.sh # 安装 markdown-oxide (Markdown LSP)
+    │   ├── install-typescript-lsp.sh # 安装 typescript-language-server
+    │   ├── install-typos-lsp.sh # 安装 typos-lsp (拼写检查)
+    │   └── pinyin-dict-ctl.sh  # 拼音词典管理与词典安装
+    ├── pj/                     # pj 工具源码
+    │   └── ...
+    └── sys/                    # yum/system package 相关脚本
+        ├── install-clang.sh    # 安装 clang/clangd
+        └── install-python.sh   # 创建 Python 3.11 虚拟环境
 ```
