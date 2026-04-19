@@ -1,11 +1,11 @@
 #!/bin/bash
 # 安装 wezterm 配置到 ~/.config/wezterm
-# 可重入：已安装时跳过
+# 可重入：已安装时覆盖
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WEZTERM_SOURCE="$SCRIPT_DIR/../configs/wezterm"
+WEZTERM_SOURCE="$SCRIPT_DIR/wezterm"
 WEZTERM_DEST="$HOME/.config/wezterm"
 
 if [[ ! -d "$WEZTERM_SOURCE" ]]; then
@@ -13,6 +13,7 @@ if [[ ! -d "$WEZTERM_SOURCE" ]]; then
     exit 1
 fi
 
+rm -rf "$WEZTERM_DEST"
 mkdir -p "$WEZTERM_DEST"
 cp -r "$WEZTERM_SOURCE"/* "$WEZTERM_DEST/"
 echo "wezterm 配置已安装: $WEZTERM_DEST"

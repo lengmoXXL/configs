@@ -5,6 +5,7 @@ configs/
 ├── install.sh                  # 确保 bashrc 加载 ~/.config/env.d/*.sh
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
+│   ├── install-wezterm-config.sh # 安装 wezterm 配置到 ~/.config/wezterm
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
@@ -29,7 +30,6 @@ configs/
     ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
     ├── install-typescript-lsp.sh # 安装 typescript-language-server
     ├── install-typos-lsp.sh    # 安装 typos-lsp (拼写检查)
-    ├── install-wezterm.sh      # 安装 wezterm 配置到 ~/.config/wezterm
     ├── pinyin-dict-ctl.sh      # 拼音词典管理与词典安装
     └── pj/                     # pj 工具源码
         └── ...
