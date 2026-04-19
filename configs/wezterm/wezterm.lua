@@ -39,7 +39,7 @@ config.font = wezterm.font_with_fallback {
     'AurulentSansM Nerd Font',
     'Sarasa Term SC Nerd',
 }
-config.font_size = 14
+config.font_size = 15
 config.window_decorations = 'RESIZE'
 
 config.default_prog = { 'ssh', 'admin@47.95.238.149' }
