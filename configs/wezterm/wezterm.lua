@@ -36,7 +36,6 @@ local select_color_scheme = act.InputSelector {
 }
 
 config.font = wezterm.font_with_fallback {
-    'AurulentSansM Nerd Font',
     'Sarasa Term SC Nerd',
 }
 config.font_size = 15
@@ -56,16 +55,6 @@ config.launch_menu = {
 }
 
 config.keys = {
-    {
-        key = 'd',
-        mods = 'SUPER',
-        action = act.SplitHorizontal { domain = 'CurrentPaneDomain' },
-    },
-    {
-        key = 'd',
-        mods = 'SUPER|SHIFT',
-        action = act.SplitVertical { domain = 'CurrentPaneDomain' },
-    },
     {
         key = 's',
         mods = 'CTRL|SHIFT',
