@@ -17,7 +17,27 @@ echo "安装 Node.js 到: $INSTALL_DIR"
 
 # 获取最新 LTS 版本号
 echo "获取最新 LTS 版本..."
-NODE_VERSION=$(curl -sL https://nodejs.org/dist/index.json | grep -m1 '"lts":' | sed 's/.*"version":"\([^"]*\)".*/\1/')
+LTS_VERSIONS=$(curl -sL https://nodejs.org/dist/index.json | grep '"lts":' | sed 's/.*"version":"\([^"]*\)".*/\1/')
+
+# 检测 macOS 版本，选择兼容的 Node.js
+# Node.js 20+ 需要 macOS 11+，旧系统使用 Node.js 18
+NODE_VERSION=""
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    MACOS_VERSION=$(sw_vers -productVersion 2>/dev/null || echo "0")
+    MACOS_MAJOR=$(echo "$MACOS_VERSION" | cut -d. -f1)
+    echo "macOS 版本: $MACOS_VERSION"
+
+    if [[ "$MACOS_MAJOR" -lt 11 ]]; then
+        # macOS 10.15 或更早，使用 Node.js 18 LTS
+        NODE_VERSION=$(echo "$LTS_VERSIONS" | grep "^v18\." | head -1)
+        echo "使用 Node.js 18 以兼容旧版 macOS"
+    fi
+fi
+
+# 默认使用最新 LTS
+if [[ -z "$NODE_VERSION" ]]; then
+    NODE_VERSION=$(echo "$LTS_VERSIONS" | head -1)
+fi
 
 if [[ -z "$NODE_VERSION" ]]; then
     echo "错误：无法获取 Node.js 版本"
