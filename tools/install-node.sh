@@ -27,13 +27,16 @@ fi
 echo "版本: $NODE_VERSION"
 
 # 下载地址（使用淘宝镜像）
+# 支持: linux-x64, linux-arm64, darwin-x64 (Intel Mac), darwin-arm64 (Apple Silicon)
 ARCH=$(uname -m)
 case "$ARCH" in
     x86_64) ARCH="x64" ;;
-    aarch64) ARCH="arm64" ;;
+    aarch64|arm64) ARCH="arm64" ;;  # Linux aarch64 和 macOS arm64
 esac
 
-DOWNLOAD_URL="https://npmmirror.com/mirrors/node/${NODE_VERSION}/node-${NODE_VERSION}-linux-${ARCH}.tar.xz"
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+
+DOWNLOAD_URL="https://npmmirror.com/mirrors/node/${NODE_VERSION}/node-${NODE_VERSION}-${OS}-${ARCH}.tar.xz"
 
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
