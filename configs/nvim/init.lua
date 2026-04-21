@@ -114,10 +114,9 @@ vim.diagnostic.config({
 
 -- system clipboard
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
-vim.keymap.set('n', '<leader>yy', '"+yy', { desc = 'Yank line to clipboard' })
 
 -- 复制文件位置 (可视模式下)
-vim.keymap.set('v', '<leader>yl', function()
+vim.keymap.set('v', '<leader>ly', function()
   local start_line = vim.fn.line('v')
   local end_line = vim.fn.line('.')
   local file = vim.fn.expand('%:t')
