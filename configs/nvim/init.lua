@@ -29,6 +29,29 @@ vim.cmd.colorscheme("vscode")
 
 vim.opt.fillchars:append({ diff = ' ' })
 
+
+local autosave_group = vim.api.nvim_create_augroup('autosave_on_insert_leave', { clear = true })
+vim.api.nvim_create_autocmd('InsertLeave', {
+  group = autosave_group,
+  callback = function(args)
+    local bufnr = args.buf
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+      return
+    end
+    if not vim.bo[bufnr].modifiable or vim.bo[bufnr].readonly then
+      return
+    end
+    if vim.bo[bufnr].buftype ~= '' then
+      return
+    end
+    if not vim.bo[bufnr].modified then
+      return
+    end
+    vim.cmd('silent update')
+  end,
+  desc = 'Auto-save modified buffers when leaving insert mode',
+})
+
 -- lsp
 -- Diffview uses virtual buffers. Do not start or attach any LSP client there.
 if not vim.lsp._start_without_diffview_guard then
