@@ -104,9 +104,13 @@ return {
     {
       "<leader>e",
       function()
-        require('mini.files').open(vim.api.nvim_buf_get_name(0))
+        local mini_files = require('mini.files')
+        if not mini_files.close() then
+          mini_files.open(vim.api.nvim_buf_get_name(0))
+          mini_files.reveal_cwd()
+        end
       end,
-      desc = "Open mini.files (current file location)",
+      desc = "Toggle mini.files (current file location)",
     },
     {
       "<leader>E",
