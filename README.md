@@ -5,7 +5,6 @@ configs/
 ├── install.sh                  # 确保 bashrc 加载 ~/.config/env.d/*.sh
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
-│   ├── install-wezterm-config.sh # 安装 wezterm 配置到 ~/.config/wezterm
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
@@ -13,8 +12,6 @@ configs/
 │   │       │   └── ...
 │   │       └── themes/         # 主题配置
 │   │           └── ...
-│   └── wezterm/                # WezTerm 配置
-│       └── ...
 └── tools/
     ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
