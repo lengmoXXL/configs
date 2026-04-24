@@ -1,17 +1,27 @@
 #!/bin/bash
-# 创建隔离的 Python 3.11 虚拟环境到 ~/.local/python3.11
+# 使用 uv 创建隔离的 Python 3.11 虚拟环境到 ~/.local/python3.11
 # 可重入：已创建时跳过
 
 set -e
 
 INSTALL_DIR="${HOME}/.local/python3.11"
 BIN_DIR="${HOME}/.local/bin"
-SYSTEM_PYTHON="/usr/bin/python3.11"
+ENV_DIR="$HOME/.config/env.d"
+UV_BIN="${BIN_DIR}/uv"
 
-# 检查系统 Python 3.11 是否存在
-if [[ ! -x "$SYSTEM_PYTHON" ]]; then
-    echo "错误: 系统未安装 Python 3.11"
-    echo "请先安装: sudo yum install python3.11 python3.11-pip"
+mkdir -p "$BIN_DIR"
+
+if ! command -v uv &>/dev/null && [[ ! -x "$UV_BIN" ]]; then
+    echo "安装 uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
+if command -v uv &>/dev/null; then
+    UV_CMD="$(command -v uv)"
+elif [[ -x "$UV_BIN" ]]; then
+    UV_CMD="$UV_BIN"
+else
+    echo "错误: uv 安装后未找到，请确认 $BIN_DIR 在 PATH 中"
     exit 1
 fi
 
@@ -23,24 +33,22 @@ fi
 
 echo "创建 Python 3.11 虚拟环境: $INSTALL_DIR"
 
-mkdir -p "$BIN_DIR"
-
-# 创建虚拟环境
-"$SYSTEM_PYTHON" -m venv "$INSTALL_DIR" --copies
-
-# 升级 pip
-"$INSTALL_DIR/bin/python3" -m pip install --upgrade pip -q
+"$UV_CMD" python install 3.11
+"$UV_CMD" venv --seed --python 3.11 "$INSTALL_DIR"
 
 # 预装常用包
 echo "安装常用 Python 包..."
-"$INSTALL_DIR/bin/pip3" install pypinyin -q
+"$UV_CMD" pip install --python "$INSTALL_DIR/bin/python3" pypinyin
 
 # 创建符号链接到 ~/.local/bin
 ln -sf "$INSTALL_DIR/bin/python3" "$BIN_DIR/python3"
-ln -sf "$INSTALL_DIR/bin/pip3" "$BIN_DIR/pip3"
+if [[ -x "$INSTALL_DIR/bin/pip3" ]]; then
+    ln -sf "$INSTALL_DIR/bin/pip3" "$BIN_DIR/pip3"
+elif [[ -x "$INSTALL_DIR/bin/pip" ]]; then
+    ln -sf "$INSTALL_DIR/bin/pip" "$BIN_DIR/pip3"
+fi
 
 # 配置 Python 环境变量
-ENV_DIR="$HOME/.config/env.d"
 mkdir -p "$ENV_DIR"
 cat > "$ENV_DIR/python.sh" << 'EOF'
 # Python 环境配置
@@ -50,6 +58,11 @@ EOF
 echo ""
 echo "Python 3.11 虚拟环境创建完成"
 echo "  python: $($INSTALL_DIR/bin/python3 --version)"
-echo "  pip: $($INSTALL_DIR/bin/pip3 --version | head -1)"
+if [[ -x "$INSTALL_DIR/bin/pip3" ]]; then
+    echo "  pip: $($INSTALL_DIR/bin/pip3 --version | head -1)"
+elif [[ -x "$INSTALL_DIR/bin/pip" ]]; then
+    echo "  pip: $($INSTALL_DIR/bin/pip --version | head -1)"
+fi
+echo "  uv: $("$UV_CMD" --version)"
 echo ""
 echo "请运行 'source ~/.bashrc' 使环境变量生效"

@@ -23,6 +23,7 @@ configs/
     ├── install-nvim.sh         # 从源码编译安装 Neovim
     ├── install-pj.sh           # 安装 pj 环境切换器
     ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
+    ├── install-tldr.sh         # 安装 tldr 命令行帮助工具
     ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
     ├── lsp/                    # LSP 相关安装脚本
     │   ├── install-bash-lsp.sh # 安装 bash-language-server
@@ -36,5 +37,5 @@ configs/
     │   └── ...
     └── sys/                    # yum/system package 相关脚本
         ├── install-clang.sh    # 安装 clang/clangd
-        └── install-python.sh   # 创建 Python 3.11 虚拟环境
+        └── install-python.sh   # 使用 uv 创建 Python 3.11 虚拟环境
 ```
