@@ -1,3 +1,5 @@
+local diffview_type = nil -- 'open', 'head', 'history'
+
 local function find_diffview_tab()
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
@@ -13,16 +15,26 @@ local function find_diffview_tab()
   return nil
 end
 
-local function toggle_diffview(command)
+local function close_diffview()
+  vim.cmd('DiffviewClose')
+  diffview_type = nil
+end
+
+local function open_or_switch(command, view_type)
   return function()
     local tabpage = find_diffview_tab()
-
-    if tabpage == vim.api.nvim_get_current_tabpage() then
-      vim.cmd('DiffviewClose')
-    elseif tabpage then
-      vim.api.nvim_set_current_tabpage(tabpage)
+    if tabpage then
+      if diffview_type == view_type then
+        vim.api.nvim_set_current_tabpage(tabpage)
+      else
+        vim.api.nvim_set_current_tabpage(tabpage)
+        vim.cmd('DiffviewClose')
+        vim.cmd(command)
+        diffview_type = view_type
+      end
     else
       vim.cmd(command)
+      diffview_type = view_type
     end
   end
 end
@@ -32,8 +44,20 @@ return {
   dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons' },
   cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory' },
   keys = {
-    { "<leader>jd", toggle_diffview('DiffviewOpen'), desc = "Toggle Diffview" },
-    { "<leader>jh", toggle_diffview('DiffviewOpen HEAD^'), desc = "Toggle Diffview HEAD^" },
-    { "<leader>jH", toggle_diffview('DiffviewFileHistory'), desc = "Toggle Diffview file history" },
+    { "<leader>jj", function()
+        local tabpage = find_diffview_tab()
+        if tabpage then
+          if tabpage == vim.api.nvim_get_current_tabpage() then
+            close_diffview()
+          else
+            vim.api.nvim_set_current_tabpage(tabpage)
+          end
+        else
+          vim.cmd('DiffviewOpen')
+          diffview_type = 'open'
+        end
+      end, desc = "Toggle Diffview" },
+    { "<leader>jh", open_or_switch('DiffviewOpen HEAD^', 'head'), desc = "Open Diffview HEAD^" },
+    { "<leader>jH", open_or_switch('DiffviewFileHistory', 'history'), desc = "Open Diffview file history" },
   },
 }

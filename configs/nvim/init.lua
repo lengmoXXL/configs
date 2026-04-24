@@ -127,3 +127,14 @@ vim.keymap.set('v', '<leader>ly', function()
   end
   vim.fn.setreg('+', location)
 end, { desc = 'Yank file location' })
+
+-- window navigation: C-w L/H jump to rightmost/leftmost window
+vim.keymap.set('n', '<C-w>L', function()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+  vim.api.nvim_set_current_win(wins[#wins])
+end, { desc = 'Jump to rightmost window' })
+
+vim.keymap.set('n', '<C-w>H', function()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+  vim.api.nvim_set_current_win(wins[1])
+end, { desc = 'Jump to leftmost window' })
