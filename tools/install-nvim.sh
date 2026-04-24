@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# 从源码编译安装 Neovim v0.12.1
+# 从源码编译安装 Neovim v0.12.2
 # https://github.com/neovim/neovim
-# 可重入：已安装时跳过
+# 可重入：已安装目标版本时跳过，版本不一致时询问是否升级
 # 剪贴板使用 OSC 52 终端协议，无需额外安装 xclip
 
 set -e
@@ -10,7 +10,7 @@ set -e
 INSTALL_DIR="${HOME}/.local"
 SRC_DIR="${HOME}/.local/src/neovim"
 NVIM_REPO="https://github.com/neovim/neovim.git"
-VERSION="v0.12.1"
+VERSION="v0.12.2"
 
 NVIM_BIN="${INSTALL_DIR}/bin/nvim"
 
@@ -29,10 +29,23 @@ check_deps() {
 
 check_deps
 
-# 如果已安装则跳过
+# 如果已安装则检查版本
 if [[ -x "$NVIM_BIN" ]]; then
-    echo "Neovim 已安装: $($NVIM_BIN --version | head -1)"
-    exit 0
+    INSTALLED_VERSION="$($NVIM_BIN --version | head -1 | awk '{print $2}')"
+
+    if [[ "$INSTALLED_VERSION" == "$VERSION" ]]; then
+        echo "Neovim ${VERSION} 已安装: $NVIM_BIN"
+        exit 0
+    fi
+
+    echo "检测到已安装 Neovim: ${INSTALLED_VERSION:-unknown}"
+    echo "目标版本: ${VERSION}"
+
+    read -r -p "是否升级到 ${VERSION} 并重新安装? [y/N] " ANSWER || ANSWER=""
+    if [[ ! "$ANSWER" =~ ^[Yy]$ ]]; then
+        echo "已取消升级"
+        exit 0
+    fi
 fi
 
 # 克隆或更新源码

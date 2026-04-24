@@ -1,22 +1,26 @@
-local function is_diffview_visible()
+local function find_diffview_tab()
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
       local buf = vim.api.nvim_win_get_buf(win)
       local name = vim.api.nvim_buf_get_name(buf)
 
       if name:match('^diffview://') then
-        return true
+        return tabpage
       end
     end
   end
 
-  return false
+  return nil
 end
 
 local function toggle_diffview(command)
   return function()
-    if is_diffview_visible() then
+    local tabpage = find_diffview_tab()
+
+    if tabpage == vim.api.nvim_get_current_tabpage() then
       vim.cmd('DiffviewClose')
+    elseif tabpage then
+      vim.api.nvim_set_current_tabpage(tabpage)
     else
       vim.cmd(command)
     end
