@@ -5,6 +5,7 @@ vim.o.exrc = true
 -- put in front of lazy
 vim.g.mapleader = " "
 vim.g.clipboard = "osc52"
+vim.o.autowriteall = true
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -28,29 +29,6 @@ require('lazy').setup({
 vim.cmd.colorscheme("vscode")
 
 vim.opt.fillchars:append({ diff = ' ' })
-
-
-local autosave_group = vim.api.nvim_create_augroup('autosave_on_insert_leave', { clear = true })
-vim.api.nvim_create_autocmd('InsertLeave', {
-  group = autosave_group,
-  callback = function(args)
-    local bufnr = args.buf
-    if not vim.api.nvim_buf_is_valid(bufnr) then
-      return
-    end
-    if not vim.bo[bufnr].modifiable or vim.bo[bufnr].readonly then
-      return
-    end
-    if vim.bo[bufnr].buftype ~= '' then
-      return
-    end
-    if not vim.bo[bufnr].modified then
-      return
-    end
-    vim.cmd('silent update')
-  end,
-  desc = 'Auto-save modified buffers when leaving insert mode',
-})
 
 -- lsp
 -- Diffview uses virtual buffers. Do not start or attach any LSP client there.
