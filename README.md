@@ -5,6 +5,7 @@ configs/
 ├── install.sh                  # 确保 bashrc 加载 ~/.config/env.d/*.sh
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
+│   ├── install-tmux-config.sh  # 安装 tmux 配置到 ~/.tmux.conf
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
@@ -12,6 +13,8 @@ configs/
 │   │       │   └── ...
 │   │       └── themes/         # 主题配置
 │   │           └── ...
+│   └── tmux/                   # tmux 配置
+│       └── tmux.conf           # 开启鼠标与基础终端设置
 └── tools/
     ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
     ├── install-go.sh           # 安装 Go 到 ~/.local/go
