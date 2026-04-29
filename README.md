@@ -23,6 +23,7 @@ configs/
     ├── install-nvim.sh         # 从源码编译安装 Neovim
     ├── install-pj.sh           # 安装 pj 环境切换器
     ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
+    ├── install-tmux.sh         # 从源码编译安装 tmux
     ├── install-tldr.sh         # 安装 tldr 命令行帮助工具
     ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
     ├── lsp/                    # LSP 相关安装脚本
