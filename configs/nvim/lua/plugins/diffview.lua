@@ -60,6 +60,7 @@ end
 
 return {
   'sindrets/diffview.nvim',
+  enabled = false,
   dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons' },
   cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory' },
   opts = function()
