@@ -2,6 +2,8 @@ vim.o.number = true
 vim.o.tabstop = 4
 vim.o.wrap = false
 vim.o.exrc = true
+vim.o.cmdheight = 0
+vim.o.wildmode = "longest:full,full"
 -- put in front of lazy
 vim.g.mapleader = " "
 vim.g.clipboard = "osc52"
