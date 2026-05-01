@@ -61,6 +61,7 @@ vim.lsp.config('clangd', {
 vim.lsp.enable('clangd')
 vim.lsp.enable('pyright')
 vim.lsp.enable('gopls')
+vim.lsp.enable('rust_analyzer')
 
 -- markdown-oxide LSP (替代 marksman，性能更好)
 vim.lsp.enable('markdown_oxide')

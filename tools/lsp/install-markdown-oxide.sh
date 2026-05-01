@@ -1,37 +1,47 @@
 #!/bin/bash
-
 # 安装 markdown-oxide LSP Server
-# https://github.com/Feel-ix-343/markdown-oxide
+# 从 fork 源码编译安装: https://github.com/lengmoXXL/markdown-oxide
 
 set -e
 
-INSTALL_DIR="${HOME}/.local/bin"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
-VERSION="v0.25.10"
+REPO_URL="https://github.com/lengmoXXL/markdown-oxide.git"
+BRANCH="${MARKDOWN_OXIDE_BRANCH:-main}"
+RUST_DIR="${HOME}/.local/rust"
+INSTALL_ROOT="${HOME}/.local/markdown-oxide"
+BIN_DIR="${HOME}/.local/bin"
+CARGO="${RUST_DIR}/bin/cargo"
+BINARY="${BIN_DIR}/markdown-oxide"
 
-echo "Installing markdown-oxide ${VERSION}..."
+export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
+export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 
-mkdir -p "$INSTALL_DIR"
+if [[ -x "$CARGO" ]]; then
+    export RUSTUP_HOME="${RUST_DIR}/rustup"
+    export CARGO_HOME="${RUST_DIR}"
+elif command -v cargo &>/dev/null; then
+    CARGO="$(command -v cargo)"
+else
+    echo "错误: cargo 未安装"
+    echo "请先运行 ../install-rust.sh 安装 Rust"
+    exit 1
+fi
 
-ARCH=$(uname -m)
-case "$ARCH" in
-    x86_64)    ARCH="x86_64-unknown-linux-gnu" ;;
-    aarch64|arm64) ARCH="aarch64-unknown-linux-gnu" ;;
-    *)         echo "Unsupported architecture: $ARCH"; exit 1 ;;
-esac
+echo "从源码安装 markdown-oxide"
+echo "  repo: $REPO_URL"
+echo "  branch: $BRANCH"
 
-TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
+mkdir -p "$BIN_DIR" "$INSTALL_ROOT"
 
-DOWNLOAD_URL="${PROXY}https://github.com/Feel-ix-343/markdown-oxide/releases/download/${VERSION}/markdown-oxide-${VERSION}-${ARCH}.tar.gz"
+"$CARGO" install \
+    --git "$REPO_URL" \
+    --branch "$BRANCH" \
+    --locked \
+    --force \
+    --root "$INSTALL_ROOT"
 
-echo "Downloading from $DOWNLOAD_URL"
-curl -L "$DOWNLOAD_URL" -o "$TMPDIR/markdown-oxide.tar.gz"
-tar xzf "$TMPDIR/markdown-oxide.tar.gz" -C "$TMPDIR"
-
-cp "$TMPDIR/markdown-oxide-${VERSION}-${ARCH}/markdown-oxide" "$INSTALL_DIR/"
-chmod +x "${INSTALL_DIR}/markdown-oxide"
+ln -sf "${INSTALL_ROOT}/bin/markdown-oxide" "$BINARY"
 
 echo ""
-echo "✓ markdown-oxide ${VERSION} installed to ${INSTALL_DIR}/markdown-oxide"
-echo "Verify: markdown-oxide --version"
+echo "markdown-oxide LSP 安装完成:"
+echo "  markdown-oxide: $BINARY"
+echo "  version: $("$BINARY" --version)"

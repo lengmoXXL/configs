@@ -31,6 +31,7 @@ configs/
     │   ├── install-ds-pinyin-lsp.sh # 安装 ds-pinyin-lsp 二进制
     │   ├── install-lua-lsp.sh  # 安装 lua-language-server
     │   ├── install-markdown-oxide.sh # 安装 markdown-oxide (Markdown LSP)
+    │   ├── install-rust-analyzer-lsp.sh # 安装 rust-analyzer
     │   ├── install-typescript-lsp.sh # 安装 typescript-language-server
     │   ├── install-typos-lsp.sh # 安装 typos-lsp (拼写检查)
     │   └── pinyin-dict-ctl.sh  # 拼音词典管理与词典安装

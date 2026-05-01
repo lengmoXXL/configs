@@ -1,5 +1,24 @@
 local diffview_type = nil -- 'open', 'head', 'history'
 
+local function restore_all_unstaged()
+  local lib = require('diffview.lib')
+  local async = require('diffview.async')
+  local vcs_utils = require('diffview.vcs.utils')
+
+  async.void(function()
+    local view = lib.get_current_view()
+    if not view or not view.files or view.right.type ~= require('diffview.vcs.rev').RevType.LOCAL then
+      return
+    end
+
+    for _, file in ipairs(view.files.working) do
+      async.await(vcs_utils.restore_file(view.adapter, file.path, file.kind))
+    end
+
+    view:update_files()
+  end)()
+end
+
 local function find_diffview_tab()
   for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tabpage)) do
@@ -43,6 +62,18 @@ return {
   'sindrets/diffview.nvim',
   dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons' },
   cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewFileHistory' },
+  opts = function()
+    local actions = require('diffview.actions')
+
+    return {
+      keymaps = {
+        file_panel = {
+          { 'n', 'd', actions.restore_entry, { desc = 'Restore unstaged entry' } },
+          { 'n', 'D', restore_all_unstaged, { desc = 'Restore all unstaged entries' } },
+        },
+      },
+    }
+  end,
   keys = {
     { "<leader>jj", function()
         local tabpage = find_diffview_tab()
