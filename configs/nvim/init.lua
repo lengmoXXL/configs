@@ -70,34 +70,6 @@ vim.lsp.enable('ts_ls')
 vim.lsp.enable('bashls')
 vim.lsp.enable('lua_ls')
 
--- ds-pinyin-lsp 拼音输入法
--- 默认在 markdown/org 自动启动，其他文件可通过 :PinyinLspToggle 手动启动
-vim.lsp.config('ds_pinyin_lsp', {
-  init_options = {
-    db_path = vim.fn.expand('~/.local/share/ds-pinyin-lsp/dict.db3'),
-  },
-})
-vim.lsp.enable('ds_pinyin_lsp')
-
--- 手动启动/停止拼音 LSP (用于非 markdown/org 文件)
-vim.api.nvim_create_user_command('PinyinLspToggle', function()
-  local clients = vim.lsp.get_clients({ name = 'ds_pinyin_lsp', bufnr = 0 })
-  if #clients > 0 then
-    for _, client in ipairs(clients) do
-      client:stop()
-    end
-    print('ds-pinyin-lsp stopped')
-  else
-    -- 获取内置配置并移除 filetype 限制
-    local config = vim.lsp.config['ds_pinyin_lsp']
-    if config then
-      config.filetypes = nil
-      vim.lsp.start(config)
-      print('ds-pinyin-lsp started')
-    end
-  end
-end, { desc = 'Toggle ds-pinyin-lsp for current buffer' })
-
 -- switch source/header (clangd)
 vim.keymap.set('n', '<leader>ch', '<cmd>LspClangdSwitchSourceHeader<cr>', { desc = 'Switch source/header' })
 
