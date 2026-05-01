@@ -6,6 +6,9 @@ configs/
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置到 ~/.tmux.conf
+│   ├── install-codex-config.sh # 更新 Codex AGENTS.md 规则
+│   ├── codex/                  # Codex 配置
+│   │   └── AGENTS.md           # Codex 全局规则
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
