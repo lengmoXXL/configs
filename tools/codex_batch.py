@@ -14,7 +14,7 @@ import tempfile
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO, cast
 
 
 STATE_VERSION = 1
@@ -46,27 +46,6 @@ def display_value(value: Any) -> str:
     if isinstance(value, str):
         return value
     return json.dumps(value, ensure_ascii=False, indent=2)
-
-
-def item_key(value: Any, source_index: int) -> str:
-    payload = f"{source_index}:{canonical_json(value)}"
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
-
-
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
-def default_result_path(input_path: Path) -> Path:
-    if input_path.suffix:
-        return input_path.with_suffix(".result.md")
-    return input_path.with_name(f"{input_path.name}.result.md")
-
-
-def default_state_path(input_path: Path) -> Path:
-    if input_path.suffix:
-        return input_path.with_suffix(".state.json")
-    return input_path.with_name(f"{input_path.name}.state.json")
 
 
 def atomic_write_text(path: Path, content: str) -> None:
@@ -125,11 +104,6 @@ def write_result_file(path: Path, blocks: list[str]) -> None:
     atomic_write_text(path, content)
 
 
-def load_json_file(path: Path) -> Any:
-    with path.open("r", encoding="utf-8") as fh:
-        return json.load(fh)
-
-
 def load_state(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {
@@ -153,10 +127,11 @@ def build_items(data: Any) -> list[dict[str, Any]]:
 
     built: list[dict[str, Any]] = []
     for index, value in enumerate(items):
+        item_key_payload = f"{index}:{canonical_json(value)}"
         built.append(
             {
                 "value": value,
-                "item_key": item_key(value, source_index=index),
+                "item_key": hashlib.sha256(item_key_payload.encode("utf-8")).hexdigest()[:16],
             }
         )
     return built
@@ -242,7 +217,7 @@ def stream_codex(prompt: str, workdir: Path, output_file: Path, slot_index: int)
 
     while selector.get_map():
         for key, _ in selector.select():
-            line = key.fileobj.readline()
+            line = cast(TextIO, key.fileobj).readline()
             if line == "":
                 selector.unregister(key.fileobj)
                 continue
@@ -290,14 +265,6 @@ def parse_args() -> argparse.Namespace:
         help="同时运行的 codex 数量，默认 1",
     )
     return parser.parse_args()
-
-
-def upsert_completed_record(state: dict[str, Any], record: dict[str, Any]) -> None:
-    for index, existing in enumerate(state["completed"]):
-        if existing["item_key"] == record["item_key"]:
-            state["completed"][index] = record
-            return
-    state["completed"].append(record)
 
 
 def rewrite_outputs_from_state(state: dict[str, Any], items: list[dict[str, Any]], result_path: Path, state_path: Path) -> None:
@@ -349,7 +316,12 @@ def process_item(
         "completed_at": now_iso(),
     }
     with state_lock:
-        upsert_completed_record(state, record)
+        for index, existing in enumerate(state["completed"]):
+            if existing["item_key"] == record["item_key"]:
+                state["completed"][index] = record
+                break
+        else:
+            state["completed"].append(record)
         state["last_completed_at"] = record["completed_at"]
         rewrite_outputs_from_state(state, items, result_path, state_path)
     return 0
@@ -360,13 +332,24 @@ def run_batch(args: argparse.Namespace) -> int:
         raise ValueError("--jobs must be >= 1")
     input_path = Path(args.input_json).expanduser().resolve()
     template_path = Path(args.template_md).expanduser().resolve()
-    result_path = Path(args.output).expanduser().resolve() if args.output else default_result_path(input_path)
-    state_path = Path(args.state).expanduser().resolve() if args.state else default_state_path(input_path)
+    if args.output:
+        result_path = Path(args.output).expanduser().resolve()
+    elif input_path.suffix:
+        result_path = input_path.with_suffix(".result.md")
+    else:
+        result_path = input_path.with_name(f"{input_path.name}.result.md")
+    if args.state:
+        state_path = Path(args.state).expanduser().resolve()
+    elif input_path.suffix:
+        state_path = input_path.with_suffix(".state.json")
+    else:
+        state_path = input_path.with_name(f"{input_path.name}.state.json")
     workdir = Path(args.cd).expanduser().resolve()
 
-    source_data = load_json_file(input_path)
+    with input_path.open("r", encoding="utf-8") as fh:
+        source_data = json.load(fh)
     template = template_path.read_text(encoding="utf-8")
-    template_digest = sha256_text(template)
+    template_digest = hashlib.sha256(template.encode("utf-8")).hexdigest()
     items = build_items(source_data)
     current_keys = {item["item_key"] for item in items}
 
