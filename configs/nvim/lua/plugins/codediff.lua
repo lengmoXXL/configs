@@ -58,7 +58,8 @@ local function toggle_codediff()
 end
 
 return {
-  'esmuellert/codediff.nvim',
+  'codediff.nvim',
+  url = 'https://github.com/grrru/codediff.nvim.git',
   cmd = { 'CodeDiff' },
   keys = {
     { '<leader>jj', toggle_codediff, desc = 'Toggle CodeDiff' },
