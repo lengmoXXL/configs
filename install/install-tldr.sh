@@ -17,7 +17,7 @@ fi
 
 if [[ ! -x "$PYTHON_DIR/bin/python3" ]]; then
     echo "错误: Python 3.11 环境未安装"
-    echo "请先运行 tools/sys/install-python.sh"
+    echo "请先运行 install/sys/install-python.sh"
     exit 1
 fi
 

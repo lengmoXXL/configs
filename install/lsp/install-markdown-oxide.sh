@@ -22,7 +22,7 @@ elif command -v cargo &>/dev/null; then
     CARGO="$(command -v cargo)"
 else
     echo "错误: cargo 未安装"
-    echo "请先运行 ../install-rust.sh 安装 Rust"
+    echo "请先运行 install/install-rust.sh 安装 Rust"
     exit 1
 fi
 

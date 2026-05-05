@@ -36,10 +36,6 @@ echo "创建 Python 3.11 虚拟环境: $INSTALL_DIR"
 "$UV_CMD" python install 3.11
 "$UV_CMD" venv --seed --python 3.11 "$INSTALL_DIR"
 
-# 预装常用包
-echo "安装常用 Python 包..."
-"$UV_CMD" pip install --python "$INSTALL_DIR/bin/python3" pypinyin
-
 # 创建符号链接到 ~/.local/bin
 ln -sf "$INSTALL_DIR/bin/python3" "$BIN_DIR/python3"
 if [[ -x "$INSTALL_DIR/bin/pip3" ]]; then
