@@ -66,37 +66,9 @@ return {
     { '<leader>jh', open_or_switch('CodeDiff HEAD^ HEAD', 'head'), desc = 'Open CodeDiff HEAD' },
     { '<leader>jH', open_or_switch('CodeDiff history', 'history'), desc = 'Open CodeDiff history' },
   },
-  opts = {},
-  config = function(_, opts)
-    require('codediff').setup(opts)
-
-    vim.api.nvim_create_autocmd('FileType', {
-      group = vim.api.nvim_create_augroup('UserCodeDiffExplorerKeymaps', { clear = true }),
-      pattern = 'codediff-explorer',
-      callback = function(args)
-        vim.keymap.set('n', 'f', function()
-          local lifecycle = require('codediff.ui.lifecycle')
-          local session = lifecycle.get_session(vim.api.nvim_get_current_tabpage())
-          if not session then
-            return
-          end
-
-          local target_win = session.modified_win
-          if not (target_win and vim.api.nvim_win_is_valid(target_win)) then
-            target_win = session.original_win
-          end
-
-          if target_win and vim.api.nvim_win_is_valid(target_win) then
-            vim.api.nvim_set_current_win(target_win)
-          end
-        end, {
-          buffer = args.buf,
-          desc = 'Focus CodeDiff file pane',
-          noremap = true,
-          nowait = true,
-          silent = true,
-        })
-      end,
-    })
-  end,
+  opts = {
+    explorer = {
+      focus_on_select = true,
+    },
+  },
 }
