@@ -20,6 +20,9 @@ from typing import Any, TextIO, cast
 STATE_VERSION = 1
 TEMPLATE_VAR_PATTERN = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*|\.)\}")
 DEFAULT_OUTPUT_PREVIEW_CHARS = 240
+DEFAULT_OUTPUT_DIR_SUFFIX = ".codex-batch"
+RESULT_FILE_NAME = "result.md"
+STATE_FILE_NAME = "state.json"
 PRINT_LOCK = threading.Lock()
 
 
@@ -241,11 +244,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("template_md", help="提示词模板 Markdown 文件路径，支持 {input} / {.}")
     parser.add_argument(
         "--output",
-        help="结果 Markdown 文件路径，默认是 <input>.result.md",
-    )
-    parser.add_argument(
-        "--state",
-        help="状态 JSON 文件路径，默认是 <input>.state.json",
+        help="输出目录，默认是 <input>.codex-batch",
     )
     parser.add_argument(
         "--stale",
@@ -333,17 +332,15 @@ def run_batch(args: argparse.Namespace) -> int:
     input_path = Path(args.input_json).expanduser().resolve()
     template_path = Path(args.template_md).expanduser().resolve()
     if args.output:
-        result_path = Path(args.output).expanduser().resolve()
+        output_dir = Path(args.output).expanduser().resolve()
     elif input_path.suffix:
-        result_path = input_path.with_suffix(".result.md")
+        output_dir = input_path.with_suffix(DEFAULT_OUTPUT_DIR_SUFFIX)
     else:
-        result_path = input_path.with_name(f"{input_path.name}.result.md")
-    if args.state:
-        state_path = Path(args.state).expanduser().resolve()
-    elif input_path.suffix:
-        state_path = input_path.with_suffix(".state.json")
-    else:
-        state_path = input_path.with_name(f"{input_path.name}.state.json")
+        output_dir = input_path.with_name(f"{input_path.name}{DEFAULT_OUTPUT_DIR_SUFFIX}")
+    if output_dir.exists() and not output_dir.is_dir():
+        raise ValueError(f"--output must be a directory: {output_dir}")
+    result_path = output_dir / RESULT_FILE_NAME
+    state_path = output_dir / STATE_FILE_NAME
     workdir = Path(args.cd).expanduser().resolve()
 
     with input_path.open("r", encoding="utf-8") as fh:
@@ -360,6 +357,7 @@ def run_batch(args: argparse.Namespace) -> int:
     state["input_file"] = str(input_path)
     state["template_file"] = str(template_path)
     state["template_digest"] = template_digest
+    state["output_dir"] = str(output_dir)
     state["result_file"] = str(result_path)
     state["workdir"] = str(workdir)
     state["last_started_at"] = now_iso()
@@ -386,7 +384,7 @@ def run_batch(args: argparse.Namespace) -> int:
 
     if state_exists and state["completed"]:
         rewrite_outputs_from_state(state, items, result_path, state_path)
-    elif state_exists and result_path.exists():
+    else:
         write_result_file(result_path, [])
 
     atomic_write_json(state_path, state)
