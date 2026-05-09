@@ -79,11 +79,13 @@ return
   },
   keys = {
     -- Top Pickers & Explorer
-    { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
+    { "<leader><space>", function() Snacks.picker.files() end, desc = "Find Files" },
     { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
+    { "<leader>f.", function() Snacks.picker.files({ cwd = vim.fn.expand('%:p:h'), hidden = true }) end, desc = "Find Files (current file dir)" },
+    { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<M-.>", toggle_recent_terminal(), desc = "Toggle Recent Terminal", mode = { "n", "t" } },
     { "<M-t>1", switch_terminal(1), desc = "Switch to Terminal 1", mode = { "n", "t" } },
     { "<M-t>2", switch_terminal(2), desc = "Switch to Terminal 2", mode = { "n", "t" } },
@@ -91,9 +93,6 @@ return
     { "<M-t>4", switch_terminal(4), desc = "Switch to Terminal 4", mode = { "n", "t" } },
     { "<M-t>5", switch_terminal(5), desc = "Switch to Terminal 5", mode = { "n", "t" } },
     { "<M-t>6", switch_terminal(6), desc = "Switch to Terminal 6", mode = { "n", "t" } },
-    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
-    { "<leader>f.", function() Snacks.picker.files({ cwd = vim.fn.expand('%:p:h'), hidden = true }) end, desc = "Find Files (current file dir)" },
-    { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
     -- git
     { "<leader>gb", function() Snacks.picker.git_branches() end, desc = "Git Branches" },
     { "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log" },

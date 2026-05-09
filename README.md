@@ -8,6 +8,7 @@ configs/
 │   ├── install-cc-switch-cli.sh # 安装 cc-switch-cli
 │   ├── install-clash-for-linux.sh # 安装 Clash for Linux
 │   ├── install-claude-code.sh  # 安装 Claude Code
+│   ├── install-fd.sh           # 安装 fd 到 ~/.local/bin
 │   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
 │   ├── install-go.sh           # 安装 Go 到 ~/.local/go
 │   ├── install-mytask.sh       # 安装 mytask 工具
