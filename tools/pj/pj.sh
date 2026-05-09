@@ -68,6 +68,9 @@ _pj_switch() {
 
     # shellcheck source=/dev/null
     source "$env_file"
+    if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" && -n "${PJ_NAME:-}" ]] && command -v tmux >/dev/null 2>&1; then
+        tmux set-option -p -t "$TMUX_PANE" @pj_name "$PJ_NAME" >/dev/null 2>&1 || true
+    fi
     echo "已切换到环境: $name"
 }
 

@@ -1,11 +1,12 @@
 #!/bin/bash
 # 安装 pj 环境切换器到 ~/.config/env.d
-# 可重入：已安装时跳过
+# 可重入：重复执行会更新托管文件
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_DIR="$HOME/.config/env.d"
+BIN_DIR="$HOME/.local/bin"
 
 # 检查 fzf 依赖
 if ! command -v fzf &>/dev/null; then
@@ -31,17 +32,13 @@ ensure_envd_loader() {
     fi
 }
 
-# 检查是否已安装
-pj_dest="$ENV_DIR/pj.sh"
-if [[ -f "$pj_dest" ]]; then
-    echo "pj 已安装: $pj_dest"
-    exit 0
-fi
-
 # 确保 env.d 加载逻辑存在
 ensure_envd_loader
 
 pj_source="$SCRIPT_DIR/pj/pj.sh"
+helper_source="$SCRIPT_DIR/pj/pj-tmux-after-split"
+pj_dest="$ENV_DIR/pj.sh"
+helper_dest="$BIN_DIR/pj-tmux-after-split"
 template_source="$SCRIPT_DIR/pj/pj.env.sh"
 template_dest="$HOME/pj.env.sh"
 
@@ -50,15 +47,26 @@ if [[ ! -f "$pj_source" ]]; then
     exit 1
 fi
 
+if [[ ! -f "$helper_source" ]]; then
+    echo "错误: 源文件不存在: $helper_source"
+    exit 1
+fi
+
 mkdir -p "$HOME/.pjs"
 mkdir -p "$ENV_DIR"
+mkdir -p "$BIN_DIR"
 
 cp "$pj_source" "$pj_dest"
 echo "已安装: $pj_source -> $pj_dest"
 
-if [[ -f "$template_source" ]]; then
+install -m 755 "$helper_source" "$helper_dest"
+echo "已安装: $helper_source -> $helper_dest"
+
+if [[ -f "$template_source" && ! -f "$template_dest" ]]; then
     cp "$template_source" "$template_dest"
     echo "已安装: $template_source -> $template_dest"
+elif [[ -f "$template_dest" ]]; then
+    echo "模板已存在，跳过: $template_dest"
 fi
 
 echo ""

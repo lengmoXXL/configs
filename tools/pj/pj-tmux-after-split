@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+socket="${1:-}"
+new_pane="${2:-}"
+
+[[ -n "$socket" && -n "$new_pane" ]] || exit 0
+
+pj_name="$(tmux -S "$socket" show-options -p -qv -t ! @pj_name 2>/dev/null || true)"
+[[ -n "$pj_name" ]] || exit 0
+
+sleep 0.1
+
+quoted_name="$(printf "%q" "$pj_name")"
+tmux -S "$socket" send-keys -t "$new_pane" "pj $quoted_name" C-m
