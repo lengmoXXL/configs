@@ -79,13 +79,14 @@ return
   },
   keys = {
     -- Top Pickers & Explorer
-    { "<leader><space>", function() Snacks.picker.files() end, desc = "Find Files" },
+    { "<leader><space>", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
     { "<leader>f.", function() Snacks.picker.files({ cwd = vim.fn.expand('%:p:h'), hidden = true }) end, desc = "Find Files (current file dir)" },
     { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
+    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
     { "<M-.>", toggle_recent_terminal(), desc = "Toggle Recent Terminal", mode = { "n", "t" } },
     { "<M-t>1", switch_terminal(1), desc = "Switch to Terminal 1", mode = { "n", "t" } },
     { "<M-t>2", switch_terminal(2), desc = "Switch to Terminal 2", mode = { "n", "t" } },
