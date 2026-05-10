@@ -62,7 +62,7 @@ return
     },
     dashboard = { enabled = false },
     indent = { enabled = true, filter = function(buf) return vim.bo[buf].filetype ~= "markdown" end },
-    scroll = { enabled = true },
+    scroll = { enabled = false },
     terminal = {
       win = {
         position = "float",

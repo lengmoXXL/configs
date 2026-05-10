@@ -8,6 +8,7 @@ vim.o.wildmode = "longest:full,full"
 vim.g.mapleader = " "
 vim.g.clipboard = "osc52"
 vim.o.autowriteall = true
+vim.o.smoothscroll = true
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
