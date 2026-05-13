@@ -48,6 +48,8 @@ configs/
 └── tools/
     ├── codex_batch.py          # Codex 批处理脚本
     ├── install-codex-batch.sh  # 安装 codex-batch
+    ├── nvim_ft.py              # 按 git URL 维护 Neovim filetypes.json
+    ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-pj.sh           # 安装 pj 环境切换器
     └── pj/                     # pj 工具源码
         └── ...

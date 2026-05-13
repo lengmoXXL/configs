@@ -4,8 +4,8 @@ set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_PATH="${SCRIPT_DIR}/codex_batch.py"
-TARGET_PATH="${BIN_DIR}/codex-batch"
+SOURCE_PATH="${SCRIPT_DIR}/nvim_ft.py"
+TARGET_PATH="${BIN_DIR}/nvim-ft"
 
 if [[ ! -f "${SOURCE_PATH}" ]]; then
     echo "Error: Source script not found: ${SOURCE_PATH}" >&2
@@ -15,5 +15,6 @@ fi
 mkdir -p "${BIN_DIR}"
 install -m 755 "${SOURCE_PATH}" "${TARGET_PATH}"
 
-echo "Installed codex-batch to ${TARGET_PATH}"
-echo "Run it with: codex-batch <input.json> <task.md>"
+echo "Installed nvim-ft to ${TARGET_PATH}"
+echo "Run it with: nvim-ft set <file> <filetype>"
+echo "Config file: ${XDG_DATA_HOME:-${HOME}/.local/share}/nvim/filetypes.json"

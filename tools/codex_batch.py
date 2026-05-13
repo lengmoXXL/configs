@@ -17,11 +17,18 @@ from pathlib import Path
 from typing import Any, TextIO, cast
 
 
-STATE_VERSION = 1
+STATE_VERSION = 3
+
 TEMPLATE_VAR_PATTERN = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*|\.)\}")
+OUTPUT_BLOCK_PATTERN = re.compile(r"(?ms)^[ \t]*```output[ \t]*\n(?P<body>.*?)\n[ \t]*```[ \t]*(?:\n|$)")
 DEFAULT_OUTPUT_PREVIEW_CHARS = 240
 DEFAULT_OUTPUT_DIR_SUFFIX = ".codex-batch"
-RESULT_FILE_NAME = "result.md"
+DEFAULT_MODEL = "default"
+DEFAULT_REASONING_EFFORT = "medium"
+DEFAULT_SANDBOX_MODE = "workspace-write"
+DEFAULT_APPROVAL_POLICY = "never"
+OUTPUT_FIELD_SPEC_KEYS = {"description", "enums", "enum"}
+RESULT_FILE_NAME = "result.json"
 STATE_FILE_NAME = "state.json"
 PRINT_LOCK = threading.Lock()
 
@@ -59,8 +66,29 @@ def atomic_write_text(path: Path, content: str) -> None:
     tmp_path.replace(path)
 
 
-def atomic_write_json(path: Path, data: dict[str, Any]) -> None:
+def atomic_write_json(path: Path, data: Any) -> None:
     atomic_write_text(path, json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+
+
+def load_task(path: Path) -> tuple[str, dict[str, Any], str]:
+    task_text = path.read_text(encoding="utf-8")
+    matches = list(OUTPUT_BLOCK_PATTERN.finditer(task_text))
+    if len(matches) != 1:
+        raise ValueError(f"task Markdown must contain exactly one ```output code block: {path}")
+
+    output_block = matches[0]
+    try:
+        output_spec = json.loads(output_block.group("body"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"```output block must contain valid JSON: {path}: {exc}") from exc
+    if not isinstance(output_spec, dict):
+        raise ValueError(f"```output block must contain a JSON object: {path}")
+
+    prompt_template = (task_text[: output_block.start()] + task_text[output_block.end() :]).strip()
+    if not prompt_template:
+        raise ValueError(f"task Markdown prompt is empty after removing ```output block: {path}")
+    task_digest = hashlib.sha256(task_text.encode("utf-8")).hexdigest()
+    return prompt_template, output_spec, task_digest
 
 
 def render_template(template: str, value: Any) -> str:
@@ -88,23 +116,184 @@ def render_template(template: str, value: Any) -> str:
     return rendered
 
 
-def block_for_result(item_number: int, result_text: str) -> str:
-    output_body = result_text.rstrip() or "(empty)"
-    return "\n".join(
+def render_output_spec(spec: Any, value: Any) -> Any:
+    if isinstance(spec, dict):
+        return {key: render_output_spec(field_spec, value) for key, field_spec in spec.items()}
+    if isinstance(spec, list):
+        return [render_output_spec(item_spec, value) for item_spec in spec]
+    if isinstance(spec, str):
+        return render_template(spec, value)
+    return spec
+
+
+def json_type_name(value: Any) -> str:
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, int) and not isinstance(value, bool):
+        return "integer"
+    if isinstance(value, float):
+        return "number"
+    if value is None:
+        return "null"
+    return "string"
+
+
+def is_output_field_spec(spec: Any) -> bool:
+    return isinstance(spec, dict) and bool(OUTPUT_FIELD_SPEC_KEYS & set(spec))
+
+
+def enum_type_names(values: list[Any]) -> list[str]:
+    return sorted({json_type_name(value) for value in values})
+
+
+def output_node_schema(spec: Any, path: str) -> dict[str, Any]:
+    if is_output_field_spec(spec):
+        schema: dict[str, Any] = {}
+        description = spec.get("description")
+        enum_values = spec.get("enums", spec.get("enum"))
+        if isinstance(description, str) and description:
+            schema["description"] = description
+        if isinstance(enum_values, list):
+            schema["enum"] = enum_values
+            type_names = enum_type_names(enum_values)
+            if len(type_names) == 1:
+                schema["type"] = type_names[0]
+            elif type_names:
+                schema["type"] = type_names
+        else:
+            schema["type"] = "string"
+        return schema
+
+    if isinstance(spec, dict):
+        properties: dict[str, Any] = {}
+        required: list[str] = []
+        for key, child_spec in spec.items():
+            if not isinstance(key, str) or not key:
+                raise ValueError(f"output field name must be a non-empty string: {path}")
+            properties[key] = output_node_schema(child_spec, f"{path}.{key}")
+            required.append(key)
+        return {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": properties,
+            "required": required,
+        }
+
+    if isinstance(spec, list):
+        if len(spec) != 1:
+            raise ValueError(f"output array spec must contain exactly one item: {path}")
+        return {
+            "type": "array",
+            "items": output_node_schema(spec[0], f"{path}[]"),
+        }
+
+    if isinstance(spec, str):
+        return {
+            "type": "string",
+            "description": spec,
+        }
+
+    if spec is None:
+        return {
+            "type": ["string", "null"],
+        }
+
+    return {
+        "type": json_type_name(spec),
+    }
+
+
+def output_schema(output_spec: dict[str, Any]) -> dict[str, Any]:
+    schema = output_node_schema(output_spec, "output")
+    schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    return schema
+
+
+def output_description_lines(spec: Any, prefix: str = "") -> list[str]:
+    if is_output_field_spec(spec):
+        description = spec.get("description")
+        enum_values = spec.get("enums", spec.get("enum"))
+        details: list[str] = []
+        if isinstance(description, str) and description:
+            details.append(description)
+        if isinstance(enum_values, list):
+            details.append("enum: " + ", ".join(json.dumps(value, ensure_ascii=False) for value in enum_values))
+        if not details:
+            details.append("string")
+        return [f"- {prefix}: {'; '.join(details)}"] if prefix else []
+
+    if isinstance(spec, dict):
+        lines: list[str] = []
+        for key, value in spec.items():
+            field_path = f"{prefix}.{key}" if prefix else key
+            if is_output_field_spec(value):
+                lines.extend(output_description_lines(value, field_path))
+                continue
+            if isinstance(value, str):
+                lines.append(f"- {field_path}: {value}")
+            elif isinstance(value, list):
+                lines.append(f"- {field_path}: array")
+            elif isinstance(value, dict):
+                lines.append(f"- {field_path}: object")
+            else:
+                lines.append(f"- {field_path}: {json_type_name(value)}")
+            lines.extend(output_description_lines(value, field_path))
+        return lines
+    if isinstance(spec, list) and spec:
+        return output_description_lines(spec[0], f"{prefix}[]")
+    return []
+
+
+def build_prompt(prompt_template: str, value: Any, output_spec: dict[str, Any], schema: dict[str, Any]) -> str:
+    prompt_body = render_template(prompt_template, value).strip()
+    descriptions = "\n".join(output_description_lines(output_spec))
+    schema_text = json.dumps(schema, ensure_ascii=False, indent=2)
+    output_spec_text = json.dumps(output_spec, ensure_ascii=False, indent=2)
+    output_instructions = "\n".join(
         [
-            f"## Item {item_number}",
+            "<output_instructions>",
+            "Return only a JSON object that matches the JSON Schema below.",
+            "The batch runner will merge each item response into result.json.",
+            "Do not include Markdown, code fences, or explanatory text in your final response.",
+            "String leaves in the output spec are descriptions of the fields to produce.",
             "",
-            output_body,
+            "<output_spec>",
+            output_spec_text,
+            "</output_spec>",
             "",
+            "<fields>",
+            descriptions,
+            "</fields>",
+            "",
+            "<json_schema>",
+            schema_text,
+            "</json_schema>",
+            "</output_instructions>",
         ]
     )
+    return f"{prompt_body}\n\n{output_instructions}\n"
 
 
-def write_result_file(path: Path, blocks: list[str]) -> None:
-    content = ""
-    if blocks:
-        content = "\n---\n\n".join(block.rstrip() for block in blocks) + "\n"
-    atomic_write_text(path, content)
+def parse_result_value(result_text: str) -> dict[str, Any]:
+    if not result_text.strip():
+        raise ValueError("codex output is empty")
+    try:
+        result_value = json.loads(result_text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"codex output is not valid JSON: {exc}") from exc
+    if not isinstance(result_value, dict):
+        raise ValueError("codex output must be a JSON object")
+    return result_value
+
+
+def write_result_file(path: Path, records: list[dict[str, Any]], items: list[dict[str, Any]]) -> None:
+    results: list[dict[str, Any]] = []
+    for record in ordered_records(records, items):
+        result_value = record.get("result_value")
+        if not isinstance(result_value, dict):
+            result_value = parse_result_value(str(record.get("result_text", "")))
+        results.append(result_value)
+    atomic_write_json(path, results)
 
 
 def load_state(path: Path) -> dict[str, Any]:
@@ -145,7 +334,10 @@ def ordered_records(records: list[dict[str, Any]], current_items: list[dict[str,
     return sorted(records, key=lambda record: (position.get(record["item_key"], 10**9), record.get("completed_at", "")))
 
 
-def refresh_completed_records(records: list[dict[str, Any]], current_items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def refresh_completed_records(
+    records: list[dict[str, Any]],
+    current_items: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     current_by_key = {item["item_key"]: item for item in current_items}
     refreshed: list[dict[str, Any]] = []
     for record in ordered_records(records, current_items):
@@ -153,10 +345,11 @@ def refresh_completed_records(records: list[dict[str, Any]], current_items: list
         current = current_by_key.get(record["item_key"])
         if current is not None:
             updated["value"] = current["value"]
-        updated["result_markdown"] = block_for_result(
-            item_number=len(refreshed) + 1,
-            result_text=updated.get("result_text", ""),
-        )
+        result_value = updated.get("result_value")
+        if not isinstance(result_value, dict):
+            result_value = parse_result_value(str(updated.get("result_text", "")))
+        updated["result_value"] = result_value
+        updated["result_json"] = result_value
         refreshed.append(updated)
     return refreshed
 
@@ -187,18 +380,35 @@ def log_codex_event(event: dict[str, Any], slot_index: int) -> None:
         return
 
 
-def stream_codex(prompt: str, workdir: Path, output_file: Path, slot_index: int) -> int:
+def stream_codex(
+    prompt: str,
+    workdir: Path,
+    output_file: Path,
+    output_schema_file: Path,
+    slot_index: int,
+    model: str,
+) -> int:
     cmd = [
         "codex",
         "exec",
         "--skip-git-repo-check",
+        "--sandbox",
+        DEFAULT_SANDBOX_MODE,
+        "-c",
+        f'approval_policy="{DEFAULT_APPROVAL_POLICY}"',
+        "-c",
+        f'model_reasoning_effort="{DEFAULT_REASONING_EFFORT}"',
         "--json",
         "--color",
         "never",
         "--output-last-message",
         str(output_file),
+        "--output-schema",
+        str(output_schema_file),
         "-",
     ]
+    if model != DEFAULT_MODEL:
+        cmd[3:3] = ["--model", model]
     process = subprocess.Popen(
         cmd,
         cwd=str(workdir),
@@ -241,7 +451,7 @@ def parse_args() -> argparse.Namespace:
         description="Batch-run prompts from a JSON file through Codex with resumable state."
     )
     parser.add_argument("input_json", help="输入 JSON 文件路径")
-    parser.add_argument("template_md", help="提示词模板 Markdown 文件路径，支持 {input} / {.}")
+    parser.add_argument("task_md", help="任务 Markdown 文件路径，移除 ```output 代码块后作为提示词，支持 {input} / {.}")
     parser.add_argument(
         "--output",
         help="输出目录，默认是 <input>.codex-batch",
@@ -263,13 +473,22 @@ def parse_args() -> argparse.Namespace:
         default=1,
         help="同时运行的 codex 数量，默认 1",
     )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"codex exec 使用的模型，默认 {DEFAULT_MODEL}",
+    )
     return parser.parse_args()
 
 
-def rewrite_outputs_from_state(state: dict[str, Any], items: list[dict[str, Any]], result_path: Path, state_path: Path) -> None:
+def rewrite_outputs_from_state(
+    state: dict[str, Any],
+    items: list[dict[str, Any]],
+    result_path: Path,
+    state_path: Path,
+) -> None:
     state["completed"] = refresh_completed_records(state["completed"], items)
-    blocks = [record["result_markdown"] for record in ordered_records(state["completed"], items)]
-    write_result_file(result_path, blocks)
+    write_result_file(result_path, state["completed"], items)
     atomic_write_json(state_path, state)
 
 
@@ -277,7 +496,8 @@ def process_item(
     item: dict[str, Any],
     item_number: int,
     total_items: int,
-    template: str,
+    prompt_template: str,
+    output_spec_template: dict[str, Any],
     workdir: Path,
     state: dict[str, Any],
     items: list[dict[str, Any]],
@@ -285,11 +505,19 @@ def process_item(
     state_path: Path,
     state_lock: threading.Lock,
     slot_index: int,
+    model: str,
 ) -> int:
-    prompt = render_template(template, item["value"])
+    output_spec = render_output_spec(output_spec_template, item["value"])
+    schema = output_schema(output_spec)
+    prompt = build_prompt(prompt_template, item["value"], output_spec, schema)
     log_line(f"[Worker {slot_index + 1}] Start item {item_number}/{total_items}")
 
-    with tempfile.NamedTemporaryFile("w+", encoding="utf-8", delete=False, suffix=".md") as tmp_output:
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, suffix=".json") as tmp_schema:
+        json.dump(schema, tmp_schema, ensure_ascii=False, indent=2)
+        tmp_schema.write("\n")
+        tmp_schema_path = Path(tmp_schema.name)
+
+    with tempfile.NamedTemporaryFile("w+", encoding="utf-8", delete=False, suffix=".json") as tmp_output:
         tmp_output_path = Path(tmp_output.name)
 
     try:
@@ -297,21 +525,26 @@ def process_item(
             prompt=prompt,
             workdir=workdir,
             output_file=tmp_output_path,
+            output_schema_file=tmp_schema_path,
             slot_index=slot_index,
+            model=model,
         )
         result_text = tmp_output_path.read_text(encoding="utf-8") if tmp_output_path.exists() else ""
     finally:
+        tmp_schema_path.unlink(missing_ok=True)
         tmp_output_path.unlink(missing_ok=True)
 
     if return_code != 0:
         log_line(f"Error: Item {item_number} exited with code {return_code}")
         return return_code
 
+    result_value = parse_result_value(result_text)
     record = {
         "item_key": item["item_key"],
         "value": item["value"],
         "result_text": result_text,
-        "result_markdown": block_for_result(item_number=item_number, result_text=result_text),
+        "result_value": result_value,
+        "result_json": result_value,
         "completed_at": now_iso(),
     }
     with state_lock:
@@ -330,7 +563,7 @@ def run_batch(args: argparse.Namespace) -> int:
     if args.jobs < 1:
         raise ValueError("--jobs must be >= 1")
     input_path = Path(args.input_json).expanduser().resolve()
-    template_path = Path(args.template_md).expanduser().resolve()
+    task_path = Path(args.task_md).expanduser().resolve()
     if args.output:
         output_dir = Path(args.output).expanduser().resolve()
     elif input_path.suffix:
@@ -345,38 +578,42 @@ def run_batch(args: argparse.Namespace) -> int:
 
     with input_path.open("r", encoding="utf-8") as fh:
         source_data = json.load(fh)
-    template = template_path.read_text(encoding="utf-8")
-    template_digest = hashlib.sha256(template.encode("utf-8")).hexdigest()
+    prompt_template, output_spec, task_digest = load_task(task_path)
     items = build_items(source_data)
     current_keys = {item["item_key"] for item in items}
 
     state_exists = state_path.exists()
     state = load_state(state_path)
-    previous_template_digest = state.get("template_digest")
+    previous_state_version = state.get("version")
+    previous_task_digest = state.get("task_digest")
     state["version"] = STATE_VERSION
     state["input_file"] = str(input_path)
-    state["template_file"] = str(template_path)
-    state["template_digest"] = template_digest
+    state["task_file"] = str(task_path)
+    state["task_digest"] = task_digest
     state["output_dir"] = str(output_dir)
     state["result_file"] = str(result_path)
     state["workdir"] = str(workdir)
+    state["model"] = args.model
+    state["sandbox_mode"] = DEFAULT_SANDBOX_MODE
+    state["approval_policy"] = DEFAULT_APPROVAL_POLICY
     state["last_started_at"] = now_iso()
     state["current_item_keys"] = [item["item_key"] for item in items]
     state["input_digest"] = hashlib.sha256(canonical_json(source_data).encode("utf-8")).hexdigest()
 
-    if state_exists and previous_template_digest != template_digest and state["completed"]:
+    if state_exists and (
+        previous_state_version != STATE_VERSION or previous_task_digest != task_digest
+    ) and state["completed"]:
         state["completed"] = []
         state.pop("last_completed_at", None)
         state.pop("last_finished_at", None)
-        write_result_file(result_path, [])
+        write_result_file(result_path, [], items)
 
     stale_records = [record for record in state["completed"] if record["item_key"] not in current_keys]
     if stale_records:
         if args.stale == "purge":
             state["completed"] = [record for record in state["completed"] if record["item_key"] in current_keys]
             state["completed"] = refresh_completed_records(state["completed"], items)
-            kept_blocks = [record["result_markdown"] for record in ordered_records(state["completed"], items)]
-            write_result_file(result_path, kept_blocks)
+            write_result_file(result_path, state["completed"], items)
             if state["completed"]:
                 state["last_completed_at"] = state["completed"][-1]["completed_at"]
             else:
@@ -385,7 +622,7 @@ def run_batch(args: argparse.Namespace) -> int:
     if state_exists and state["completed"]:
         rewrite_outputs_from_state(state, items, result_path, state_path)
     else:
-        write_result_file(result_path, [])
+        write_result_file(result_path, [], items)
 
     atomic_write_json(state_path, state)
 
@@ -427,7 +664,8 @@ def run_batch(args: argparse.Namespace) -> int:
                         item=item,
                         item_number=item_number,
                         total_items=len(items),
-                        template=template,
+                        prompt_template=prompt_template,
+                        output_spec_template=output_spec,
                         workdir=workdir,
                         state=state,
                         items=items,
@@ -435,6 +673,7 @@ def run_batch(args: argparse.Namespace) -> int:
                         state_path=state_path,
                         state_lock=state_lock,
                         slot_index=slot_index,
+                        model=args.model,
                     )
                 except Exception as exc:
                     with error_lock:

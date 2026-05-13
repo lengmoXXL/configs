@@ -67,6 +67,12 @@ return {
     { '<leader>jH', open_or_switch('CodeDiff history', 'history'), desc = 'Open CodeDiff history' },
   },
   opts = {
+    keymaps = {
+      view = {
+        next_hunk = false,
+        prev_hunk = false,
+      },
+    },
     explorer = {
       focus_on_select = true,
     },
