@@ -39,6 +39,7 @@ configs/
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
+│   │       ├── project_filetypes.lua # 按 git URL 应用 filetype 覆盖
 │   │       ├── plugins/        # 插件配置
 │   │       │   └── ...
 │   │       └── themes/         # 主题配置
