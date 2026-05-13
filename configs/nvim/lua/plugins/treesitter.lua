@@ -9,6 +9,8 @@ return {
       'c',
       'cpp',
       'go',
+      'json',
+      'json5',
       'lua',
       'markdown',
       'python',
