@@ -39,11 +39,6 @@ return {
   cmd = { 'CodeDiff' },
   keys = {
     { '<leader>jj', open_codediff('CodeDiff'), desc = 'Open CodeDiff' },
-    { '<leader>jx', function()
-      if not close_codediff() then
-        vim.notify('No CodeDiff tab to close', vim.log.levels.INFO)
-      end
-    end, desc = 'Close CodeDiff' },
     { '<leader>jh', open_codediff('CodeDiff HEAD^ HEAD'), desc = 'Open CodeDiff HEAD' },
     { '<leader>jc', function()
       local clipboard = vim.trim(vim.fn.getreg('+'))

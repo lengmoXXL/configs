@@ -120,6 +120,7 @@ return
     { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
     { "<leader>tt", pick_tab, desc = "Tabs" },
+    { "<leader>tx", "<cmd>tabclose<cr>", desc = "Close Tab" },
     { "<M-.>", toggle_recent_terminal(), desc = "Toggle Recent Terminal", mode = { "n", "t" } },
     { "<M-t>1", switch_terminal(1), desc = "Switch to Terminal 1", mode = { "n", "t" } },
     { "<M-t>2", switch_terminal(2), desc = "Switch to Terminal 2", mode = { "n", "t" } },
