@@ -81,7 +81,7 @@ return
     -- Top Pickers & Explorer
     { "<leader><space>", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
-    { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
+    { "<leader>/", function() Snacks.picker.grep({ cwd = vim.fn.expand('%:p:h') }) end, desc = "Grep current file dir" },
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
     { "<leader>f.", function() Snacks.picker.files({ cwd = vim.fn.expand('%:p:h'), hidden = true }) end, desc = "Find Files (current file dir)" },
