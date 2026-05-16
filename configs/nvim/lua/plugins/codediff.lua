@@ -59,6 +59,7 @@ return {
   opts = {
     keymaps = {
       view = {
+        focus_explorer = '<leader>je',
         next_hunk = false,
         prev_hunk = false,
       },

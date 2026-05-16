@@ -1,4 +1,5 @@
 local last_terminal_count = 1
+local snacks_tab = require('snacks_tab')
 
 local function hide_visible_terminals()
   local hidden = false
@@ -41,38 +42,6 @@ local function switch_terminal(count)
     hide_visible_terminals()
     open_terminal(count)
   end
-end
-
-local function pick_tab()
-  local items = {}
-
-  for index, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    local win = vim.api.nvim_tabpage_get_win(tabpage)
-    local name = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(win))
-    if name == '' then
-      name = '[No Name]'
-    else
-      name = vim.fn.fnamemodify(name, ':t')
-    end
-
-    items[#items + 1] = {
-      text = string.format('%d: %s', index, name),
-      tabpage = tabpage,
-    }
-  end
-
-  Snacks.picker.pick({
-    title = 'Tabs',
-    items = items,
-    format = 'text',
-    preview = 'none',
-    confirm = function(picker, item)
-      picker:close()
-      if item and vim.api.nvim_tabpage_is_valid(item.tabpage) then
-        vim.api.nvim_set_current_tabpage(item.tabpage)
-      end
-    end,
-  })
 end
 
 return
@@ -119,8 +88,8 @@ return
     { "<leader>f.", function() Snacks.picker.files({ cwd = vim.fn.expand('%:p:h'), hidden = true }) end, desc = "Find Files (current file dir)" },
     { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
     { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
-    { "<leader>tt", pick_tab, desc = "Tabs" },
-    { "<leader>tx", "<cmd>tabclose<cr>", desc = "Close Tab" },
+    { "<leader>tt", snacks_tab.pick, desc = "Tabs" },
+    { "<leader>tx", snacks_tab.close, desc = "Close Tab" },
     { "<M-.>", toggle_recent_terminal(), desc = "Toggle Recent Terminal", mode = { "n", "t" } },
     { "<M-t>1", switch_terminal(1), desc = "Switch to Terminal 1", mode = { "n", "t" } },
     { "<M-t>2", switch_terminal(2), desc = "Switch to Terminal 2", mode = { "n", "t" } },
