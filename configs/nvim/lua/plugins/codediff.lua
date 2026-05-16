@@ -1,59 +1,35 @@
-local codediff_type = nil -- 'open', 'head', 'history'
-
-local function find_codediff_tab()
+local function close_codediff()
   local lifecycle = require('codediff.ui.lifecycle')
+  local tabpage = nil
 
-  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    if lifecycle.get_session(tabpage) then
-      return tabpage
+  for _, candidate in ipairs(vim.api.nvim_list_tabpages()) do
+    if lifecycle.get_session(candidate) then
+      tabpage = candidate
+      break
     end
   end
 
-  return nil
-end
-
-local function close_codediff(tabpage)
-  if not tabpage or not vim.api.nvim_tabpage_is_valid(tabpage) then
-    return
+  if not tabpage then
+    return false
   end
 
   if #vim.api.nvim_list_tabpages() == 1 then
     vim.cmd('tabnew')
   end
 
-  vim.api.nvim_set_current_tabpage(tabpage)
-  vim.cmd('tabclose')
-  codediff_type = nil
-end
-
-local function open_or_switch(command, view_type)
-  return function()
-    local tabpage = find_codediff_tab()
-    if tabpage then
-      if codediff_type == view_type then
-        vim.api.nvim_set_current_tabpage(tabpage)
-        return
-      end
-
-      close_codediff(tabpage)
-    end
-
-    vim.cmd(command)
-    codediff_type = view_type
+  if vim.api.nvim_tabpage_is_valid(tabpage) then
+    vim.cmd(vim.api.nvim_tabpage_get_number(tabpage) .. 'tabclose')
   end
+
+  return true
 end
 
-local function toggle_codediff()
-  local tabpage = find_codediff_tab()
-  if tabpage then
-    if tabpage == vim.api.nvim_get_current_tabpage() then
-      close_codediff(tabpage)
-    else
-      vim.api.nvim_set_current_tabpage(tabpage)
-    end
-  else
-    vim.cmd('CodeDiff')
-    codediff_type = 'open'
+local function open_codediff(command)
+  return function()
+    close_codediff()
+    vim.schedule(function()
+      vim.cmd(command)
+    end)
   end
 end
 
@@ -62,9 +38,28 @@ return {
   url = 'https://github.com/grrru/codediff.nvim.git',
   cmd = { 'CodeDiff' },
   keys = {
-    { '<leader>jj', toggle_codediff, desc = 'Toggle CodeDiff' },
-    { '<leader>jh', open_or_switch('CodeDiff HEAD^ HEAD', 'head'), desc = 'Open CodeDiff HEAD' },
-    { '<leader>jH', open_or_switch('CodeDiff history', 'history'), desc = 'Open CodeDiff history' },
+    { '<leader>jj', open_codediff('CodeDiff'), desc = 'Open CodeDiff' },
+    { '<leader>jx', function()
+      if not close_codediff() then
+        vim.notify('No CodeDiff tab to close', vim.log.levels.INFO)
+      end
+    end, desc = 'Close CodeDiff' },
+    { '<leader>jh', open_codediff('CodeDiff HEAD^ HEAD'), desc = 'Open CodeDiff HEAD' },
+    { '<leader>jc', function()
+      local clipboard = vim.trim(vim.fn.getreg('+'))
+      local default = clipboard:match('^%x%x%x%x%x%x%x+%x*$') and clipboard or ''
+      local commit = vim.trim(vim.fn.input('CodeDiff commit: ', default))
+      if commit == '' then
+        return
+      end
+
+      close_codediff()
+      vim.schedule(function()
+        vim.api.nvim_cmd({ cmd = 'CodeDiff', args = { commit .. '^', commit } }, {})
+      end)
+    end, desc = 'Open CodeDiff commit' },
+    { '<leader>jf', open_codediff('CodeDiff history %'), desc = 'Open CodeDiff file history' },
+    { '<leader>jH', open_codediff('CodeDiff history'), desc = 'Open CodeDiff history' },
   },
   opts = {
     keymaps = {
