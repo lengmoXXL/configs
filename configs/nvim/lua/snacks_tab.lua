@@ -116,67 +116,26 @@ function M.pick()
 end
 
 function M.close()
-  local current_tabpage = vim.api.nvim_get_current_tabpage()
-  local fallback_tabpage = nil
-  local next_tabpage = nil
-  local non_default_count = 0
-
-  for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-    local wins = vim.api.nvim_tabpage_list_wins(tabpage)
-    local is_default = false
-    if #wins == 1 then
-      local buf = vim.api.nvim_win_get_buf(wins[1])
-      is_default = vim.api.nvim_buf_get_name(buf) == ''
-        and not vim.bo[buf].modified
-        and vim.bo[buf].buftype == ''
-    end
-
-    if tabpage == current_tabpage and is_default then
-      vim.cmd('confirm quitall')
-      return
-    end
-
-    if is_default then
-      if tabpage ~= current_tabpage and not fallback_tabpage then
-        fallback_tabpage = tabpage
-      end
-    else
-      non_default_count = non_default_count + 1
-      if tabpage ~= current_tabpage and not next_tabpage then
-        next_tabpage = tabpage
-      end
-    end
-  end
-
-  if non_default_count > 1 then
-    pcall(vim.cmd, 'confirm tabclose')
-    if not vim.api.nvim_tabpage_is_valid(current_tabpage)
-      and next_tabpage
-      and vim.api.nvim_tabpage_is_valid(next_tabpage) then
-      vim.api.nvim_set_current_tabpage(next_tabpage)
-    end
+  if #vim.api.nvim_list_tabpages() > 1 then
+    vim.cmd('confirm tabclose')
     return
   end
 
-  local created_fallback = false
-  if not fallback_tabpage then
-    vim.cmd('tabnew')
-    fallback_tabpage = vim.api.nvim_get_current_tabpage()
-    created_fallback = true
-  end
-
-  vim.api.nvim_set_current_tabpage(current_tabpage)
-  pcall(vim.cmd, 'confirm tabclose')
-
-  if vim.api.nvim_tabpage_is_valid(current_tabpage) then
-    if created_fallback and vim.api.nvim_tabpage_is_valid(fallback_tabpage) then
-      vim.api.nvim_set_current_tabpage(fallback_tabpage)
-      vim.cmd('tabclose')
+  local current_tabpage = vim.api.nvim_get_current_tabpage()
+  local wins = vim.api.nvim_tabpage_list_wins(current_tabpage)
+  if #wins == 1 then
+    local buf = vim.api.nvim_win_get_buf(wins[1])
+    if vim.api.nvim_buf_get_name(buf) == ''
+      and not vim.bo[buf].modified
+      and vim.bo[buf].buftype == '' then
+      vim.cmd('confirm quitall')
+      return
     end
-    vim.api.nvim_set_current_tabpage(current_tabpage)
-  elseif vim.api.nvim_tabpage_is_valid(fallback_tabpage) then
-    vim.api.nvim_set_current_tabpage(fallback_tabpage)
   end
+
+  vim.cmd('tabnew')
+  vim.api.nvim_set_current_tabpage(current_tabpage)
+  vim.cmd('confirm tabclose')
 end
 
 return M
