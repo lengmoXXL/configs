@@ -4,6 +4,7 @@ vim.o.wrap = false
 vim.o.exrc = true
 vim.o.cmdheight = 0
 vim.o.wildmode = "longest:full,full"
+vim.o.showtabline = 2
 -- put in front of lazy
 vim.g.mapleader = " "
 vim.g.clipboard = "osc52"
