@@ -15,6 +15,12 @@ Confirm the review range before checking.
 - If no range is named, review uncommitted changes.
 - Use repository tools to inspect the exact diff before judging.
 
+## Subagent Review
+
+When subagents are available, run the style review in a subagent before finalizing.
+
+Spawn the subagent with `fork_context: true` and leave `model` unset, so it inherits the current model. Ask it to inspect the exact review range or diff and report findings using the Output format. Do not ask the subagent to edit files.
+
 ## Checks
 
 ### Minimal Implementation
@@ -38,6 +44,29 @@ This helper is usually unnecessary when it has one local call site. Inline it:
 ```go
 if _, ok := values[key]; !ok {
 	values[key] = value
+}
+```
+
+### Over-Defensive Guards
+
+Flag newly added checks that only protect against caller misuse or impossible states when the surrounding contract should already guarantee the invariant.
+
+#### Example: Go Nil Receiver Check
+
+```go
+func (s *Store) Save(ctx context.Context, item Item) error {
+	if s == nil {
+		return errors.New("nil store")
+	}
+	return s.db.Save(ctx, item)
+}
+```
+
+If valid calls require a non-nil receiver, the caller should guarantee that precondition. Prefer removing the guard:
+
+```go
+func (s *Store) Save(ctx context.Context, item Item) error {
+	return s.db.Save(ctx, item)
 }
 ```
 
