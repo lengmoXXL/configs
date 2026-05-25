@@ -33,7 +33,7 @@ configs/
 │       └── install-python.sh   # 使用 uv 创建 Python 3.11 虚拟环境
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
-│   ├── install-tmux-config.sh  # 安装 tmux 配置到 ~/.tmux.conf
+│   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
 │   ├── install-codex-config.sh # 更新 Codex AGENTS.md 规则
 │   ├── codex/                  # Codex 配置
 │   │   └── AGENTS.md           # Codex 全局规则
