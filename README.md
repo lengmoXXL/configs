@@ -46,7 +46,7 @@ configs/
 │   │       └── themes/         # 主题配置
 │   │           └── ...
 │   └── tmux/                   # tmux 配置
-│       └── tmux.conf           # 开启鼠标与基础终端设置
+│       └── tmux.conf           # 开启鼠标、基础终端设置与 tmux 插件
 └── tools/
     ├── codex_batch.py          # Codex 批处理脚本
     ├── install-codex-batch.sh  # 安装 codex-batch
