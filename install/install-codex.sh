@@ -6,6 +6,7 @@ set -euo pipefail
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
 CODEX_API="https://api.github.com/repos/openai/codex/releases/latest"
+CURL_USER_AGENT="configs-install-codex"
 
 for dep in curl sed tar find install uname mktemp; do
     if ! command -v "$dep" &>/dev/null; then
@@ -14,7 +15,7 @@ for dep in curl sed tar find install uname mktemp; do
     fi
 done
 
-latest_tag=$(curl -fsSL "$CODEX_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
+latest_tag=$(curl -fsSL -H "Accept: application/vnd.github+json" -H "User-Agent: ${CURL_USER_AGENT}" "$CODEX_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
 if [[ -z "$latest_tag" ]]; then
     echo "错误: 无法获取 Codex 最新版本"
     exit 1
@@ -121,7 +122,7 @@ cleanup() {
 trap cleanup EXIT
 
 echo "下载 Codex ${latest_version} (${target})..."
-curl -fL "$url" -o "$tarball"
+curl -fL -H "User-Agent: ${CURL_USER_AGENT}" "$url" -o "$tarball"
 tar -xzf "$tarball" -C "$tmp_dir"
 
 codex_binary=$(find "$tmp_dir" -type f \( -name "codex-${target}" -o -name codex \) | head -1)

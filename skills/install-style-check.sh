@@ -2,7 +2,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-src="$root/skill/style-check"
+src="$root/skills/style-check"
 dest_root="${CODEX_HOME:-$HOME/.codex}/skills"
 dest="$dest_root/style-check"
 
