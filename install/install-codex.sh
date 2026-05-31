@@ -1,32 +1,33 @@
 #!/bin/bash
 # Install or update Codex CLI binary from GitHub Releases.
+# The latest version is read from the @openai/codex npm package.
 
 set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
-CODEX_API="https://api.github.com/repos/openai/codex/releases/latest"
+CODEX_NPM_PACKAGE="@openai/codex"
 CURL_USER_AGENT="configs-install-codex"
 
-for dep in curl sed tar find install uname mktemp; do
+for dep in curl npm sed tar find install uname mktemp; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
     fi
 done
 
-latest_tag=$(curl -fsSL -H "Accept: application/vnd.github+json" -H "User-Agent: ${CURL_USER_AGENT}" "$CODEX_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
-if [[ -z "$latest_tag" ]]; then
+latest_version=$(npm view "$CODEX_NPM_PACKAGE" version --silent | sed -n 's/^[[:space:]]*\([^[:space:]]\+\)[[:space:]]*$/\1/p' | head -1)
+if [[ -z "$latest_version" ]]; then
     echo "错误: 无法获取 Codex 最新版本"
     exit 1
 fi
 
-latest_version="${latest_tag#rust-v}"
-latest_version="${latest_version#v}"
-if [[ -z "$latest_version" ]]; then
-    echo "错误: 无法解析 Codex 最新版本: $latest_tag"
+if [[ ! "$latest_version" =~ ^[0-9]+(\.[0-9]+){1,2}([.-][0-9A-Za-z]+)*$ ]]; then
+    echo "错误: 无法解析 Codex 最新版本: $latest_version"
     exit 1
 fi
+
+latest_tag="rust-v${latest_version}"
 
 local_codex=""
 if [[ -x "$CODEX_BIN" ]]; then
