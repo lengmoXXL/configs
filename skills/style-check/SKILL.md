@@ -70,6 +70,22 @@ func (s *Store) Save(ctx context.Context, item Item) error {
 }
 ```
 
+### Compatibility Logic
+
+Flag newly added compatibility branches, fallbacks, shims, legacy paths, version checks, platform checks, aliases, migrations, or tolerance for old formats unless they are clearly part of the user's requested behavior.
+
+Do not invent compatibility support from general caution, possible old data, existing consumers, platform differences, dependency versions, or unknown deployments. If the diff adds compatibility logic, verify that the user asked for that compatibility before accepting it.
+
+#### Example: Unrequested Legacy Format
+
+```go
+if cfg.Endpoint == "" && cfg.LegacyURL != "" {
+	cfg.Endpoint = cfg.LegacyURL
+}
+```
+
+If the requested behavior only uses `Endpoint`, the legacy field support is unnecessary unless the user asked to preserve old config files. Prefer removing the compatibility path.
+
 ## Output
 
 Report findings only. If there are none, say so.
