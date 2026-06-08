@@ -15,12 +15,6 @@ Confirm the review range before checking.
 - If no range is named, review uncommitted changes.
 - Use repository tools to inspect the exact diff before judging.
 
-## Subagent Review
-
-When subagents are available, run the style review in a subagent before finalizing.
-
-Spawn the subagent with `fork_context: true` and leave `model` unset, so it inherits the current model. Ask it to inspect the exact review range or diff and report findings using the Output format. Do not ask the subagent to edit files.
-
 ## Checks
 
 ### Minimal Implementation
