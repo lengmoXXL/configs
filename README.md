@@ -15,6 +15,7 @@ configs/
 │   ├── install-mytask.sh       # 安装 mytask 工具
 │   ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
 │   ├── install-nvim.sh         # 从源码编译安装 Neovim
+│   ├── install-playwright.sh   # 安装 Playwright 与 Chromium
 │   ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
 │   ├── install-tldr.sh         # 安装 tldr 命令行帮助工具
 │   ├── install-tmux.sh         # 从源码编译安装 tmux
@@ -47,6 +48,11 @@ configs/
 │   │           └── ...
 │   └── tmux/                   # tmux 配置
 │       └── tmux.conf           # 开启鼠标、基础终端设置与 tmux 插件
+├── skills/
+│   ├── install-frontend-slides.sh # 从 GitHub 安装 frontend-slides skill
+│   ├── install-neovim-skill.sh # 从 GitHub 安装 neovim-skill
+│   ├── install-style-check.sh  # 安装 style-check skill
+│   └── style-check/            # style-check skill 源码
 └── tools/
     ├── codex_batch.py          # Codex 批处理脚本
     ├── install-codex-batch.sh  # 安装 codex-batch
