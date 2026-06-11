@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 安装 Playwright CLI、Chromium 系统依赖与 Chromium 浏览器，用于 frontend-slides PDF 导出
+# 安装 Playwright CLI、Chromium 系统依赖与 Chromium 浏览器，用于浏览器自动化与截图
 # 可重入：重复执行会更新 Playwright，并复用已安装依赖和已下载的浏览器缓存
 
 set -euo pipefail
@@ -92,4 +92,4 @@ echo "Installing Playwright Chromium browser..."
 echo ""
 echo "Playwright installed:"
 "${PLAYWRIGHT_CMD[@]}" --version
-echo "Chromium is ready for Playwright-based PDF export."
+echo "Chromium is ready for Playwright automation."
