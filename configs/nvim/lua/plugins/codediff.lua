@@ -143,6 +143,51 @@ return {
         })
       end,
     })
+    vim.api.nvim_create_autocmd('FileType', {
+      group = vim.api.nvim_create_augroup('UserCodeDiffExplorerKeymaps', { clear = true }),
+      pattern = 'codediff-explorer',
+      callback = function(args)
+        vim.keymap.set('n', 'X', function()
+          local lifecycle = require('codediff.ui.lifecycle')
+          local explorer = lifecycle.get_explorer(vim.api.nvim_get_current_tabpage())
+          if not explorer or not explorer.git_root then
+            vim.notify('Discard all is only available in git mode', vim.log.levels.WARN)
+            return
+          end
+          if explorer.base_revision or explorer.target_revision then
+            vim.notify('Discard all is only available in CodeDiff status mode', vim.log.levels.WARN)
+            return
+          end
+
+          local choice = vim.fn.confirm('Discard all working tree changes and untracked files?', '&Discard\n&Cancel', 2, 'Warning')
+          vim.cmd("echo ''")
+          if choice ~= 1 then
+            return
+          end
+
+          local reset_output = vim.fn.system({ 'git', '-C', explorer.git_root, 'reset', '--hard', 'HEAD' })
+          if vim.v.shell_error ~= 0 then
+            vim.notify('Failed to discard tracked changes: ' .. vim.trim(reset_output), vim.log.levels.ERROR)
+            return
+          end
+
+          local clean_output = vim.fn.system({ 'git', '-C', explorer.git_root, 'clean', '-fd' })
+          if vim.v.shell_error ~= 0 then
+            vim.notify('Failed to delete untracked files: ' .. vim.trim(clean_output), vim.log.levels.ERROR)
+            return
+          end
+
+          require('codediff.ui.explorer').refresh(explorer)
+          vim.notify('Discarded all CodeDiff changes', vim.log.levels.INFO)
+        end, {
+          buffer = args.buf,
+          desc = 'Discard all changes',
+          noremap = true,
+          nowait = true,
+          silent = true,
+        })
+      end,
+    })
   end,
   keys = {
     { '<leader>jj', open_codediff('CodeDiff'), desc = 'Open CodeDiff' },
@@ -167,6 +212,9 @@ return {
     keymaps = {
       view = {
         focus_explorer = '<leader>je',
+      },
+      explorer = {
+        restore = 'x',
       },
     },
     explorer = {
