@@ -14,7 +14,7 @@
 
         <svg class="arrow-layer" aria-hidden="true">
           <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
+            <marker markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
               <path d="M1.5,1.5 L8.5,5 L1.5,8.5 Z" fill="var(--line)"></path>
             </marker>
           </defs>
@@ -49,7 +49,7 @@
 
         <svg class="arrow-layer" aria-hidden="true">
           <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
+            <marker markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse">
               <path d="M1.5,1.5 L8.5,5 L1.5,8.5 Z" fill="var(--line)"></path>
             </marker>
           </defs>
@@ -105,6 +105,11 @@
       const fontSelect = document.querySelector("[data-font]");
       const fontClasses = ["font-clean", "font-tech", "font-editorial", "font-compact"];
       let current = 0;
+
+      slides.forEach((slide, index) => {
+        const marker = slide.querySelector(".arrow-layer marker");
+        if (marker) marker.id = `arrowhead-${index + 1}`;
+      });
 
       const numberData = (el, key) => Number(el.dataset[key] || 0);
 
@@ -209,6 +214,7 @@
         const { width, height } = stageSize();
         layer.setAttribute("viewBox", `0 0 ${width} ${height}`);
         layer.querySelectorAll(".generated-arrow").forEach((el) => el.remove());
+        const markerId = layer.querySelector("marker")?.id || "arrowhead";
 
         slide.querySelectorAll(".arrow-spec").forEach((spec) => {
           const fromBox = boxFor(slide, spec.dataset.from);
@@ -230,7 +236,7 @@
           const path = svgEl("path", {
             class: "arrow generated-arrow",
             d: pathData.d,
-            "marker-end": "url(#arrowhead)",
+            "marker-end": `url(#${markerId})`,
           });
           layer.appendChild(path);
 
