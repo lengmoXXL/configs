@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diagram</title>
-  <link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.0">
-  <script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.0" defer></script>
+  <link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.1">
+  <script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.1" defer></script>
 </head>
-<body class="theme-paper font-tech">
+<body>
   <div class="draw-viewport">
     <main class="draw-stage" id="drawStage">
       <section class="draw-slide active visible" aria-label="Component map">
@@ -75,14 +75,6 @@
   </div>
 
   <nav class="draw-controls" aria-label="Diagram navigation">
-    <font-picker>
-      <select data-font aria-label="Font preset">
-        <option value="font-clean">Clean</option>
-        <option value="font-tech">Tech</option>
-        <option value="font-editorial">Editorial</option>
-        <option value="font-compact">Compact</option>
-      </select>
-    </font-picker>
     <button type="button" data-prev>Prev</button>
     <span data-count></span>
     <button type="button" data-next>Next</button>

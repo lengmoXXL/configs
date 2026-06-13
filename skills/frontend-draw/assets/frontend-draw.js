@@ -1,9 +1,8 @@
 (function (global) {
   "use strict";
 
-  const version = "0.2.0";
+  const version = "0.2.1";
   const markerPath = "M1.5,1.5 L8.5,5 L1.5,8.5 Z";
-  const fontClasses = ["font-clean", "font-tech", "font-editorial", "font-compact"];
   const controllers = new Set();
 
   const numberData = (el, key) => Number(el.dataset[key] || 0);
@@ -295,7 +294,6 @@
     const slideList = slides.length ? slides : [stage];
     const controls = document.querySelector(options.controls || ".draw-controls");
     const count = controls ? controls.querySelector("[data-count]") : document.querySelector("[data-count]");
-    const fontSelect = document.querySelector(options.fontSelect || "[data-font]");
     const prevButton = controls ? controls.querySelector("[data-prev]") : document.querySelector("[data-prev]");
     const nextButton = controls ? controls.querySelector("[data-next]") : document.querySelector("[data-next]");
     let current = Math.max(0, slideList.findIndex((slide) => slide.classList.contains("active")));
@@ -326,27 +324,14 @@
       render();
     };
 
-    const applyFont = () => {
-      if (!fontSelect) return;
-      document.body.classList.remove(...fontClasses);
-      document.body.classList.add(fontSelect.value);
-    };
-
-    const syncFontSelect = () => {
-      if (!fontSelect) return;
-      fontSelect.value = fontClasses.find((className) => document.body.classList.contains(className)) || "font-clean";
-    };
-
     const onResize = () => scale();
     const onKeydown = (event) => {
       if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") showSlide(current + 1);
       if (event.key === "ArrowLeft" || event.key === "PageUp") showSlide(current - 1);
     };
-    const onFontChange = () => applyFont();
     const onPrev = () => showSlide(current - 1);
     const onNext = () => showSlide(current + 1);
 
-    if (fontSelect) fontSelect.addEventListener("change", onFontChange);
     if (prevButton) prevButton.addEventListener("click", onPrev);
     if (nextButton) nextButton.addEventListener("click", onNext);
     window.addEventListener("resize", onResize);
@@ -357,7 +342,6 @@
       scale,
       showSlide,
       destroy() {
-        if (fontSelect) fontSelect.removeEventListener("change", onFontChange);
         if (prevButton) prevButton.removeEventListener("click", onPrev);
         if (nextButton) nextButton.removeEventListener("click", onNext);
         window.removeEventListener("resize", onResize);
@@ -369,7 +353,6 @@
 
     stage.frontendDraw = controller;
     controllers.add(controller);
-    syncFontSelect();
     if (controls && slideList.length <= 1) controls.hidden = true;
     scale();
     showSlide(current);

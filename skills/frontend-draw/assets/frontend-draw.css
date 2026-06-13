@@ -1,9 +1,9 @@
-/* FrontendDraw CSS v0.2.0 */
+/* FrontendDraw CSS v0.2.1 */
 
 :root {
   --stage-width: 1920px;
   --stage-height: 1080px;
-  --page-bg: #f4f6f8;
+  --page-bg: #f4f1ea;
   --stage-bg: #fffdf8;
   --ink: #1d232f;
   --muted: #687083;
@@ -11,79 +11,14 @@
   --accent: #ff6b35;
   --line: #222936;
   --grid-line: rgba(29, 35, 47, 0.04);
-  --font-display: "Aptos Display", "Segoe UI Variable Display", "Segoe UI", sans-serif;
-  --font-body: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
-  --font-mono: "Cascadia Mono", "SFMono-Regular", "Consolas", monospace;
-  --title-size: 60px;
-  --subtitle-size: 24px;
-  --card-title-size: 30px;
-  --card-body-size: 20px;
-  --label-size: 16px;
-}
-
-.theme-paper {
-  --page-bg: #f4f1ea;
-  --stage-bg: #fffdf8;
-  --card: #ffffff;
-  --grid-line: rgba(29, 35, 47, 0.04);
-}
-
-.theme-white {
-  --page-bg: #f6f7f9;
-  --stage-bg: #ffffff;
-  --card: #ffffff;
-  --grid-line: rgba(29, 35, 47, 0.035);
-}
-
-.theme-blueprint {
-  --page-bg: #eef4fb;
-  --stage-bg: #f8fbff;
-  --card: #ffffff;
-  --accent: #2563eb;
-  --grid-line: rgba(37, 99, 235, 0.07);
-}
-
-.theme-mint {
-  --page-bg: #eef8f3;
-  --stage-bg: #fbfffd;
-  --card: #ffffff;
-  --accent: #0f9f6e;
-  --grid-line: rgba(15, 159, 110, 0.07);
-}
-
-.font-clean {
-  --font-display: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
-  --font-body: "Verdana", "Avenir Next", "Segoe UI", sans-serif;
-  --title-size: 58px;
-  --card-title-size: 29px;
-  --card-body-size: 20px;
-}
-
-.font-tech {
   --font-display: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", "Consolas", monospace;
   --font-body: "IBM Plex Sans", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Mono", "SFMono-Regular", "Consolas", monospace;
   --title-size: 52px;
+  --subtitle-size: 24px;
   --card-title-size: 25px;
   --card-body-size: 19px;
   --label-size: 15px;
-}
-
-.font-editorial {
-  --font-display: "Palatino Linotype", "Book Antiqua", "Georgia", serif;
-  --font-body: "Gill Sans", "Trebuchet MS", "Segoe UI", sans-serif;
-  --title-size: 64px;
-  --card-title-size: 31px;
-  --card-body-size: 20px;
-}
-
-.font-compact {
-  --font-display: "Roboto Condensed", "Arial Narrow", "Liberation Sans Narrow", sans-serif;
-  --font-body: "Roboto Condensed", "Arial Narrow", "Liberation Sans Narrow", sans-serif;
-  --title-size: 54px;
-  --subtitle-size: 22px;
-  --card-title-size: 27px;
-  --card-body-size: 19px;
-  --label-size: 14px;
 }
 
 * { box-sizing: border-box; }
@@ -270,11 +205,6 @@ body {
   font-size: 14px;
 }
 
-font-picker {
-  display: block;
-}
-
-font-picker select,
 .draw-controls button {
   border: 1px solid rgba(247, 243, 234, 0.24);
   border-radius: 8px;
@@ -282,15 +212,6 @@ font-picker select,
   color: inherit;
   padding: 8px 14px;
   font: inherit;
-}
-
-font-picker select {
-  max-width: 132px;
-  padding: 7px 9px;
-}
-
-font-picker option {
-  color: #1d232f;
 }
 
 .draw-controls button {
