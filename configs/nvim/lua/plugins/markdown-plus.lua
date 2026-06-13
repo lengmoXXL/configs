@@ -64,6 +64,24 @@ end
 return {
   'yousefhadder/markdown-plus.nvim',
   ft = 'markdown',
+  init = function()
+    vim.api.nvim_create_autocmd('FileType', {
+      group = vim.api.nvim_create_augroup('UserMarkdownSelectionKeymaps', { clear = true }),
+      pattern = 'markdown',
+      callback = function(args)
+        vim.keymap.set('x', '<Tab>', '>gv', {
+          buffer = args.buf,
+          desc = 'Markdown list indent selection',
+          noremap = true,
+        })
+        vim.keymap.set('x', '<S-Tab>', '<gv', {
+          buffer = args.buf,
+          desc = 'Markdown list outdent selection',
+          noremap = true,
+        })
+      end,
+    })
+  end,
   keys = {
     { '<CR>', '<Plug>(MarkdownPlusListEnter)', mode = 'i', ft = 'markdown', desc = 'Markdown list enter' },
     { '<A-CR>', '<Plug>(MarkdownPlusListShiftEnter)', mode = 'i', ft = 'markdown', desc = 'Markdown list continue content' },
