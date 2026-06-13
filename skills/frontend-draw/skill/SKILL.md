@@ -1,6 +1,6 @@
 ---
 name: frontend-draw
-description: Create simple self-contained HTML diagrams with cards/components, arrows, timelines, and optional multi-slide walkthroughs. Use for component maps, flows, dependency sketches, call chains, and timeline explanations that should open directly in a browser.
+description: Create simple browser-openable HTML diagrams with cards/components, arrows, timelines, and optional multi-slide walkthroughs. Use for component maps, flows, dependency sketches, call chains, and timeline explanations that should open directly in a browser.
 ---
 
 # Frontend Draw
@@ -10,10 +10,10 @@ Generate browser-native HTML diagrams. Keep v1 simple: cards plus arrows, with m
 ## Rules
 
 - Start from `template.html`; copy it to the requested output file and replace the sample cards, arrows, labels, and slides.
-- Use the published assets directly: `<link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.0">` and `<script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.0" defer></script>`. Generated diagrams should reference the OSS URLs unless the user asks for an offline file.
+- Use these runtime URLs in the page head: `<link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.0">` and `<script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.0" defer></script>`. Generated diagrams should reference the URLs unless the user asks for an offline file.
 - Pick a background by setting the body class: `theme-paper`, `theme-white`, `theme-blueprint`, or `theme-mint`.
 - Keep the `<font-picker>` component unless the user asks for a locked diagram. It lets users set the global font preset: `font-clean`, `font-tech`, `font-editorial`, or `font-compact`.
-- Output one browser-openable HTML file that references the shared OSS CSS and JS. If the user explicitly asks for a locked/offline single file, fetch the referenced CSS and JS, then inline them.
+- Output one browser-openable HTML file that references the runtime CSS and JS URLs. If the user explicitly asks for a locked/offline single file, fetch those URLs, then inline them.
 - Keep the body declarative and easy to edit: put structure first, reference shared CSS/JS from the head, and avoid inline CSS in body markup.
 - Use the template layout contract: each diagram node must have `data-box`, an `id`, class `box`, and `data-x`, `data-y`, `data-w`, `data-h` pixel values.
 - Add arrows with `.arrow-spec` elements instead of hand-written SVG paths. Treat each `.arrow-spec` as connection geometry: `data-from` and `data-to` must reference `data-box` ids; with only those fields, the template uses the default straight route with automatic opposite sides. Use `data-from-side`, `data-to-side`, and offsets when the default anchors are unclear.
@@ -41,6 +41,13 @@ Generate browser-native HTML diagrams. Keep v1 simple: cards plus arrows, with m
 
 ## Verification
 
-- After generating or editing a diagram, open the HTML in a browser or use Playwright screenshots at desktop and phone viewports.
-- Check every slide: navigation works, cards do not overlap, labels fit, arrows and arrowheads are visible, and arc arrows do not cover important text.
-- Fix the HTML if screenshots show hidden controls, text overflow, missing arrows, or unclear arrow routes.
+- After generating or editing a diagram, create a fixed desktop screenshot with Playwright at `1920x1080`:
+
+```bash
+mkdir -p .test/frontend-draw
+playwright screenshot --viewport-size=1920,1080 "file://$(realpath path/to/diagram.html)" ".test/frontend-draw/diagram.png"
+```
+
+- For multi-slide diagrams, capture each slide at the same `1920x1080` viewport by advancing with `[data-next]` or `ArrowRight` in Playwright and saving `diagram-slide1.png`, `diagram-slide2.png`, etc.
+- Inspect the PNGs before finishing: cards must not overlap, labels must fit, arrows and arrowheads must be visible, and `arc`/`polyline`/`smooth` routes must not cover important card text.
+- Fix the HTML and repeat the `1920x1080` screenshot check if arrows, arrowheads, cards, labels, or controls are misplaced.
