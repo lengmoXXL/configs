@@ -1,0 +1,20 @@
+{
+  "name": "prd",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && esbuild src/preview_server.ts --bundle --platform=node --target=node20 --format=cjs --loader:.css=text --outfile=dist/prd.cjs --banner:js='#!/usr/bin/env node'"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.10.0",
+    "esbuild": "^0.27.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "github-markdown-css": "^5.9.0",
+    "marked": "^18.0.5"
+  }
+}

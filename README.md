@@ -59,6 +59,9 @@ configs/
     ├── install-codex-batch.sh  # 安装 codex-batch
     ├── nvim_ft.py              # 按 git URL 维护 Neovim filetypes.json
     ├── install-nvim-ft.sh      # 安装 nvim-ft
+    ├── install-prd.sh          # 安装 prd
+    ├── prd/                    # prd TypeScript 源码与构建配置
+    │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL
     ├── install-pj.sh           # 安装 pj 环境切换器
     └── pj/                     # pj 工具源码
         └── ...

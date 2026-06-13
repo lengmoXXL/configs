@@ -1,0 +1,76 @@
+:root {
+  color-scheme: dark;
+  --page: #181818;
+  --fg: #f0f6fc;
+  --muted: #9198a1;
+  --border: #3d444d;
+  --soft: #151b23;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+}
+
+.shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 28px 72px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.path {
+  min-width: 0;
+  color: var(--muted);
+  font: 13px/1.4 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.raw {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--soft);
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.markdown-body {
+  background: transparent;
+}
+
+.markdown-body pre code.language-yaml {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 18px 16px 48px;
+  }
+
+  .top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+}
