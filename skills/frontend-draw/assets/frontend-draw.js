@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const version = "0.1.0";
+  const version = "0.2.0";
   const markerPath = "M1.5,1.5 L8.5,5 L1.5,8.5 Z";
   const fontClasses = ["font-clean", "font-tech", "font-editorial", "font-compact"];
   const controllers = new Set();
@@ -51,6 +51,77 @@
         x: 0.25 * start.x + 0.5 * control.x + 0.25 * end.x,
         y: 0.25 * start.y + 0.5 * control.y + 0.25 * end.y,
       },
+    };
+  };
+
+  const parsePoints = (value) => {
+    return String(value || "")
+      .split(/[;|]/)
+      .map((chunk) => chunk.trim())
+      .filter(Boolean)
+      .map((chunk) => {
+        const [x, y] = chunk.split(/[,\s]+/).map(Number);
+        return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+      })
+      .filter(Boolean);
+  };
+
+  const pointAtHalfLength = (points) => {
+    if (points.length === 0) return { x: 0, y: 0 };
+    if (points.length === 1) return points[0];
+
+    const lengths = [];
+    let total = 0;
+    for (let i = 1; i < points.length; i += 1) {
+      const length = Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+      lengths.push(length);
+      total += length;
+    }
+
+    let remaining = total / 2;
+    for (let i = 0; i < lengths.length; i += 1) {
+      if (remaining <= lengths[i]) {
+        const ratio = lengths[i] === 0 ? 0 : remaining / lengths[i];
+        return {
+          x: points[i].x + (points[i + 1].x - points[i].x) * ratio,
+          y: points[i].y + (points[i + 1].y - points[i].y) * ratio,
+        };
+      }
+      remaining -= lengths[i];
+    }
+
+    return points[points.length - 1];
+  };
+
+  const polylinePath = (points) => ({
+    d: points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x} ${point.y}`).join(" "),
+    label: pointAtHalfLength(points),
+  });
+
+  const smoothPath = (points, tension = 1) => {
+    if (points.length <= 2) return polylinePath(points);
+
+    const factor = Number.isFinite(tension) ? tension / 6 : 1 / 6;
+    const commands = [`M${points[0].x} ${points[0].y}`];
+    for (let i = 0; i < points.length - 1; i += 1) {
+      const p0 = points[i - 1] || points[i];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2] || p2;
+      const cp1 = {
+        x: p1.x + (p2.x - p0.x) * factor,
+        y: p1.y + (p2.y - p0.y) * factor,
+      };
+      const cp2 = {
+        x: p2.x - (p3.x - p1.x) * factor,
+        y: p2.y - (p3.y - p1.y) * factor,
+      };
+      commands.push(`C${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${p2.x} ${p2.y}`);
+    }
+
+    return {
+      d: commands.join(" "),
+      label: pointAtHalfLength(points),
     };
   };
 
@@ -178,13 +249,17 @@
       const toSide = spec.dataset.toSide || opposite[autoSide(fromBox, toBox)];
       const start = anchor(fromBox, fromSide, Number(spec.dataset.fromOffset || 0));
       const end = anchor(toBox, toSide, Number(spec.dataset.toOffset || 0));
-      const route = spec.dataset.route || "straight";
-      const pathData = route === "arc"
-        ? arcPath(start, end, Number(spec.dataset.bend || 120))
-        : {
-            d: `M${start.x} ${start.y} L${end.x} ${end.y}`,
-            label: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
-          };
+      const points = [start, ...parsePoints(spec.dataset.points), end];
+      const route = spec.dataset.route || (points.length > 2 ? "polyline" : "straight");
+      const pathData = (() => {
+        if (route === "arc") return arcPath(start, end, Number(spec.dataset.bend || 120));
+        if (route === "polyline") return polylinePath(points);
+        if (route === "smooth" || route === "curve") return smoothPath(points, Number(spec.dataset.tension || 1));
+        return {
+          d: `M${start.x} ${start.y} L${end.x} ${end.y}`,
+          label: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
+        };
+      })();
       const styleName = spec.dataset.style || "default";
       const visualStyle = arrowStyles.get(styleName) || arrowStyles.get("default") || {};
 
