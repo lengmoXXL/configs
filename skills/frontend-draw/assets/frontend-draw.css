@@ -1,4 +1,4 @@
-/* FrontendDraw CSS v0.2.1 */
+/* FrontendDraw CSS v0.2.3 */
 
 :root {
   --stage-width: 1920px;
@@ -97,7 +97,8 @@ body {
   font-size: var(--subtitle-size);
 }
 
-.box {
+.box,
+.group {
   position: absolute;
   left: var(--x);
   top: var(--y);
@@ -105,10 +106,43 @@ body {
   height: var(--h);
 }
 
+.group {
+  pointer-events: none;
+}
+
+.group::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 2px dashed rgba(255, 107, 53, 0.58);
+  border-radius: 18px;
+  background: rgba(255, 107, 53, 0.045);
+}
+
+.group-label {
+  position: absolute;
+  left: var(--label-x, 24px);
+  top: var(--label-y, 18px);
+  z-index: 25;
+  max-width: calc(var(--w) - 48px);
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: 8px;
+  background: var(--stage-bg);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
 .card {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  z-index: 10;
   padding: 22px 24px;
   border: 2px solid var(--line);
   border-radius: 10px;

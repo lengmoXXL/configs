@@ -10,11 +10,13 @@ Generate browser-native HTML diagrams. Keep v1 simple: cards plus arrows, with m
 ## Rules
 
 - Start from `template.html`; copy it to the requested output file and replace the sample cards, arrows, labels, and slides.
-- Use these runtime URLs in the page head: `<link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.1">` and `<script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.1" defer></script>`. Generated diagrams should reference the URLs unless the user asks for an offline file.
+- Use these runtime URLs in the page head: `<link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.3">` and `<script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.3" defer></script>`. Generated diagrams should reference the URLs unless the user asks for an offline file.
 - Use the runtime's default theme and font. Do not add theme classes, font classes, or font picker controls.
 - Output one browser-openable HTML file that references the runtime CSS and JS URLs. If the user explicitly asks for a locked/offline single file, fetch those URLs, then inline them.
 - Keep the body declarative and easy to edit: put structure first, reference shared CSS/JS from the head, and avoid inline CSS in body markup.
 - Use the template layout contract: each diagram node must have `data-box`, an `id`, class `box`, and `data-x`, `data-y`, `data-w`, `data-h` pixel values.
+- Use groups for parent regions, layers, subsystems, or ownership boundaries. Add a group as `<div id="..." class="group" data-group data-members="card-a card-b">...</div>` before its member cards; `data-members` lists card ids and auto-sizes the group around those cards. Use `data-padding` to adjust the auto bounds.
+- Add group text with nested `.group-label` elements. Position each label with `data-x` and `data-y` in group-local stage pixels. Place labels in empty space inside the group so cards do not cover the label text and labels do not cover card text.
 - Add arrows with `.arrow-spec` elements instead of hand-written SVG paths. Treat each `.arrow-spec` as connection geometry: `data-from` and `data-to` must reference `data-box` ids; with only those fields, the template uses the default straight route with automatic opposite sides. Use `data-from-side`, `data-to-side`, and offsets when the default anchors are unclear.
 - Use `data-points="x,y; x,y"` for intermediate route points in stage coordinates. Use `data-route="polyline"` for hard bends, `data-route="smooth"` for a smooth curve through the points, or omit `data-route` to default to `polyline` when points are present. Use `data-tension` on smooth routes when the curve needs tighter or looser handles.
 - Use `data-route="arc"` and `data-bend` for a simple single-bend return path when explicit intermediate points are not needed.
@@ -35,6 +37,7 @@ Generate browser-native HTML diagrams. Keep v1 simple: cards plus arrows, with m
 - First screen shows the diagram itself, not a landing page.
 - Remove unused sample cards, arrows, slides, and placeholder text from the template.
 - Cards and labels must not overflow.
+- Cards may overlap group frames when the group/member relationship is clear; unrelated cards should not overlap, and no card or group label should hide text.
 - Arrows must connect clearly and not cover important text.
 - If a slide becomes crowded, split it instead of shrinking text.
 
@@ -48,5 +51,5 @@ playwright screenshot --viewport-size=1920,1080 "file://$(realpath path/to/diagr
 ```
 
 - For multi-slide diagrams, capture each slide at the same `1920x1080` viewport by advancing with `[data-next]` or `ArrowRight` in Playwright and saving `/tmp/frontend-draw/diagram-slide1.png`, `/tmp/frontend-draw/diagram-slide2.png`, etc.
-- Inspect the PNGs before finishing: cards must not overlap, labels must fit, arrows and arrowheads must be visible, and `arc`/`polyline`/`smooth` routes must not cover important card text.
+- Inspect the PNGs before finishing: unrelated cards must not overlap, group/member overlaps must leave all text readable, group labels must not be covered by cards, labels must fit, arrows and arrowheads must be visible, and `arc`/`polyline`/`smooth` routes must not cover important card text.
 - Fix the HTML and repeat the `1920x1080` screenshot check if arrows, arrowheads, cards, labels, or controls are misplaced.

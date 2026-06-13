@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diagram</title>
-  <link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.1">
-  <script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.1" defer></script>
+  <link rel="stylesheet" href="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/css/frontend-draw.css?v=0.2.3">
+  <script src="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/js/frontend-draw.js?v=0.2.3" defer></script>
 </head>
 <body>
   <div class="draw-viewport">
@@ -21,6 +21,11 @@
         <div class="arrow-spec" data-from="client" data-to="api" data-label="request"></div>
         <div class="arrow-spec" data-from="api" data-to="database" data-label="query"></div>
         <div class="arrow-spec" data-from="database" data-to="client" data-label="event" data-style="event" data-route="smooth" data-points="1220,292; 820,260; 430,322" data-from-side="top" data-to-side="top" data-label-dy="-22"></div>
+
+        <div id="request-group" class="group" data-group data-members="client api database" data-padding="54">
+          <span class="group-label" data-x="28" data-y="24">request loop</span>
+          <span class="group-label" data-x="1260" data-y="24">async event</span>
+        </div>
 
         <article id="client" class="box card" data-box data-x="130" data-y="426" data-w="330" data-h="174">
           <h2>Client</h2>
@@ -50,6 +55,10 @@
         <div class="arrow-spec" data-from="discover" data-to="design" data-label="then" data-from-side="right" data-to-side="left"></div>
         <div class="arrow-spec" data-from="design" data-to="build" data-label="then" data-from-side="right" data-to-side="left"></div>
         <div class="arrow-spec" data-from="build" data-to="ship" data-label="then" data-from-side="right" data-to-side="left"></div>
+
+        <div id="delivery-group" class="group" data-group data-members="discover design build ship" data-padding="44">
+          <span class="group-label" data-x="28" data-y="20">delivery flow</span>
+        </div>
 
         <article id="discover" class="box card" data-box data-x="120" data-y="250" data-w="320" data-h="164">
           <h2>Discover</h2>

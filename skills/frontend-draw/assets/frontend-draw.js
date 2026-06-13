@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const version = "0.2.1";
+  const version = "0.2.3";
   const markerPath = "M1.5,1.5 L8.5,5 L1.5,8.5 Z";
   const controllers = new Set();
 
@@ -225,6 +225,44 @@
     stage.querySelectorAll("[data-box]").forEach((el) => {
       ["x", "y", "w", "h"].forEach((key) => {
         el.style.setProperty(`--${key}`, `${numberData(el, key)}px`);
+      });
+    });
+
+    stage.querySelectorAll("[data-group]").forEach((group) => {
+      const slide = group.closest(".draw-slide") || stage;
+      const padding = Number(group.dataset.padding || 36);
+      const memberBoxes = String(group.dataset.members || "")
+        .split(/[,\s]+/)
+        .map((id) => id.trim())
+        .filter(Boolean)
+        .map((id) => boxFor(slide, id))
+        .filter(Boolean);
+
+      let bounds = { x: 0, y: 0, w: 0, h: 0 };
+      if (memberBoxes.length) {
+        const minX = Math.min(...memberBoxes.map((box) => box.left));
+        const minY = Math.min(...memberBoxes.map((box) => box.top));
+        const maxX = Math.max(...memberBoxes.map((box) => box.left + box.width));
+        const maxY = Math.max(...memberBoxes.map((box) => box.top + box.height));
+        bounds = {
+          x: minX - padding,
+          y: minY - padding,
+          w: maxX - minX + padding * 2,
+          h: maxY - minY + padding * 2,
+        };
+      }
+
+      ["x", "y", "w", "h"].forEach((key) => {
+        group.style.setProperty(`--${key}`, `${bounds[key]}px`);
+      });
+
+      group.querySelectorAll(".group-label").forEach((label) => {
+        if (Object.prototype.hasOwnProperty.call(label.dataset, "x")) {
+          label.style.setProperty("--label-x", `${Number(label.dataset.x || 0)}px`);
+        }
+        if (Object.prototype.hasOwnProperty.call(label.dataset, "y")) {
+          label.style.setProperty("--label-y", `${Number(label.dataset.y || 0)}px`);
+        }
       });
     });
   };
