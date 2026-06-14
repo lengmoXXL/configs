@@ -204,7 +204,6 @@ return {
         vim.api.nvim_cmd({ cmd = 'CodeDiff', args = { commit .. '^', commit } }, {})
       end)
     end, desc = 'Open CodeDiff commit' },
-    { '<leader>jf', open_codediff('CodeDiff history %'), desc = 'Open CodeDiff file history' },
     { '<leader>jH', open_codediff('CodeDiff history'), desc = 'Open CodeDiff history' },
   },
   opts = {
