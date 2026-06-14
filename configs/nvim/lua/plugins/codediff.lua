@@ -119,8 +119,7 @@ local function show_history_commit_context(direction)
 end
 
 return {
-  'codediff.nvim',
-  url = 'https://github.com/grrru/codediff.nvim.git',
+  'esmuellert/codediff.nvim',
   cmd = { 'CodeDiff' },
   init = function()
     vim.api.nvim_create_autocmd('FileType', {
