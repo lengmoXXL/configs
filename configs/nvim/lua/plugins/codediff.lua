@@ -1,6 +1,9 @@
 return {
   'esmuellert/codediff.nvim',
   cmd = { 'CodeDiff' },
+  keys = {
+    { '<leader>gw', '<cmd>CodeDiff<cr>', desc = 'CodeDiff Workspace' },
+  },
   opts = {
     keymaps = {
       view = {

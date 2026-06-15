@@ -97,11 +97,6 @@ return
     { "<M-t>4", switch_terminal(4), desc = "Switch to Terminal 4", mode = { "n", "t" } },
     { "<M-t>5", switch_terminal(5), desc = "Switch to Terminal 5", mode = { "n", "t" } },
     { "<M-t>6", switch_terminal(6), desc = "Switch to Terminal 6", mode = { "n", "t" } },
-    -- git
-    { "<leader>gb", function() Snacks.picker.git_branches() end, desc = "Git Branches" },
-    { "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log" },
-    { "<leader>gL", function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
-    { "<leader>gS", function() Snacks.picker.git_stash() end, desc = "Git Stash" },
     -- Grep
     { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines" },
     { "<leader>sB", function() Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers" },
