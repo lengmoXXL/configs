@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 从源码编译安装 Neovim v0.12.2
+# 从源码编译安装 Neovim v0.12.3
 # https://github.com/neovim/neovim
 # 可重入：已安装目标版本时跳过，版本不一致时询问是否升级
 # 剪贴板使用 OSC 52 终端协议，无需额外安装 xclip
@@ -10,7 +10,7 @@ set -e
 INSTALL_DIR="${HOME}/.local"
 SRC_DIR="${HOME}/.local/src/neovim"
 NVIM_REPO="https://github.com/neovim/neovim.git"
-VERSION="v0.12.2"
+VERSION="v0.12.3"
 
 NVIM_BIN="${INSTALL_DIR}/bin/nvim"
 
