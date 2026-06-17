@@ -34,8 +34,6 @@ require('lazy').setup({
 -- theme
 vim.cmd.colorscheme("vscode")
 
-vim.opt.fillchars:append({ diff = ' ' })
-
 vim.lsp.config('clangd', {
   filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
   cmd = {
