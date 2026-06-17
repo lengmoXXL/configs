@@ -31,14 +31,6 @@ return {
     },
   },
   opts = {
-    keymaps = {
-      view = {
-        focus_explorer = '<leader>ge',
-      },
-      explorer = {
-        restore = 'x',
-      },
-    },
     explorer = {
       focus_on_select = true,
     },
