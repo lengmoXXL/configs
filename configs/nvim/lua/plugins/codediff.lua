@@ -34,5 +34,10 @@ return {
     explorer = {
       focus_on_select = true,
     },
+    keymaps = {
+      view = {
+        focus_explorer = '<leader>ge',
+      },
+    },
   },
 }

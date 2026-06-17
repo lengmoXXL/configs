@@ -2,35 +2,26 @@ return {
   'nvim-mini/mini.files',
   version = '*',
   cmd = { 'MiniFilesToggleSort' },
-  init = function()
-    local group = vim.api.nvim_create_augroup('MiniFilesBufferKeymaps', { clear = true })
-    local set_buffer_keymap = function(bufnr)
-      if vim.bo[bufnr].buftype ~= '' or not vim.bo[bufnr].buflisted then
-        return
-      end
-
-      vim.keymap.set('n', '<leader>e', function()
-        local path = vim.api.nvim_buf_get_name(0)
+  keys = {
+    {
+      '<leader>e',
+      function()
         local mini_files = require('mini.files')
         if not mini_files.close() then
-          mini_files.open(path ~= '' and path or vim.fn.getcwd())
+          mini_files.open(vim.api.nvim_buf_get_name(0))
           mini_files.reveal_cwd()
         end
-      end, { buffer = bufnr, desc = 'Toggle mini.files (current file location)' })
-
-      vim.keymap.set('n', '<leader>E', function()
-        require('mini.files').open(vim.fn.getcwd())
-      end, { buffer = bufnr, desc = 'Open mini.files (cwd)' })
-    end
-
-    set_buffer_keymap(vim.api.nvim_get_current_buf())
-    vim.api.nvim_create_autocmd('BufEnter', {
-      group = group,
-      callback = function(args)
-        set_buffer_keymap(args.buf)
       end,
-    })
-  end,
+      desc = 'Toggle mini.files (current file location)',
+    },
+    {
+      '<leader>E',
+      function()
+        require('mini.files').open(vim.fn.getcwd())
+      end,
+      desc = 'Open mini.files (cwd)',
+    },
+  },
   opts = {
     mappings = {
       go_in = '<C-l>',
