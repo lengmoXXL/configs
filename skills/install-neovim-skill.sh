@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/mcp-neovim-server.git}"
+REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/neovim-skill.git}"
 REF="${REF:-master}"
 SKILL_PATH="${SKILL_PATH:-skills/neovim-skill}"
 DEST_ROOT="${CODEX_HOME:-$HOME/.codex}/skills"
