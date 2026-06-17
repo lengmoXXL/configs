@@ -76,11 +76,13 @@ vim.diagnostic.config({
 -- system clipboard
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 
--- 复制文件位置 (可视模式下)
+-- 复制项目内文件位置 (可视模式下)
 vim.keymap.set('v', '<leader>ly', function()
   local start_line = vim.fn.line('v')
   local end_line = vim.fn.line('.')
-  local file = vim.fn.expand('%:t')
+  local file = vim.api.nvim_buf_get_name(0)
+  local root = vim.fs.root(file, { '.git' }) or vim.fn.getcwd()
+  file = vim.fs.relpath(root, file) or file
   local location = file .. ':' .. start_line
   if start_line ~= end_line then
     location = location .. '-' .. end_line
