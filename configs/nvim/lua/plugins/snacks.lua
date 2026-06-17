@@ -123,6 +123,25 @@ return
     { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
   },
   init = function()
+    local group = vim.api.nvim_create_augroup("SnacksNormalBufferKeymaps", { clear = true })
+    local set_buffer_keymap = function(bufnr)
+      if vim.bo[bufnr].buftype ~= '' then
+        return
+      end
+
+      vim.keymap.set("n", "qq", function()
+        snacks_tab.close()
+      end, { buffer = bufnr, desc = "Close Tab" })
+    end
+
+    set_buffer_keymap(vim.api.nvim_get_current_buf())
+    vim.api.nvim_create_autocmd("BufEnter", {
+      group = group,
+      callback = function(args)
+        set_buffer_keymap(args.buf)
+      end,
+    })
+
     vim.api.nvim_create_autocmd("User", {
       pattern = "VeryLazy",
       callback = function()
