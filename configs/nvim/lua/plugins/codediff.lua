@@ -7,7 +7,7 @@ return {
   opts = {
     keymaps = {
       view = {
-        focus_explorer = '<leader>je',
+        focus_explorer = '<leader>ge',
       },
       explorer = {
         restore = 'x',
