@@ -43,13 +43,13 @@ Generate browser-native HTML diagrams. Keep v1 simple: cards plus arrows, with m
 
 ## Verification
 
-- After generating or editing a diagram, create a fixed desktop screenshot with Playwright at `1920x1080`. Write screenshots under `/tmp/frontend-draw`, not the current project directory:
+- After generating or editing a diagram, create a fixed desktop screenshot with Playwright at `1920x1080`. Write screenshots under `.draw`, not the current project directory:
 
 ```bash
-mkdir -p /tmp/frontend-draw
-playwright screenshot --viewport-size=1920,1080 "file://$(realpath path/to/diagram.html)" "/tmp/frontend-draw/diagram.png"
+mkdir -p .draw
+playwright screenshot --viewport-size=1920,1080 "file://$(realpath path/to/diagram.html)" ".draw/diagram.png"
 ```
 
-- For multi-slide diagrams, capture each slide at the same `1920x1080` viewport by advancing with `[data-next]` or `ArrowRight` in Playwright and saving `/tmp/frontend-draw/diagram-slide1.png`, `/tmp/frontend-draw/diagram-slide2.png`, etc.
+- For multi-slide diagrams, capture each slide at the same `1920x1080` viewport by advancing with `[data-next]` or `ArrowRight` in Playwright and saving `.draw/diagram-slide1.png`, `.draw/diagram-slide2.png`, etc.
 - Inspect the PNGs before finishing: unrelated cards must not overlap, group/member overlaps must leave all text readable, group labels must not be covered by cards, labels must fit, arrows and arrowheads must be visible, and `arc`/`polyline`/`smooth` routes must not cover important card text.
 - Fix the HTML and repeat the `1920x1080` screenshot check if arrows, arrowheads, cards, labels, or controls are misplaced.
