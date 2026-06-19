@@ -40,3 +40,7 @@ install -m 755 "${SOURCE_PATH}" "${TARGET_PATH}"
 echo "Installed prd to ${TARGET_PATH}"
 echo "Run it with: prd <file>"
 echo "Default server: http://127.0.0.1:7000/"
+
+if ! command -v markdown-oxide >/dev/null 2>&1; then
+    echo "Note: markdown-oxide not found; install it (install/lsp/install-markdown-oxide.sh) to resolve [[wiki]] links"
+fi

@@ -62,6 +62,24 @@ body {
   overflow-wrap: anywhere;
 }
 
+.markdown-body .broken-link {
+  color: #f85149;
+  border-bottom: 2px dotted #f85149;
+  text-decoration: none;
+  cursor: help;
+  font-weight: 500;
+}
+
+.md-warning {
+  margin-bottom: 24px;
+  padding: 10px 14px;
+  border: 1px solid #f0883e;
+  border-radius: 6px;
+  background: rgba(240, 136, 62, 0.12);
+  color: #ffb45c;
+  font-size: 14px;
+}
+
 @media (max-width: 720px) {
   .shell {
     padding: 18px 16px 48px;
