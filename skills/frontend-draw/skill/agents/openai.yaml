@@ -1,4 +1,0 @@
-interface:
-  display_name: "Frontend Draw"
-  short_description: "HTML card-and-arrow diagrams"
-  default_prompt: "Use $frontend-draw to create a multi-slide HTML component diagram with cards, arrows, and a timeline."
