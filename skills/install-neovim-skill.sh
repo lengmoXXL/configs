@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/neovim-skill.git}"
 REF="${REF:-master}"
 SKILL_PATH="${SKILL_PATH:-skills/neovim-skill}"
-DEST_ROOT="${CODEX_HOME:-$HOME/.codex}/skills"
+DEST_ROOT="${AGENTS_HOME:-$HOME/.agents}/skills"
 DEST="$DEST_ROOT/neovim-skill"
 TMP_DIR="$(mktemp -d)"
 
@@ -27,4 +27,4 @@ rm -rf "$DEST"
 cp -a "$SRC" "$DEST"
 
 echo "Installed neovim-skill to $DEST"
-echo "Restart Codex to pick up new skills."
+echo "Restart your agent to pick up new skills."

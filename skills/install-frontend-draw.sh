@@ -3,7 +3,7 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src="$root/skills/frontend-draw/skill"
-dest_root="${CODEX_HOME:-$HOME/.codex}/skills"
+dest_root="${AGENTS_HOME:-$HOME/.agents}/skills"
 dest="$dest_root/frontend-draw"
 
 if [[ ! -f "$src/SKILL.md" ]]; then
@@ -16,4 +16,4 @@ rm -rf "$dest"
 cp -a "$src" "$dest"
 
 echo "Installed frontend-draw to $dest"
-echo "Restart Codex to pick up new skills."
+echo "Restart your agent to pick up new skills."

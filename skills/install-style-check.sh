@@ -3,7 +3,7 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src="$root/skills/style-check"
-dest_root="${CODEX_HOME:-$HOME/.codex}/skills"
+dest_root="${AGENTS_HOME:-$HOME/.agents}/skills"
 dest="$dest_root/style-check"
 
 if [[ ! -f "$src/SKILL.md" ]]; then
