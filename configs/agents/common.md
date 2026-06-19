@@ -1,3 +1,1 @@
-# Codex Instructions
-
 - Prefer inlining small functions near their implementation over extracting tiny helper functions away from the implementation.

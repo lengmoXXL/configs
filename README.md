@@ -35,9 +35,11 @@ configs/
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
-│   ├── install-codex-config.sh # 更新 Codex AGENTS.md 规则
-│   ├── codex/                  # Codex 配置
-│   │   └── AGENTS.md           # Codex 全局规则
+│   ├── install-agents.sh       # 安装 AGENTS.md 规则 (codex/opencode)
+│   ├── agents/                 # AGENTS.md 提示词源码
+│   │   ├── common.md           # 通用提示词
+│   │   ├── codex.md            # Codex 专属提示词
+│   │   └── opencode.md         # OpenCode 专属提示词
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
