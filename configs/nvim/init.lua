@@ -5,6 +5,8 @@ vim.o.exrc = true
 vim.o.cmdheight = 0
 vim.o.wildmode = "longest:full,full"
 vim.o.showtabline = 0
+vim.o.title = true
+vim.o.titlestring = "nvim: %{fnamemodify(getcwd(), ':t')}"
 -- put in front of lazy
 vim.g.mapleader = " "
 vim.g.clipboard = "osc52"
