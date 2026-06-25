@@ -4,6 +4,11 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 INSTALL_DIR="${HOME}/.local/typescript-language-server"
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/typescript-language-server"
@@ -25,7 +30,6 @@ echo "安装 typescript-language-server"
 mkdir -p "$BIN_DIR"
 mkdir -p "$INSTALL_DIR"
 
-# 使用 npm 安装到指定目录
 npm install --prefix "$INSTALL_DIR" typescript typescript-language-server
 
 # 创建符号链接

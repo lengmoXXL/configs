@@ -5,6 +5,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 LOCAL_BIN="$HOME/.local/bin"
 
 export PATH="$LOCAL_BIN:$PATH"

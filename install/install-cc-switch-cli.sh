@@ -3,7 +3,12 @@
 
 set -e
 
-INSTALL_URL="https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
+INSTALL_URL=$(configs_github_url "https://github.com/SaladDay/cc-switch-cli/releases/latest/download/install.sh")
 
 echo "安装 cc-switch-cli..."
 curl -fsSL "$INSTALL_URL" | bash

@@ -4,6 +4,11 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 INSTALL_DIR="${HOME}/.local/pyright"
 BIN_DIR="${HOME}/.local/bin"
 NPM="${BIN_DIR}/npm"

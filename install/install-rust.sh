@@ -4,15 +4,17 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 INSTALL_DIR="${HOME}/.local/rust"
 BIN_DIR="${HOME}/.local/bin"
+RUSTUP_INIT_URL="${RUSTUP_INIT_URL:-https://sh.rustup.rs}"
 
 export RUSTUP_HOME="$INSTALL_DIR/rustup"
 export CARGO_HOME="$INSTALL_DIR"
-
-# 配置 rustup 阿里云镜像
-export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
-export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 
 # 检查是否已安装
 if [[ -x "$INSTALL_DIR/bin/cargo" ]]; then
@@ -25,8 +27,9 @@ echo "安装 Rust 到: $INSTALL_DIR"
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
-# 配置 cargo 中科大镜像
-cat > "$INSTALL_DIR/config.toml" << 'EOF'
+if configs_is_cn; then
+    # 配置 cargo 中科大镜像
+    cat > "$INSTALL_DIR/config.toml" << 'EOF'
 [source.crates-io]
 replace-with = 'ustc'
 
@@ -36,8 +39,9 @@ registry = "https://mirrors.ustc.edu.cn/crates.io-index"
 [net]
 git-fetch-with-cli = true
 EOF
+fi
 
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+curl --proto '=https' --tlsv1.2 -sSf "$RUSTUP_INIT_URL" \
     | sh -s -- -y --no-modify-path --default-toolchain stable
 
 # 创建符号链接到 ~/.local/bin
@@ -52,9 +56,13 @@ cat > "$ENV_DIR/rust.sh" << 'EOF'
 # Rust 环境配置
 export RUSTUP_HOME="$HOME/.local/rust/rustup"
 export CARGO_HOME="$HOME/.local/rust"
+EOF
+if configs_is_cn; then
+    cat >> "$ENV_DIR/rust.sh" << 'EOF'
 export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
 export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 EOF
+fi
 
 echo ""
 echo "Rust 安装完成"

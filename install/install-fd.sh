@@ -3,6 +3,11 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 BIN_DIR="${HOME}/.local/bin"
 FD_API="https://api.github.com/repos/sharkdp/fd/releases/latest"
 
@@ -26,7 +31,7 @@ if [[ -n "$existing_fd" ]]; then
     exit 0
 fi
 
-version=$(curl -fsSL "$FD_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
+version=$(curl -fsSL "$(configs_github_url "$FD_API")" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
 if [[ -z "$version" ]]; then
     echo "错误: 无法获取 fd 最新版本"
     exit 1
@@ -41,7 +46,7 @@ esac
 
 tmp_dir=$(mktemp -d)
 tarball="${tmp_dir}/fd.tar.gz"
-url="https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz"
+url=$(configs_github_url "https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz")
 
 echo "下载 fd ${version}..."
 curl -fL "$url" -o "$tarball"

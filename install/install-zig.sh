@@ -4,8 +4,14 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 ZIG_DIR="${HOME}/.local/zig"
 BIN_DIR="${HOME}/.local/bin"
+ZIG_DOWNLOAD_BASE="${ZIG_DOWNLOAD_BASE:-https://ziglang.org/download}"
 
 # 默认版本，可通过参数指定
 ZIG_VERSION="${1:-0.14.0}"
@@ -34,7 +40,7 @@ case "$ARCH" in
 esac
 
 # 下载地址
-ZIG_URL="https://ziglang.org/download/${ZIG_VERSION}/zig-linux-${ZIG_ARCH}-${ZIG_VERSION}.tar.xz"
+ZIG_URL="${ZIG_DOWNLOAD_BASE%/}/${ZIG_VERSION}/zig-linux-${ZIG_ARCH}-${ZIG_VERSION}.tar.xz"
 ZIG_TMP="/tmp/zig-${ZIG_VERSION}.tar.xz"
 
 echo "下载中..."

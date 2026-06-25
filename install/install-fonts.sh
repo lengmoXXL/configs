@@ -4,16 +4,19 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 FONTS_DIR="$SCRIPT_DIR/../fonts"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 get_font_info() {
     case "$1" in
         sarasa)
-            echo "Sarasa Term SC Nerd|${PROXY}https://github.com/laishulu/Sarasa-Term-SC-Nerd/releases/download/v2.3.1/SarasaTermSCNerd.ttf.tar.gz|tar.gz"
+            echo "Sarasa Term SC Nerd|$(configs_github_url "https://github.com/laishulu/Sarasa-Term-SC-Nerd/releases/download/v2.3.1/SarasaTermSCNerd.ttf.tar.gz")|tar.gz"
             ;;
         aurulent)
-            echo "AurulentSansMono Nerd Font|${PROXY}https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/AurulentSansMono.zip|zip"
+            echo "AurulentSansMono Nerd Font|$(configs_github_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/AurulentSansMono.zip")|zip"
             ;;
         *)
             return 1

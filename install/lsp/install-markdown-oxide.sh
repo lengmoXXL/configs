@@ -4,6 +4,11 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 REPO_URL="https://github.com/lengmoXXL/markdown-oxide.git"
 BRANCH="${MARKDOWN_OXIDE_BRANCH:-main}"
 RUST_DIR="${HOME}/.local/rust"
@@ -11,9 +16,6 @@ INSTALL_ROOT="${HOME}/.local/markdown-oxide"
 BIN_DIR="${HOME}/.local/bin"
 CARGO="${RUST_DIR}/bin/cargo"
 BINARY="${BIN_DIR}/markdown-oxide"
-
-export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
-export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 
 if [[ -x "$CARGO" ]]; then
     export RUSTUP_HOME="${RUST_DIR}/rustup"

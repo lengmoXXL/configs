@@ -5,19 +5,22 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 INSTALL_DIR="${HOME}/.local/lua-language-server"
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/lua-language-server"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 if [[ -x "$BINARY" ]]; then
     echo "lua-language-server 已安装"
     exit 0
 fi
 
-# API 请求不走代理
 API_URL="https://api.github.com/repos/LuaLS/lua-language-server/releases/latest"
-VERSION=$(curl -s "$API_URL" | grep -oP '"tag_name": "\K[^"]+')
+VERSION=$(curl -s "$(configs_github_url "$API_URL")" | grep -oP '"tag_name": "\K[^"]+')
 
 echo "安装 lua-language-server $VERSION"
 
@@ -35,7 +38,7 @@ trap "rm -rf $TMPDIR" EXIT
 
 cd "$TMPDIR"
 
-DOWNLOAD_URL="${PROXY}https://github.com/LuaLS/lua-language-server/releases/download/$VERSION/lua-language-server-$VERSION-linux-$ARCH.tar.gz"
+DOWNLOAD_URL=$(configs_github_url "https://github.com/LuaLS/lua-language-server/releases/download/$VERSION/lua-language-server-$VERSION-linux-$ARCH.tar.gz")
 curl -fLO "$DOWNLOAD_URL"
 
 mkdir -p "$INSTALL_DIR"

@@ -1,13 +1,18 @@
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/network.sh"
+configs_parse_network_args "$@"
+set -- "${CONFIGS_ARGS[@]}"
+
 REPO_URL="https://github.com/lengmoXXL/mytask.git"
 INSTALL_DIR="$HOME/.local/bin"
 TMP_DIR=$(mktemp -d)
 BINARY_NAME="mytask"
 
 echo "==> Cloning repository..."
-git clone "$REPO_URL" "$TMP_DIR/mytask"
+configs_git clone "$REPO_URL" "$TMP_DIR/mytask"
 
 echo "==> Building binary..."
 cd "$TMP_DIR/mytask"
