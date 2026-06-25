@@ -55,6 +55,7 @@ vim.lsp.enable('typos_lsp')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('bashls')
 vim.lsp.enable('lua_ls')
+vim.lsp.enable('starpls')
 
 -- switch source/header (clangd)
 vim.keymap.set('n', '<leader>ch', '<cmd>LspClangdSwitchSourceHeader<cr>', { desc = 'Switch source/header' })

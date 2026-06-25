@@ -27,6 +27,7 @@ configs/
 │   │   ├── install-markdown-oxide.sh # 安装 markdown-oxide
 │   │   ├── install-pyright-lsp.sh # 安装 pyright
 │   │   ├── install-rust-analyzer-lsp.sh # 安装 rust-analyzer
+│   │   ├── install-starpls-lsp.sh # 安装 starpls
 │   │   ├── install-typescript-lsp.sh # 安装 typescript-language-server
 │   │   └── install-typos-lsp.sh # 安装 typos-lsp
 │   └── sys/                    # yum/system package 相关脚本
