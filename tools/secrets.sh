@@ -35,6 +35,7 @@ EOF
 require_ossutil() {
     if ! command -v ossutil >/dev/null 2>&1; then
         echo "错误: 缺少 ossutil" >&2
+        echo "请先运行: $ROOT/install/install-ossutil.sh" >&2
         exit 1
     fi
 }
