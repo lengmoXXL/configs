@@ -20,6 +20,19 @@ NPM_REGISTRY=https://registry.npmmirror.com ./install/install-node.sh -cn
 ZIG_DOWNLOAD_BASE=https://ziglang.org/download ./install/install-zig.sh -cn
 ```
 
+## 敏感配置
+
+`.secrets/` 是本地明文敏感配置目录，不加入 git。默认同步到 `oss://lengmo-secrets/configs`，endpoint 为 `oss-cn-beijing.aliyuncs.com`。
+
+```bash
+./tools/secrets.sh init     # 创建 .secrets/ossutilconfig 和 .secrets/opencode.json 模板
+./tools/secrets.sh push     # 把 .secrets 同步到 OSS
+./tools/secrets.sh pull     # 从 OSS 同步到 .secrets
+./tools/secrets.sh install  # 安装到 ~/.config/opencode/opencode.json 和 ~/.ossutilconfig
+```
+
+`init` 只生成模板，`.secrets/ossutilconfig` 里的 `accessKeyId` 和 `accessKeySecret` 需要手动填写。`push` 会拒绝上传空 AK/SK 的 ossconfig。
+
 ## 文件内容
 
 ```
@@ -86,6 +99,7 @@ configs/
     ├── nvim_ft.py              # 按 git URL 维护 Neovim filetypes.json
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
+    ├── secrets.sh              # 同步与安装 .secrets 敏感配置
     ├── prd/                    # prd TypeScript 源码与构建配置
     │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL
     ├── install-pj.sh           # 安装 pj 环境切换器
