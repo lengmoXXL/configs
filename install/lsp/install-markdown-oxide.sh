@@ -5,12 +5,44 @@
 set -e
 
 REPO_URL="https://github.com/lengmoXXL/markdown-oxide.git"
-BRANCH="${MARKDOWN_OXIDE_BRANCH:-main}"
+BRANCH="main"
+USE_CN=false
+GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 RUST_DIR="${HOME}/.local/rust"
 INSTALL_ROOT="${HOME}/.local/markdown-oxide"
 BIN_DIR="${HOME}/.local/bin"
 CARGO="${RUST_DIR}/bin/cargo"
 BINARY="${BIN_DIR}/markdown-oxide"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理 clone GitHub 仓库
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [[ "$USE_CN" == "true" ]]; then
+    REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
+fi
 
 export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
 export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"

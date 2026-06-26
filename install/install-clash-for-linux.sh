@@ -3,15 +3,48 @@
 
 set -e
 
-REPO_URL="https://gh-proxy.org/https://github.com/nelvko/clash-for-linux-install.git"
+REPO_URL="https://github.com/nelvko/clash-for-linux-install.git"
+USE_CN=false
+GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 BRANCH="master"
 SHARE_DIR="${HOME}/.local/share"
 INSTALL_DIR="${SHARE_DIR}/clash-for-linux-install"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理 clone GitHub 仓库
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [[ "$USE_CN" == "true" ]]; then
+    REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
+fi
 
 mkdir -p "$SHARE_DIR"
 
 if [[ -d "$INSTALL_DIR/.git" ]]; then
     echo "仓库已存在，更新到最新 ${BRANCH}: $INSTALL_DIR"
+    git -C "$INSTALL_DIR" remote set-url origin "$REPO_URL"
     git -C "$INSTALL_DIR" fetch --depth 1 origin "$BRANCH"
     git -C "$INSTALL_DIR" checkout "$BRANCH"
     git -C "$INSTALL_DIR" reset --hard "origin/$BRANCH"

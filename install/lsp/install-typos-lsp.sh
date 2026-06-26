@@ -10,14 +10,14 @@ set -e
 MODE="binary"
 VERSION="0.1.52"
 USE_CN=false
-GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
 用法: $0 [-cn] [--binary|--source]
 
 选项:
-  -cn       通过国内代理下载 GitHub Release 文件
+  -cn       通过国内代理访问 GitHub
   --binary  从 GitHub Release 下载预编译包 (默认)
   --source  从源码编译
 EOF
@@ -54,10 +54,10 @@ if [[ "$MODE" == "binary" ]]; then
 
     URL="https://github.com/tekumara/typos-lsp/releases/download/v${VERSION}/typos-lsp-v${VERSION}-${ARCH}.tar.gz"
     if [[ "$USE_CN" == "true" ]]; then
-        URL="${GITHUB_RELEASE_PROXY}${URL}"
+        URL="${GITHUB_PROXY_PREFIX}${URL}"
     fi
     TMPDIR=$(mktemp -d)
-    trap "rm -rf $TMPDIR" EXIT
+    trap 'rm -rf "$TMPDIR"' EXIT
 
     echo "下载 typos-lsp v${VERSION} (${ARCH})"
     curl -fsSL "$URL" | tar -xzf - -C "$TMPDIR"
@@ -77,7 +77,11 @@ else
     fi
 
     echo "从源码编译 typos-lsp"
-    "$RUST_DIR/bin/cargo" install --git https://github.com/tekumara/typos-lsp --tag "v${VERSION}" --locked
+    REPO_URL="https://github.com/tekumara/typos-lsp"
+    if [[ "$USE_CN" == "true" ]]; then
+        REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
+    fi
+    "$RUST_DIR/bin/cargo" install --git "$REPO_URL" --tag "v${VERSION}" --locked
     ln -sf "$RUST_DIR/bin/typos-lsp" "$BINARY"
 fi
 
