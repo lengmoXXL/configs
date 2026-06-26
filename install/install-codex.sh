@@ -1,33 +1,50 @@
 #!/bin/bash
 # Install or update Codex CLI binary from GitHub Releases.
-# The latest version is read from the @openai/codex npm package.
+# The installed version is pinned here; use tools/github-release-latest.sh to check updates.
 
 set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
-CODEX_NPM_PACKAGE="@openai/codex"
+CODEX_VERSION="0.142.2"
 CURL_USER_AGENT="configs-install-codex"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
-for dep in curl npm sed tar find install uname mktemp; do
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理下载 GitHub Release 文件
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+for dep in curl sed tar find install uname mktemp; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
     fi
 done
 
-latest_version=$(npm view "$CODEX_NPM_PACKAGE" version --silent | sed -n 's/^[[:space:]]*\([^[:space:]]\+\)[[:space:]]*$/\1/p' | head -1)
-if [[ -z "$latest_version" ]]; then
-    echo "错误: 无法获取 Codex 最新版本"
-    exit 1
-fi
-
-if [[ ! "$latest_version" =~ ^[0-9]+(\.[0-9]+){1,2}([.-][0-9A-Za-z]+)*$ ]]; then
-    echo "错误: 无法解析 Codex 最新版本: $latest_version"
-    exit 1
-fi
-
-latest_tag="rust-v${latest_version}"
+target_tag="rust-v${CODEX_VERSION}"
 
 local_codex=""
 if [[ -x "$CODEX_BIN" ]]; then
@@ -73,25 +90,25 @@ compare_versions() {
 
 should_install=false
 if [[ -z "$local_codex" || -z "$local_version" ]]; then
-    echo "Codex 未安装，将安装最新版本 ${latest_version}"
+    echo "Codex 未安装，将安装目标版本 ${CODEX_VERSION}"
     should_install=true
 else
     echo "当前 Codex: ${local_version} (${local_codex})"
-    echo "最新 Codex: ${latest_version}"
+    echo "目标 Codex: ${CODEX_VERSION}"
 
-    version_cmp=$(compare_versions "$local_version" "$latest_version")
+    version_cmp=$(compare_versions "$local_version" "$CODEX_VERSION")
     if [[ "$version_cmp" == "0" ]]; then
-        echo "Codex 已是最新版本"
+        echo "Codex 已是目标版本"
         exit 0
     fi
 
     if [[ "$version_cmp" == "1" ]]; then
-        echo "本地 Codex 版本高于 GitHub latest，不执行更新"
+        echo "本地 Codex 版本高于目标版本，不执行更新"
         exit 0
     fi
 
     answer=""
-    read -r -p "是否更新 Codex 到 ${latest_version}? [y/N] " answer || true
+    read -r -p "是否更新 Codex 到 ${CODEX_VERSION}? [y/N] " answer || true
     case "$answer" in
         y | Y | yes | YES) should_install=true ;;
         *) echo "已取消更新"; exit 0 ;;
@@ -115,14 +132,17 @@ esac
 
 tmp_dir=$(mktemp -d)
 tarball="${tmp_dir}/codex.tar.gz"
-url="https://github.com/openai/codex/releases/download/${latest_tag}/codex-${target}.tar.gz"
+url="https://github.com/openai/codex/releases/download/${target_tag}/codex-${target}.tar.gz"
+if [[ "$USE_CN" == "true" ]]; then
+    url="${GITHUB_RELEASE_PROXY}${url}"
+fi
 
 cleanup() {
     rm -rf "$tmp_dir"
 }
 trap cleanup EXIT
 
-echo "下载 Codex ${latest_version} (${target})..."
+echo "下载 Codex ${CODEX_VERSION} (${target})..."
 curl -fL -H "User-Agent: ${CURL_USER_AGENT}" "$url" -o "$tarball"
 tar -xzf "$tarball" -C "$tmp_dir"
 

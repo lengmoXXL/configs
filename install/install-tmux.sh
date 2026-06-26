@@ -8,8 +8,35 @@ INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
 SRC_ROOT="${INSTALL_DIR}/src"
 TMUX_BIN="${BIN_DIR}/tmux"
-TMUX_REPO_API="https://api.github.com/repos/tmux/tmux/releases/latest"
-VERSION="${TMUX_VERSION:-}"
+VERSION="3.6b"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理下载 GitHub Release 文件
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 run_with_sudo() {
     if [[ "$(id -u)" -eq 0 ]]; then
@@ -55,10 +82,14 @@ install_build_deps() {
     fi
 }
 
-get_latest_version() {
-    curl -fsSL "$TMUX_REPO_API" |
-        sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' |
-        head -1
+build_deps_ready() {
+    for dep in curl gcc make pkg-config tar bison; do
+        if ! command -v "$dep" &>/dev/null; then
+            return 1
+        fi
+    done
+
+    pkg-config --exists libevent ncurses
 }
 
 make_jobs() {
@@ -68,20 +99,6 @@ make_jobs() {
         getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2
     fi
 }
-
-if [[ -z "$VERSION" ]]; then
-    if ! command -v curl &>/dev/null; then
-        install_build_deps
-    fi
-
-    echo "获取 tmux 最新版本..."
-    VERSION="$(get_latest_version)"
-fi
-
-if [[ -z "$VERSION" ]]; then
-    echo "错误: 无法获取 tmux 版本，可用 TMUX_VERSION 指定版本"
-    exit 1
-fi
 
 if [[ -x "$TMUX_BIN" ]]; then
     INSTALLED_VERSION="$("$TMUX_BIN" -V | awk '{print $2}')"
@@ -94,9 +111,16 @@ if [[ -x "$TMUX_BIN" ]]; then
     echo "目标版本: $VERSION"
 fi
 
-install_build_deps
+if build_deps_ready; then
+    echo "tmux 编译依赖已满足"
+else
+    install_build_deps
+fi
 
 DOWNLOAD_URL="https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz"
+if [[ "$USE_CN" == "true" ]]; then
+    DOWNLOAD_URL="${GITHUB_RELEASE_PROXY}${DOWNLOAD_URL}"
+fi
 SRC_DIR="${SRC_ROOT}/tmux-${VERSION}"
 TMP_DIR="$(mktemp -d)"
 TARBALL="${TMP_DIR}/tmux.tar.gz"

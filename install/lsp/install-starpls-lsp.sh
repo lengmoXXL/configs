@@ -6,8 +6,35 @@ set -e
 
 BIN_DIR="${HOME}/.local/bin"
 BINARY="${BIN_DIR}/starpls"
-API_URL="https://api.github.com/repos/withered-magic/starpls/releases/latest"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
+VERSION="v0.1.22"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理下载 GitHub Release 文件
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 if [[ -x "$BINARY" ]]; then
     echo "starpls 已安装: $BINARY"
@@ -22,14 +49,10 @@ case "$ARCH" in
     *) echo "错误: 不支持的架构 $ARCH"; exit 1 ;;
 esac
 
-RELEASE_JSON=$(curl -fsSL "$API_URL")
-VERSION=$(printf "%s\n" "$RELEASE_JSON" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
 ASSET="starpls-linux-${ARCH}"
-DOWNLOAD_URL=$(printf "%s\n" "$RELEASE_JSON" | sed -n "s/.*\"browser_download_url\": *\"\([^\"]*\/${ASSET}\)\".*/\1/p" | head -1)
-
-if [[ -z "$VERSION" || -z "$DOWNLOAD_URL" ]]; then
-    echo "错误: 无法获取 starpls 最新版本下载地址"
-    exit 1
+DOWNLOAD_URL="https://github.com/withered-magic/starpls/releases/download/${VERSION}/${ASSET}"
+if [[ "$USE_CN" == "true" ]]; then
+    DOWNLOAD_URL="${GITHUB_RELEASE_PROXY}${DOWNLOAD_URL}"
 fi
 
 echo "安装 starpls $VERSION (${ARCH})"
@@ -39,7 +62,7 @@ mkdir -p "$BIN_DIR"
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
-curl -fL "${PROXY}${DOWNLOAD_URL}" -o "${TMPDIR}/starpls"
+curl -fL "$DOWNLOAD_URL" -o "${TMPDIR}/starpls"
 install -m 755 "${TMPDIR}/starpls" "$BINARY"
 
 echo ""

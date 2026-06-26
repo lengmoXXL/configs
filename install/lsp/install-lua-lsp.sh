@@ -8,16 +8,40 @@ set -e
 INSTALL_DIR="${HOME}/.local/lua-language-server"
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/lua-language-server"
-PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
+VERSION="3.18.2"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理下载 GitHub Release 文件
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 if [[ -x "$BINARY" ]]; then
     echo "lua-language-server 已安装"
     exit 0
 fi
-
-# API 请求不走代理
-API_URL="https://api.github.com/repos/LuaLS/lua-language-server/releases/latest"
-VERSION=$(curl -s "$API_URL" | grep -oP '"tag_name": "\K[^"]+')
 
 echo "安装 lua-language-server $VERSION"
 
@@ -35,11 +59,15 @@ trap "rm -rf $TMPDIR" EXIT
 
 cd "$TMPDIR"
 
-DOWNLOAD_URL="${PROXY}https://github.com/LuaLS/lua-language-server/releases/download/$VERSION/lua-language-server-$VERSION-linux-$ARCH.tar.gz"
-curl -fLO "$DOWNLOAD_URL"
+TARBALL="lua-language-server-$VERSION-linux-$ARCH.tar.gz"
+DOWNLOAD_URL="https://github.com/LuaLS/lua-language-server/releases/download/$VERSION/$TARBALL"
+if [[ "$USE_CN" == "true" ]]; then
+    DOWNLOAD_URL="${GITHUB_RELEASE_PROXY}${DOWNLOAD_URL}"
+fi
+curl -fL "$DOWNLOAD_URL" -o "$TARBALL"
 
 mkdir -p "$INSTALL_DIR"
-tar -xzf "lua-language-server-$VERSION-linux-$ARCH.tar.gz" -C "$INSTALL_DIR"
+tar -xzf "$TARBALL" -C "$INSTALL_DIR"
 ln -sf "$INSTALL_DIR/bin/lua-language-server" "$BINARY"
 
 echo ""

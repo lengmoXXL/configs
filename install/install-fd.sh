@@ -4,11 +4,39 @@
 set -e
 
 BIN_DIR="${HOME}/.local/bin"
-FD_API="https://api.github.com/repos/sharkdp/fd/releases/latest"
+FD_VERSION="v10.4.2"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理下载 GitHub Release 文件
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 mkdir -p "$BIN_DIR"
 
-for dep in curl tar sed find install; do
+for dep in curl tar find install; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
@@ -26,11 +54,7 @@ if [[ -n "$existing_fd" ]]; then
     exit 0
 fi
 
-version=$(curl -fsSL "$FD_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
-if [[ -z "$version" ]]; then
-    echo "错误: 无法获取 fd 最新版本"
-    exit 1
-fi
+version="$FD_VERSION"
 
 arch=$(uname -m)
 case "$arch" in
@@ -42,6 +66,9 @@ esac
 tmp_dir=$(mktemp -d)
 tarball="${tmp_dir}/fd.tar.gz"
 url="https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz"
+if [[ "$USE_CN" == "true" ]]; then
+    url="${GITHUB_RELEASE_PROXY}${url}"
+fi
 
 echo "下载 fd ${version}..."
 curl -fL "$url" -o "$tarball"

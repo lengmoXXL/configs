@@ -13,6 +13,17 @@
 
 `init` 只生成 ossutil 配置模板，`.secrets/ossutilconfig` 里的 `accessKeyId` 和 `accessKeySecret` 需要手动填写。这个文件只用于访问 OSS，不参与 push/pull，也不会安装到 `~/.ossutilconfig`。
 
+## GitHub Release 安装
+
+部分安装脚本使用固定版本的 GitHub Release 包。需要国内代理时传 `-cn`，代理前缀固定为 `https://gh-proxy.com/`。
+
+```bash
+./install/install-fd.sh -cn
+./tools/github-release-latest.sh fd
+```
+
+升级固定版本时，先用 `tools/github-release-latest.sh` 查询最新 tag，再手动修改对应安装脚本里的默认版本。
+
 ## 文件内容
 
 ```
@@ -77,6 +88,7 @@ configs/
     ├── codex_batch.py          # Codex 批处理脚本
     ├── install-codex-batch.sh  # 安装 codex-batch
     ├── nvim_ft.py              # 按 git URL 维护 Neovim filetypes.json
+    ├── github-release-latest.sh # 查询 GitHub Release 最新版本
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
     ├── secrets.sh              # 同步与安装 .secrets 敏感配置

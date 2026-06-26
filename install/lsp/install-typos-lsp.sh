@@ -9,12 +9,27 @@ set -e
 
 MODE="binary"
 VERSION="0.1.52"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn] [--binary|--source]
+
+选项:
+  -cn       通过国内代理下载 GitHub Release 文件
+  --binary  从 GitHub Release 下载预编译包 (默认)
+  --source  从源码编译
+EOF
+}
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --binary) MODE="binary"; shift ;;
         --source) MODE="source"; shift ;;
-        *) echo "用法: $0 [--binary|--source]"; exit 1 ;;
+        -cn) USE_CN=true; shift ;;
+        -h | --help) usage; exit 0 ;;
+        *) usage; exit 1 ;;
     esac
 done
 
@@ -38,6 +53,9 @@ if [[ "$MODE" == "binary" ]]; then
     esac
 
     URL="https://github.com/tekumara/typos-lsp/releases/download/v${VERSION}/typos-lsp-v${VERSION}-${ARCH}.tar.gz"
+    if [[ "$USE_CN" == "true" ]]; then
+        URL="${GITHUB_RELEASE_PROXY}${URL}"
+    fi
     TMPDIR=$(mktemp -d)
     trap "rm -rf $TMPDIR" EXIT
 
