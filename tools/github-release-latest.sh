@@ -18,6 +18,7 @@ Packages:
   starpls
   typos-lsp, typos
   codex
+  claude-code, claude
   opencode
   cc-switch-cli, cc-switch
   sarasa
@@ -36,6 +37,7 @@ repo_for_package() {
         starpls) echo "withered-magic/starpls" ;;
         typos-lsp | typos) echo "tekumara/typos-lsp" ;;
         codex) echo "openai/codex" ;;
+        claude-code | claude) echo "anthropics/claude-code" ;;
         opencode) echo "anomalyco/opencode" ;;
         cc-switch-cli | cc-switch) echo "SaladDay/cc-switch-cli" ;;
         sarasa) echo "laishulu/Sarasa-Term-SC-Nerd" ;;
@@ -52,6 +54,7 @@ script_version_for_package() {
     case "$package" in
         cmake) echo "${tag#v}" ;;
         codex) echo "${tag#rust-v}" ;;
+        claude-code | claude) echo "${tag#v}" ;;
         opencode) echo "${tag#v}" ;;
         typos-lsp | typos) echo "${tag#v}" ;;
         *) echo "$tag" ;;
