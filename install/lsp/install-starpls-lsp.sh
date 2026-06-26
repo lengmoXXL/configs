@@ -4,14 +4,10 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 BIN_DIR="${HOME}/.local/bin"
 BINARY="${BIN_DIR}/starpls"
 API_URL="https://api.github.com/repos/withered-magic/starpls/releases/latest"
+PROXY="${GITHUB_PROXY:-https://gh-proxy.com/}"
 
 if [[ -x "$BINARY" ]]; then
     echo "starpls 已安装: $BINARY"
@@ -26,7 +22,7 @@ case "$ARCH" in
     *) echo "错误: 不支持的架构 $ARCH"; exit 1 ;;
 esac
 
-RELEASE_JSON=$(curl -fsSL "$(configs_github_url "$API_URL")")
+RELEASE_JSON=$(curl -fsSL "$API_URL")
 VERSION=$(printf "%s\n" "$RELEASE_JSON" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
 ASSET="starpls-linux-${ARCH}"
 DOWNLOAD_URL=$(printf "%s\n" "$RELEASE_JSON" | sed -n "s/.*\"browser_download_url\": *\"\([^\"]*\/${ASSET}\)\".*/\1/p" | head -1)
@@ -43,7 +39,7 @@ mkdir -p "$BIN_DIR"
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
-curl -fL "$(configs_github_url "$DOWNLOAD_URL")" -o "${TMPDIR}/starpls"
+curl -fL "${PROXY}${DOWNLOAD_URL}" -o "${TMPDIR}/starpls"
 install -m 755 "${TMPDIR}/starpls" "$BINARY"
 
 echo ""

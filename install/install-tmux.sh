@@ -4,11 +4,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
 SRC_ROOT="${INSTALL_DIR}/src"
@@ -61,7 +56,7 @@ install_build_deps() {
 }
 
 get_latest_version() {
-    curl -fsSL "$(configs_github_url "$TMUX_REPO_API")" |
+    curl -fsSL "$TMUX_REPO_API" |
         sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' |
         head -1
 }
@@ -101,7 +96,7 @@ fi
 
 install_build_deps
 
-DOWNLOAD_URL=$(configs_github_url "https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz")
+DOWNLOAD_URL="https://github.com/tmux/tmux/releases/download/${VERSION}/tmux-${VERSION}.tar.gz"
 SRC_DIR="${SRC_ROOT}/tmux-${VERSION}"
 TMP_DIR="$(mktemp -d)"
 TARBALL="${TMP_DIR}/tmux.tar.gz"

@@ -4,11 +4,6 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 INSTALL_DIR="${HOME}/.local/ossutil"
 BIN_DIR="${HOME}/.local/bin"
 OSSUTIL_VERSION="${OSSUTIL_VERSION:-${1:-2.3.0}}"

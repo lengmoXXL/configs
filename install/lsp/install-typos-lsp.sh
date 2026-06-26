@@ -7,11 +7,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 MODE="binary"
 VERSION="0.1.52"
 
@@ -19,7 +14,7 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --binary) MODE="binary"; shift ;;
         --source) MODE="source"; shift ;;
-        *) echo "用法: $0 [-cn|--cn] [--binary|--source]"; exit 1 ;;
+        *) echo "用法: $0 [--binary|--source]"; exit 1 ;;
     esac
 done
 
@@ -42,7 +37,7 @@ if [[ "$MODE" == "binary" ]]; then
         *) echo "错误: 不支持的架构 $ARCH"; exit 1 ;;
     esac
 
-    URL=$(configs_github_url "https://github.com/tekumara/typos-lsp/releases/download/v${VERSION}/typos-lsp-v${VERSION}-${ARCH}.tar.gz")
+    URL="https://github.com/tekumara/typos-lsp/releases/download/v${VERSION}/typos-lsp-v${VERSION}-${ARCH}.tar.gz"
     TMPDIR=$(mktemp -d)
     trap "rm -rf $TMPDIR" EXIT
 

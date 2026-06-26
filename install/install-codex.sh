@@ -4,11 +4,6 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
 CODEX_NPM_PACKAGE="@openai/codex"
@@ -120,7 +115,7 @@ esac
 
 tmp_dir=$(mktemp -d)
 tarball="${tmp_dir}/codex.tar.gz"
-url=$(configs_github_url "https://github.com/openai/codex/releases/download/${latest_tag}/codex-${target}.tar.gz")
+url="https://github.com/openai/codex/releases/download/${latest_tag}/codex-${target}.tar.gz"
 
 cleanup() {
     rm -rf "$tmp_dir"

@@ -3,12 +3,7 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
-REPO_URL="https://github.com/nelvko/clash-for-linux-install.git"
+REPO_URL="https://gh-proxy.org/https://github.com/nelvko/clash-for-linux-install.git"
 BRANCH="master"
 SHARE_DIR="${HOME}/.local/share"
 INSTALL_DIR="${SHARE_DIR}/clash-for-linux-install"
@@ -17,15 +12,15 @@ mkdir -p "$SHARE_DIR"
 
 if [[ -d "$INSTALL_DIR/.git" ]]; then
     echo "仓库已存在，更新到最新 ${BRANCH}: $INSTALL_DIR"
-    configs_git -C "$INSTALL_DIR" fetch --depth 1 origin "$BRANCH"
-    configs_git -C "$INSTALL_DIR" checkout "$BRANCH"
-    configs_git -C "$INSTALL_DIR" reset --hard "origin/$BRANCH"
+    git -C "$INSTALL_DIR" fetch --depth 1 origin "$BRANCH"
+    git -C "$INSTALL_DIR" checkout "$BRANCH"
+    git -C "$INSTALL_DIR" reset --hard "origin/$BRANCH"
 elif [[ -e "$INSTALL_DIR" ]]; then
     echo "错误: 目标路径已存在但不是 git 仓库: $INSTALL_DIR"
     exit 1
 else
     echo "克隆仓库到: $INSTALL_DIR"
-    configs_git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$INSTALL_DIR"
+    git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$INSTALL_DIR"
 fi
 
 echo "执行安装脚本..."

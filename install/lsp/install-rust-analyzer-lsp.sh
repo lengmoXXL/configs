@@ -4,11 +4,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 RUST_DIR="${HOME}/.local/rust"
 BIN_DIR="${HOME}/.local/bin"
 RUSTUP="${BIN_DIR}/rustup"
@@ -16,6 +11,8 @@ RUST_ANALYZER="${BIN_DIR}/rust-analyzer"
 
 export RUSTUP_HOME="${RUST_DIR}/rustup"
 export CARGO_HOME="${RUST_DIR}"
+export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
+export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 
 if [[ -x "$RUST_ANALYZER" ]]; then
     echo "rust-analyzer 已安装: $("$RUST_ANALYZER" --version)"

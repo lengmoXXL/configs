@@ -4,10 +4,6 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 BIN_DIR="${HOME}/.local/bin"
 
 echo "安装目录: $BIN_DIR/tree-sitter"

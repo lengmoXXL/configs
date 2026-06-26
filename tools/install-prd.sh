@@ -4,10 +4,6 @@ set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../install/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 PROJECT_DIR="${SCRIPT_DIR}/prd"
 SOURCE_PATH="${PROJECT_DIR}/dist/prd.cjs"
 TARGET_PATH="${BIN_DIR}/prd"

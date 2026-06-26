@@ -3,11 +3,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/install/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 OH_MY_BASH_URL="https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh"
 OH_MY_BASH_DIR="$HOME/.oh-my-bash"
 BASHRC="$HOME/.bashrc"
@@ -20,7 +15,7 @@ if [[ -d "$OH_MY_BASH_DIR" ]]; then
     echo "Oh My Bash 已安装: $OH_MY_BASH_DIR"
 else
     echo "安装 Oh My Bash..."
-    bash -c "$(curl -fsSL "$(configs_github_url "$OH_MY_BASH_URL")")"
+    bash -c "$(curl -fsSL "$OH_MY_BASH_URL")"
 fi
 
 if [[ ! -f "$BASHRC" ]]; then

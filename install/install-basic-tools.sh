@@ -3,11 +3,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 BIN_DIR="${HOME}/.local/bin"
 SHARE_DIR="${HOME}/.local/share"
 FZF_DIR="${SHARE_DIR}/fzf"
@@ -46,10 +41,10 @@ install_fzf() {
     else
         if [[ -d "$FZF_DIR/.git" ]]; then
             echo "更新 fzf 源码: $FZF_DIR"
-            configs_git -C "$FZF_DIR" pull --ff-only
+            git -C "$FZF_DIR" pull --ff-only
         else
             echo "克隆 fzf 到: $FZF_DIR"
-            configs_git clone --depth 1 "$FZF_REPO" "$FZF_DIR"
+            git clone --depth 1 "$FZF_REPO" "$FZF_DIR"
         fi
 
         echo "安装 fzf 到: $BIN_DIR"
@@ -82,7 +77,7 @@ install_rg() {
         return
     fi
 
-    version=$(curl -fsSL "$(configs_github_url "$RIPGREP_API")" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
+    version=$(curl -fsSL "$RIPGREP_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
     if [[ -z "$version" ]]; then
         echo "错误: 无法获取 ripgrep 最新版本"
         exit 1
@@ -95,7 +90,7 @@ install_rg() {
         *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
     esac
 
-    url=$(configs_github_url "https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-${target}.tar.gz")
+    url="https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-${target}.tar.gz"
     tmp_dir=$(mktemp -d)
     tarball="${tmp_dir}/ripgrep.tar.gz"
 
@@ -131,7 +126,7 @@ install_cmake() {
         return
     fi
 
-    version=$(curl -fsSL "$(configs_github_url "$CMAKE_API")" | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p' | head -1)
+    version=$(curl -fsSL "$CMAKE_API" | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p' | head -1)
     if [[ -z "$version" ]]; then
         echo "错误: 无法获取 CMake 最新版本"
         exit 1
@@ -144,7 +139,7 @@ install_cmake() {
         *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
     esac
 
-    url=$(configs_github_url "https://github.com/Kitware/CMake/releases/download/v${version}/cmake-${version}-linux-${arch}.tar.gz")
+    url="https://github.com/Kitware/CMake/releases/download/v${version}/cmake-${version}-linux-${arch}.tar.gz"
     tmp_dir=$(mktemp -d)
     tarball="${tmp_dir}/cmake.tar.gz"
 
@@ -178,7 +173,7 @@ install_fd() {
         return
     fi
 
-    version=$(curl -fsSL "$(configs_github_url "$FD_API")" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
+    version=$(curl -fsSL "$FD_API" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -1)
     if [[ -z "$version" ]]; then
         echo "错误: 无法获取 fd 最新版本"
         exit 1
@@ -191,7 +186,7 @@ install_fd() {
         *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
     esac
 
-    url=$(configs_github_url "https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz")
+    url="https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz"
     tmp_dir=$(mktemp -d)
     tarball="${tmp_dir}/fd.tar.gz"
 

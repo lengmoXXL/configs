@@ -3,15 +3,9 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 BIN_DIR="${HOME}/.local/bin"
 PYTHON_DIR="${HOME}/.local/python3.11"
 UV_BIN="${BIN_DIR}/uv"
-UV_INSTALL_URL="${UV_INSTALL_URL:-https://astral.sh/uv/install.sh}"
 
 mkdir -p "$BIN_DIR"
 
@@ -29,7 +23,7 @@ fi
 
 if ! command -v uv &>/dev/null && [[ ! -x "$UV_BIN" ]]; then
     echo "安装 uv..."
-    curl -LsSf "$UV_INSTALL_URL" | sh
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
 
 if command -v uv &>/dev/null; then

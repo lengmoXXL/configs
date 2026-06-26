@@ -7,11 +7,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 INSTALL_DIR="${HOME}/.local"
 SRC_DIR="${HOME}/.local/src/neovim"
 NVIM_REPO="https://github.com/neovim/neovim.git"
@@ -57,12 +52,12 @@ fi
 if [[ -d "$SRC_DIR/.git" ]]; then
     echo "源码目录已存在，更新中..."
     cd "$SRC_DIR"
-    configs_git fetch --depth 1 origin tag "$VERSION"
-    configs_git checkout "$VERSION"
+    git fetch --depth 1 origin tag "$VERSION"
+    git checkout "$VERSION"
 else
     echo "克隆 Neovim 源码..."
     mkdir -p "$(dirname "$SRC_DIR")"
-    configs_git clone --depth 1 --branch "$VERSION" "$NVIM_REPO" "$SRC_DIR"
+    git clone --depth 1 --branch "$VERSION" "$NVIM_REPO" "$SRC_DIR"
     cd "$SRC_DIR"
 fi
 

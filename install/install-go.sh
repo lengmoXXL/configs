@@ -4,21 +4,8 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/network.sh"
-configs_parse_network_args "$@"
-set -- "${CONFIGS_ARGS[@]}"
-
 INSTALL_DIR="${HOME}/.local/go"
 BIN_DIR="${HOME}/.local/bin"
-
-if configs_is_cn; then
-    GO_VERSION_URL="${GO_VERSION_URL:-https://golang.google.cn/VERSION?m=text}"
-    GO_DOWNLOAD_BASE="${GO_DOWNLOAD_BASE:-https://golang.google.cn/dl}"
-else
-    GO_VERSION_URL="${GO_VERSION_URL:-https://go.dev/VERSION?m=text}"
-    GO_DOWNLOAD_BASE="${GO_DOWNLOAD_BASE:-https://go.dev/dl}"
-fi
 
 # 检查是否已安装
 if [[ -x "$INSTALL_DIR/bin/go" ]]; then
@@ -28,7 +15,7 @@ else
 
     # 获取最新稳定版本
     echo "获取最新版本..."
-    GO_VERSION=$(curl -sL "$GO_VERSION_URL" | head -1 | sed 's/go//')
+    GO_VERSION=$(curl -sL "https://go.dev/VERSION?m=text" | head -1 | sed 's/go//')
 
     if [[ -z "$GO_VERSION" ]]; then
         echo "错误：无法获取 Go 版本"
@@ -44,7 +31,8 @@ else
         aarch64) ARCH="arm64" ;;
     esac
 
-    DOWNLOAD_URL="${GO_DOWNLOAD_BASE%/}/go${GO_VERSION}.linux-${ARCH}.tar.gz"
+    # 下载地址（使用 golang.google.cn 镜像）
+    DOWNLOAD_URL="https://golang.google.cn/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz"
 
     mkdir -p "$BIN_DIR"
 
@@ -65,15 +53,13 @@ else
     cat > "$ENV_DIR/go.sh" << 'EOF'
 # Go 环境配置
 export GOPATH="$HOME/.local/go-packages"
+export GOPROXY="https://goproxy.cn,direct"
 EOF
-    if configs_is_cn; then
-        echo 'export GOPROXY="https://goproxy.cn,direct"' >> "$ENV_DIR/go.sh"
-    fi
 fi
 
 # 安装 gopls
 echo "安装 gopls..."
-GOPATH="$HOME/.local/go-packages" GOPROXY="${GOPROXY:-direct}" \
+GOPATH="$HOME/.local/go-packages" GOPROXY="https://goproxy.cn,direct" \
     "$INSTALL_DIR/bin/go" install golang.org/x/tools/gopls@latest
 
 # 创建 gopls 符号链接
@@ -85,6 +71,6 @@ echo "Go 安装完成"
 echo "  go: $($INSTALL_DIR/bin/go version)"
 echo "  gopls: $($BIN_DIR/gopls version 2>/dev/null | head -1)"
 echo "  GOPATH: ~/.local/go-packages"
-echo "  GOPROXY: ${GOPROXY:-direct}"
+echo "  GOPROXY: https://goproxy.cn,direct"
 echo ""
 echo "请运行 'source ~/.bashrc' 使环境变量生效"

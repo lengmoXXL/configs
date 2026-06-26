@@ -1,25 +1,5 @@
 # configs
 
-## 国内网络模式
-
-联网安装脚本支持 `-cn` 或 `--cn`：
-
-```bash
-./install/install-basic-tools.sh -cn
-./install/install-node.sh -cn
-./install/lsp/install-pyright-lsp.sh -cn
-```
-
-`-cn` 会启用 GitHub 代理、Playwright npmmirror、PyPI/uv 阿里云镜像、Rust 阿里云镜像、Cargo USTC 镜像与 Go goproxy.cn。npm registry 由 `install-node.sh -cn` 配置，其它 npm 脚本假定 npm 已经准备好。
-
-常用覆盖变量：
-
-```bash
-GITHUB_PROXY=https://gh-proxy.com/ ./install/install-nvim.sh -cn
-NPM_REGISTRY=https://registry.npmmirror.com ./install/install-node.sh -cn
-ZIG_DOWNLOAD_BASE=https://ziglang.org/download ./install/install-zig.sh -cn
-```
-
 ## 敏感配置
 
 `.secrets/` 是本地明文敏感配置目录，不加入 git。默认同步到 `oss://lengmo-secrets/configs`，endpoint 为 `oss-cn-beijing.aliyuncs.com`。
@@ -57,7 +37,6 @@ configs/
 │   ├── install-tmux.sh         # 从源码编译安装 tmux
 │   ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
 │   ├── install-zig.sh          # 安装 Zig 到 ~/.local/zig
-│   ├── lib/network.sh          # 统一 -cn 网络模式
 │   ├── lsp/                    # LSP 安装脚本
 │   │   ├── install-bash-lsp.sh # 安装 bash-language-server
 │   │   ├── install-lua-lsp.sh  # 安装 lua-language-server
