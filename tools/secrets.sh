@@ -11,17 +11,26 @@ OSS_ENDPOINT="${SECRETS_OSS_ENDPOINT:-oss-cn-beijing.aliyuncs.com}"
 OSS_URI="${SECRETS_OSS_URI:-oss://$OSS_BUCKET/$OSS_PREFIX}"
 OSS_CONFIG_FILE="${SECRETS_OSS_CONFIG:-$SECRETS_DIR/ossutilconfig}"
 OPENCODE_SECRET="opencode.json"
+OPENCODE_NAME="opencode"
 OPENCODE_TARGET="$HOME/.config/opencode/opencode.json"
+CLAUDE_BAILIAN_SECRET="claude.bailian.json"
+CLAUDE_BAILIAN_NAME="claude.bailian"
+CLAUDE_BAILIAN_TARGET="$HOME/.claude/settings.json"
 
 usage() {
     cat <<EOF
-Usage: $0 <init|push|pull|install> [opencode.json]
+Usage: $0 <init|ls|push|pull|install> [secret-name]
 
 Commands:
   init     Create .secrets/ossutilconfig template.
-  push     Upload .secrets/opencode.json to OSS.
-  pull     Download opencode.json from OSS to .secrets.
-  install  Install .secrets/opencode.json to this machine.
+  ls       List supported secret files.
+  push     Upload .secrets/<secret-name> to OSS.
+  pull     Download <secret-name> from OSS to .secrets.
+  install  Install .secrets/<secret-name> to this machine.
+
+Supported secrets:
+  opencode         -> $OPENCODE_TARGET
+  claude.bailian   -> $CLAUDE_BAILIAN_TARGET
 
 Environment:
   SECRETS_DIR          Local secrets directory. Default: $SECRETS_DIR
@@ -55,20 +64,41 @@ require_oss_config_credentials() {
     fi
 }
 
+list_secrets() {
+    printf '%s\t%s\n' "$OPENCODE_NAME" "$OPENCODE_TARGET"
+    printf '%s\t%s\n' "$CLAUDE_BAILIAN_NAME" "$CLAUDE_BAILIAN_TARGET"
+}
+
 supported_secret() {
-    if [[ $# -gt 1 ]]; then
+    if [[ $# -ne 1 ]]; then
         usage >&2
         exit 1
     fi
 
-    local name="${1:-$OPENCODE_SECRET}"
+    local name="$1"
 
-    if [[ "$name" != "$OPENCODE_SECRET" ]]; then
-        echo "错误: 当前只支持 $OPENCODE_SECRET" >&2
-        exit 1
-    fi
+    case "$name" in
+        "$OPENCODE_NAME")
+            printf '%s\n' "$OPENCODE_SECRET"
+            ;;
+        "$CLAUDE_BAILIAN_NAME")
+            printf '%s\n' "$CLAUDE_BAILIAN_SECRET"
+            ;;
+        *)
+            echo "错误: 不支持的 secret: $name" >&2
+            echo "支持的 secret:" >&2
+            list_secrets >&2
+            exit 1
+            ;;
+    esac
+}
 
-    printf '%s\n' "$name"
+install_target_for_secret() {
+    case "$1" in
+        "$OPENCODE_SECRET") printf '%s\n' "$OPENCODE_TARGET" ;;
+        "$CLAUDE_BAILIAN_SECRET") printf '%s\n' "$CLAUDE_BAILIAN_TARGET" ;;
+        *) return 1 ;;
+    esac
 }
 
 oss_args() {
@@ -136,18 +166,19 @@ pull_secrets() {
 }
 
 install_secrets() {
-    local name source
+    local name source target
     name="$(supported_secret "$@")"
     source="$SECRETS_DIR/$name"
+    target="$(install_target_for_secret "$name")"
 
     if [[ ! -f "$source" ]]; then
         echo "错误: 缺少 $source，请先运行: $0 pull $name" >&2
         exit 1
     fi
 
-    mkdir -p "$(dirname "$OPENCODE_TARGET")"
-    install -m 600 "$source" "$OPENCODE_TARGET"
-    echo "installed: $OPENCODE_TARGET"
+    mkdir -p "$(dirname "$target")"
+    install -m 600 "$source" "$target"
+    echo "installed: $target"
 }
 
 command="${1:-}"
@@ -161,6 +192,13 @@ case "$command" in
             exit 1
         fi
         init_secrets
+        ;;
+    ls)
+        if [[ $# -gt 0 ]]; then
+            usage >&2
+            exit 1
+        fi
+        list_secrets
         ;;
     push)
         push_secrets "$@"

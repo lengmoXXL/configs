@@ -6,6 +6,7 @@ set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 CLAUDE_BIN="${BIN_DIR}/claude"
+CLAUDE_SETTINGS="${HOME}/.claude/settings.json"
 CLAUDE_CODE_VERSION="2.1.193"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
@@ -36,15 +37,37 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-for dep in curl find head install mktemp tar uname; do
+for dep in curl find head install jq mktemp tar uname; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
     fi
 done
 
+ensure_claude_onboarding() {
+    local settings_dir tmp_file
+    settings_dir="$(dirname "$CLAUDE_SETTINGS")"
+
+    mkdir -p "$settings_dir"
+    tmp_file="$(mktemp)"
+
+    if [[ -f "$CLAUDE_SETTINGS" ]]; then
+        if ! jq 'if type != "object" then error("Claude settings must be a JSON object") elif has("hasCompletedOnboarding") then . else . + {hasCompletedOnboarding: true} end' "$CLAUDE_SETTINGS" > "$tmp_file"; then
+            rm -f "$tmp_file"
+            echo "错误: 无法处理 Claude Code settings JSON: $CLAUDE_SETTINGS" >&2
+            exit 1
+        fi
+    else
+        printf '%s\n' '{"hasCompletedOnboarding":true}' > "$tmp_file"
+    fi
+
+    install -m 600 "$tmp_file" "$CLAUDE_SETTINGS"
+    rm -f "$tmp_file"
+}
+
 if [[ -x "$CLAUDE_BIN" ]]; then
     echo "Claude Code 已安装: $CLAUDE_BIN"
+    ensure_claude_onboarding
     "$CLAUDE_BIN" --version
     exit 0
 fi
@@ -100,4 +123,5 @@ mkdir -p "$BIN_DIR"
 install -m 755 "$claude_binary" "$CLAUDE_BIN"
 
 echo "Claude Code 安装完成: $CLAUDE_BIN"
+ensure_claude_onboarding
 "$CLAUDE_BIN" --version

@@ -1,18 +1,5 @@
 # configs
 
-## 敏感配置
-
-`.secrets/` 是本地明文敏感配置目录，不加入 git。当前只同步 `opencode.json`，默认同步到 `oss://lengmo-secrets/configs/opencode.json`，endpoint 为 `oss-cn-beijing.aliyuncs.com`。
-
-```bash
-./tools/secrets.sh init     # 创建 .secrets/ossutilconfig 模板
-./tools/secrets.sh push     # 上传 .secrets/opencode.json
-./tools/secrets.sh pull     # 下载到 .secrets/opencode.json
-./tools/secrets.sh install  # 安装到 ~/.config/opencode/opencode.json
-```
-
-`init` 只生成 ossutil 配置模板，`.secrets/ossutilconfig` 里的 `accessKeyId` 和 `accessKeySecret` 需要手动填写。这个文件只用于访问 OSS，不参与 push/pull，也不会安装到 `~/.ossutilconfig`。
-
 ## GitHub Release 安装
 
 部分安装脚本使用固定版本的 GitHub Release 包。需要国内代理时传 `-cn`，代理前缀固定为 `https://gh-proxy.com/`。
