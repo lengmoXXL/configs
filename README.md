@@ -2,16 +2,16 @@
 
 ## 敏感配置
 
-`.secrets/` 是本地明文敏感配置目录，不加入 git。默认同步到 `oss://lengmo-secrets/configs`，endpoint 为 `oss-cn-beijing.aliyuncs.com`。
+`.secrets/` 是本地明文敏感配置目录，不加入 git。当前只同步 `opencode.json`，默认同步到 `oss://lengmo-secrets/configs/opencode.json`，endpoint 为 `oss-cn-beijing.aliyuncs.com`。
 
 ```bash
-./tools/secrets.sh init     # 创建 .secrets/ossutilconfig 和 .secrets/opencode.json 模板
-./tools/secrets.sh push     # 把 .secrets 同步到 OSS
-./tools/secrets.sh pull     # 从 OSS 同步到 .secrets
-./tools/secrets.sh install  # 安装到 ~/.config/opencode/opencode.json 和 ~/.ossutilconfig
+./tools/secrets.sh init     # 创建 .secrets/ossutilconfig 模板
+./tools/secrets.sh push     # 上传 .secrets/opencode.json
+./tools/secrets.sh pull     # 下载到 .secrets/opencode.json
+./tools/secrets.sh install  # 安装到 ~/.config/opencode/opencode.json
 ```
 
-`init` 只生成模板，`.secrets/ossutilconfig` 里的 `accessKeyId` 和 `accessKeySecret` 需要手动填写。`push` 会拒绝上传空 AK/SK 的 ossconfig。
+`init` 只生成 ossutil 配置模板，`.secrets/ossutilconfig` 里的 `accessKeyId` 和 `accessKeySecret` 需要手动填写。这个文件只用于访问 OSS，不参与 push/pull，也不会安装到 `~/.ossutilconfig`。
 
 ## 文件内容
 

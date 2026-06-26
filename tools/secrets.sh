@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
-# Sync local .secrets with OSS and install supported secret files.
+# Manage local .secrets files and sync supported secrets with OSS.
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SECRETS_DIR="${SECRETS_DIR:-$ROOT/.secrets}"
-BACKUP_ROOT="${SECRETS_BACKUP_ROOT:-$ROOT/.secrets.backup}"
 OSS_BUCKET="${SECRETS_OSS_BUCKET:-lengmo-secrets}"
 OSS_PREFIX="${SECRETS_OSS_PREFIX:-configs}"
 OSS_ENDPOINT="${SECRETS_OSS_ENDPOINT:-oss-cn-beijing.aliyuncs.com}"
 OSS_URI="${SECRETS_OSS_URI:-oss://$OSS_BUCKET/$OSS_PREFIX}"
 OSS_CONFIG_FILE="${SECRETS_OSS_CONFIG:-$SECRETS_DIR/ossutilconfig}"
+OPENCODE_SECRET="opencode.json"
+OPENCODE_TARGET="$HOME/.config/opencode/opencode.json"
 
 usage() {
     cat <<EOF
-Usage: $0 <init|push|pull|install>
+Usage: $0 <init|push|pull|install> [opencode.json]
 
 Commands:
-  init     Create .secrets and placeholder files.
-  push     Sync .secrets to $OSS_URI.
-  pull     Sync $OSS_URI to .secrets.
-  install  Install supported files from .secrets to this machine.
+  init     Create .secrets/ossutilconfig template.
+  push     Upload .secrets/opencode.json to OSS.
+  pull     Download opencode.json from OSS to .secrets.
+  install  Install .secrets/opencode.json to this machine.
 
 Environment:
   SECRETS_DIR          Local secrets directory. Default: $SECRETS_DIR
   SECRETS_OSS_BUCKET   OSS bucket. Default: $OSS_BUCKET
   SECRETS_OSS_PREFIX   OSS prefix. Default: $OSS_PREFIX
   SECRETS_OSS_ENDPOINT OSS endpoint. Default: $OSS_ENDPOINT
-  SECRETS_OSS_URI      Full OSS URI override. Default: $OSS_URI
+  SECRETS_OSS_URI      OSS prefix URI. Default: $OSS_URI
   SECRETS_OSS_CONFIG   ossutil config file. Default: $OSS_CONFIG_FILE
 EOF
 }
@@ -46,20 +47,38 @@ has_oss_config_credentials() {
         grep -Eq '^accessKeySecret=.+$' "$OSS_CONFIG_FILE"
 }
 
-is_default_opencode_template() {
-    local file="$1"
+require_oss_config_credentials() {
+    if ! has_oss_config_credentials; then
+        echo "错误: $OSS_CONFIG_FILE 未填写 accessKeyId/accessKeySecret" >&2
+        echo "请先运行: $0 init 并填写凭据" >&2
+        exit 1
+    fi
+}
 
-    [[ -f "$file" ]] && [[ "$(tr -d '[:space:]' < "$file")" == "{}" ]]
+supported_secret() {
+    if [[ $# -gt 1 ]]; then
+        usage >&2
+        exit 1
+    fi
+
+    local name="${1:-$OPENCODE_SECRET}"
+
+    if [[ "$name" != "$OPENCODE_SECRET" ]]; then
+        echo "错误: 当前只支持 $OPENCODE_SECRET" >&2
+        exit 1
+    fi
+
+    printf '%s\n' "$name"
 }
 
 oss_args() {
-    local args=(--endpoint "$OSS_ENDPOINT")
+    printf '%s\n' --endpoint "$OSS_ENDPOINT" --config-file "$OSS_CONFIG_FILE"
+}
 
-    if has_oss_config_credentials; then
-        args+=(--config-file "$OSS_CONFIG_FILE")
-    fi
+secret_object_uri() {
+    local name="$1"
 
-    printf '%s\n' "${args[@]}"
+    printf '%s/%s\n' "${OSS_URI%/}" "$name"
 }
 
 init_secrets() {
@@ -81,93 +100,76 @@ EOF
     else
         echo "exists: $SECRETS_DIR/ossutilconfig"
     fi
-
-    if [[ ! -f "$SECRETS_DIR/opencode.json" ]]; then
-        printf '{}\n' > "$SECRETS_DIR/opencode.json"
-        chmod 600 "$SECRETS_DIR/opencode.json"
-        echo "created: $SECRETS_DIR/opencode.json"
-    else
-        echo "exists: $SECRETS_DIR/opencode.json"
-    fi
 }
 
 push_secrets() {
-    require_ossutil
+    local name source
+    name="$(supported_secret "$@")"
+    source="$SECRETS_DIR/$name"
 
-    if [[ ! -d "$SECRETS_DIR" ]]; then
-        echo "错误: $SECRETS_DIR 不存在，请先运行: $0 init" >&2
-        exit 1
-    fi
-    if ! has_oss_config_credentials; then
-        echo "错误: $OSS_CONFIG_FILE 未填写 accessKeyId/accessKeySecret，拒绝 push 空 OSS 配置" >&2
+    require_ossutil
+    require_oss_config_credentials
+
+    if [[ ! -f "$source" ]]; then
+        echo "错误: 缺少 $source" >&2
         exit 1
     fi
 
     mapfile -t extra_args < <(oss_args)
-    ossutil sync "$SECRETS_DIR" "$OSS_URI" --delete --no-progress --force "${extra_args[@]}"
+    ossutil cp "$source" "$(secret_object_uri "$name")" --no-progress --force "${extra_args[@]}"
 }
 
 pull_secrets() {
+    local name target
+    name="$(supported_secret "$@")"
+    target="$SECRETS_DIR/$name"
+
     require_ossutil
+    require_oss_config_credentials
 
-    mkdir -p "$SECRETS_DIR" "$BACKUP_ROOT"
-    chmod 700 "$SECRETS_DIR" "$BACKUP_ROOT"
-
-    local backup_dir
-    backup_dir="$BACKUP_ROOT/$(date +%Y%m%d%H%M%S)"
+    mkdir -p "$SECRETS_DIR"
+    chmod 700 "$SECRETS_DIR"
 
     mapfile -t extra_args < <(oss_args)
-    ossutil sync "$OSS_URI" "$SECRETS_DIR" --delete --backup-dir "$backup_dir" --no-progress --force "${extra_args[@]}"
-    chmod 700 "$SECRETS_DIR"
-    find "$SECRETS_DIR" -type f -exec chmod 600 {} +
-}
-
-install_secret_file() {
-    local source="$1"
-    local target="$2"
-
-    if [[ ! -f "$source" ]]; then
-        echo "skip: $source"
-        return
-    fi
-
-    mkdir -p "$(dirname "$target")"
-    install -m 600 "$source" "$target"
-    echo "installed: $target"
+    ossutil cp "$(secret_object_uri "$name")" "$target" --no-progress --force "${extra_args[@]}"
+    chmod 600 "$target"
 }
 
 install_secrets() {
-    if [[ ! -d "$SECRETS_DIR" ]]; then
-        echo "错误: $SECRETS_DIR 不存在，请先运行: $0 init 或 $0 pull" >&2
+    local name source
+    name="$(supported_secret "$@")"
+    source="$SECRETS_DIR/$name"
+
+    if [[ ! -f "$source" ]]; then
+        echo "错误: 缺少 $source，请先运行: $0 pull $name" >&2
         exit 1
     fi
 
-    if is_default_opencode_template "$SECRETS_DIR/opencode.json"; then
-        echo "skip: $SECRETS_DIR/opencode.json (template 未填写)"
-    else
-        install_secret_file "$SECRETS_DIR/opencode.json" "$HOME/.config/opencode/opencode.json"
-    fi
-
-    if has_oss_config_credentials; then
-        install_secret_file "$SECRETS_DIR/ossutilconfig" "$HOME/.ossutilconfig"
-    else
-        echo "skip: $SECRETS_DIR/ossutilconfig (accessKeyId/accessKeySecret 未填写)"
-    fi
+    mkdir -p "$(dirname "$OPENCODE_TARGET")"
+    install -m 600 "$source" "$OPENCODE_TARGET"
+    echo "installed: $OPENCODE_TARGET"
 }
 
 command="${1:-}"
+if [[ $# -gt 0 ]]; then
+    shift
+fi
 case "$command" in
     init)
+        if [[ $# -gt 0 ]]; then
+            usage >&2
+            exit 1
+        fi
         init_secrets
         ;;
     push)
-        push_secrets
+        push_secrets "$@"
         ;;
     pull)
-        pull_secrets
+        pull_secrets "$@"
         ;;
     install)
-        install_secrets
+        install_secrets "$@"
         ;;
     -h | --help | help)
         usage
