@@ -41,6 +41,7 @@ configs/
 │   ├── install-mytask.sh       # 安装 mytask 工具
 │   ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
 │   ├── install-nvim.sh         # 从源码编译安装 Neovim
+│   ├── install-opencode.sh     # 从 GitHub Release 安装 opencode
 │   ├── install-ossutil.sh      # 安装 ossutil 到 ~/.local/bin
 │   ├── install-playwright.sh   # 安装 Playwright 与 Chromium
 │   ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
