@@ -1,48 +1,5 @@
-local last_terminal_count = 1
 local snacks_tab = require('snacks_tab')
-
-local function hide_visible_terminals()
-  local hidden = false
-  for _, terminal in ipairs(Snacks.terminal.list()) do
-    if terminal:valid() then
-      terminal:hide()
-      hidden = true
-    end
-  end
-  return hidden
-end
-
-local function open_terminal(count)
-  last_terminal_count = count
-
-  Snacks.terminal(nil, {
-    count = count,
-    win = {
-      position = "float",
-      width = 0.99,
-      height = 0.65,
-      row = 0.30,
-      border = "single",
-      title_pos = "left",
-      title = " Terminal " .. count .. " ",
-    },
-  })
-end
-
-local function toggle_recent_terminal()
-  return function()
-    if not hide_visible_terminals() then
-      open_terminal(last_terminal_count)
-    end
-  end
-end
-
-local function switch_terminal(count)
-  return function()
-    hide_visible_terminals()
-    open_terminal(count)
-  end
-end
+local snacks_terminal = require('snacks_terminal')
 
 return
 {
@@ -90,13 +47,12 @@ return
     { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
     { "<leader>tt", snacks_tab.pick, desc = "Tabs" },
     { "<leader>tx", snacks_tab.close, desc = "Close Tab" },
-    { "<M-.>", toggle_recent_terminal(), desc = "Toggle Recent Terminal", mode = { "n", "t" } },
-    { "<M-t>1", switch_terminal(1), desc = "Switch to Terminal 1", mode = { "n", "t" } },
-    { "<M-t>2", switch_terminal(2), desc = "Switch to Terminal 2", mode = { "n", "t" } },
-    { "<M-t>3", switch_terminal(3), desc = "Switch to Terminal 3", mode = { "n", "t" } },
-    { "<M-t>4", switch_terminal(4), desc = "Switch to Terminal 4", mode = { "n", "t" } },
-    { "<M-t>5", switch_terminal(5), desc = "Switch to Terminal 5", mode = { "n", "t" } },
-    { "<M-t>6", switch_terminal(6), desc = "Switch to Terminal 6", mode = { "n", "t" } },
+    { "<M-t>c", snacks_terminal.create, desc = "Create Terminal", mode = { "n", "t" } },
+    { "<M-t>p", snacks_terminal.pick, desc = "Pick Terminal", mode = { "n", "t" } },
+    { "<M-t>r", snacks_terminal.rename_current, desc = "Rename Terminal", mode = { "n", "t" } },
+    { "<M-t>t", snacks_terminal.toggle, desc = "Toggle Terminal", mode = { "n", "t" } },
+    { "<M-t>x", snacks_terminal.close_current, desc = "Close Terminal", mode = { "n", "t" } },
+    { "<M-.>", snacks_terminal.toggle, desc = "Toggle Terminal", mode = { "n", "t" } },
     -- Grep
     { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines" },
     { "<leader>sB", function() Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers" },
