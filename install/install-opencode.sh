@@ -6,7 +6,7 @@ set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 OPENCODE_BIN="${BIN_DIR}/opencode"
-OPENCODE_VERSION="1.17.11"
+OPENCODE_VERSION="1.17.12"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
