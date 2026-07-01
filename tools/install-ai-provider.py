@@ -143,21 +143,15 @@ def atomic_write_json(path: Path, data: Any) -> None:
     tmp_path.replace(path)
 
 
-def command_claude(args: argparse.Namespace) -> int:
-    provider = load_providers(providers_path()).get(args.provider)
-    if provider is None:
-        raise ValueError(f"unknown provider: {args.provider}")
-    if args.model not in provider["models"]:
-        raise ValueError(f"model is not configured for provider {args.provider}: {args.model}")
-
+def install_claude(provider: dict[str, Any], model: str) -> int:
     settings = {
         "env": {
             "ANTHROPIC_AUTH_TOKEN": provider["apiKey"],
             "ANTHROPIC_BASE_URL": provider["endpoint"],
-            "ANTHROPIC_DEFAULT_HAIKU_MODEL": args.model,
-            "ANTHROPIC_DEFAULT_OPUS_MODEL": args.model,
-            "ANTHROPIC_DEFAULT_SONNET_MODEL": args.model,
-            "ANTHROPIC_MODEL": args.model,
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL": model,
+            "ANTHROPIC_DEFAULT_OPUS_MODEL": model,
+            "ANTHROPIC_DEFAULT_SONNET_MODEL": model,
+            "ANTHROPIC_MODEL": model,
         },
         "skipDangerousModePermissionPrompt": True,
     }
@@ -167,11 +161,7 @@ def command_claude(args: argparse.Namespace) -> int:
     return 0
 
 
-def command_opencode(args: argparse.Namespace) -> int:
-    provider = load_providers(providers_path()).get(args.provider)
-    if provider is None:
-        raise ValueError(f"unknown provider: {args.provider}")
-
+def install_opencode(provider: dict[str, Any]) -> int:
     models = {
         model: KNOWN_OPENCODE_MODELS.get(model, {"name": model})
         for model in provider["models"]
@@ -196,9 +186,53 @@ def command_opencode(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_claude(args: argparse.Namespace) -> int:
+    provider = load_providers(providers_path()).get(args.provider)
+    if provider is None:
+        raise ValueError(f"unknown provider: {args.provider}")
+    if args.model not in provider["models"]:
+        raise ValueError(f"model is not configured for provider {args.provider}: {args.model}")
+    return install_claude(provider, args.model)
+
+
+def command_opencode(args: argparse.Namespace) -> int:
+    provider = load_providers(providers_path()).get(args.provider)
+    if provider is None:
+        raise ValueError(f"unknown provider: {args.provider}")
+    return install_opencode(provider)
+
+
+def command_interactive(args: argparse.Namespace) -> int:
+    providers = load_providers(providers_path())
+
+    def choose(label: str, options: list[str]) -> str:
+        print(label)
+        for index, option in enumerate(options, start=1):
+            print(f"  {index}. {option}")
+        while True:
+            answer = input(f"Select {label} [1]: ").strip()
+            if not answer:
+                return options[0]
+            if answer.isdigit():
+                index = int(answer)
+                if 1 <= index <= len(options):
+                    return options[index - 1]
+            if answer in options:
+                return answer
+            print("Invalid selection.")
+
+    target = choose("target", ["claude", "opencode"])
+    provider_name = choose("provider", list(providers))
+    provider = providers[provider_name]
+    if target == "claude":
+        model = choose("model", provider["models"])
+        return install_claude(provider, model)
+    return install_opencode(provider)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Install AI provider config for local CLI tools.")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
 
     claude_parser = subparsers.add_parser("claude", help="Install Claude Code settings")
     claude_parser.add_argument("provider", help="Provider name from ai-providers.json")
@@ -209,7 +243,10 @@ def parse_args() -> argparse.Namespace:
     opencode_parser.add_argument("provider", help="Provider name from ai-providers.json")
     opencode_parser.set_defaults(func=command_opencode)
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.command is None:
+        args.func = command_interactive
+    return args
 
 
 def main() -> int:
