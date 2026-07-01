@@ -8,7 +8,7 @@ INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
 SRC_ROOT="${INSTALL_DIR}/src"
 TMUX_BIN="${BIN_DIR}/tmux"
-VERSION="3.7"
+VERSION="3.6b"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
