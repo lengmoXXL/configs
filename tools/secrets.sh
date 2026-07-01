@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Manage local .secrets files and sync supported secrets with OSS.
+# Sync the local ai-providers secret with OSS.
 
 set -euo pipefail
 
@@ -10,27 +10,18 @@ OSS_PREFIX="${SECRETS_OSS_PREFIX:-configs}"
 OSS_ENDPOINT="${SECRETS_OSS_ENDPOINT:-oss-cn-beijing.aliyuncs.com}"
 OSS_URI="${SECRETS_OSS_URI:-oss://$OSS_BUCKET/$OSS_PREFIX}"
 OSS_CONFIG_FILE="${SECRETS_OSS_CONFIG:-$SECRETS_DIR/ossutilconfig}"
-OPENCODE_SECRET="opencode.json"
-OPENCODE_NAME="opencode"
-OPENCODE_TARGET="$HOME/.config/opencode/opencode.json"
-CLAUDE_BAILIAN_SECRET="claude.bailian.json"
-CLAUDE_BAILIAN_NAME="claude.bailian"
-CLAUDE_BAILIAN_TARGET="$HOME/.claude/settings.json"
+AI_PROVIDERS_SECRET="ai-providers.json"
+AI_PROVIDERS_PATH="$SECRETS_DIR/$AI_PROVIDERS_SECRET"
 
 usage() {
     cat <<EOF
-Usage: $0 <init|ls|push|pull|install> [secret-name]
+Usage: $0 <init|ls|push|pull>
 
 Commands:
   init     Create .secrets/ossutilconfig template.
-  ls       List supported secret files.
-  push     Upload .secrets/<secret-name> to OSS.
-  pull     Download <secret-name> from OSS to .secrets.
-  install  Install .secrets/<secret-name> to this machine.
-
-Supported secrets:
-  opencode         -> $OPENCODE_TARGET
-  claude.bailian   -> $CLAUDE_BAILIAN_TARGET
+  ls       Show .secrets/$AI_PROVIDERS_SECRET path.
+  push     Upload .secrets/$AI_PROVIDERS_SECRET to OSS.
+  pull     Download $AI_PROVIDERS_SECRET from OSS to .secrets.
 
 Environment:
   SECRETS_DIR          Local secrets directory. Default: $SECRETS_DIR
@@ -64,51 +55,12 @@ require_oss_config_credentials() {
     fi
 }
 
-list_secrets() {
-    printf '%s\t%s\n' "$OPENCODE_NAME" "$OPENCODE_TARGET"
-    printf '%s\t%s\n' "$CLAUDE_BAILIAN_NAME" "$CLAUDE_BAILIAN_TARGET"
-}
-
-supported_secret() {
-    if [[ $# -ne 1 ]]; then
-        usage >&2
-        exit 1
-    fi
-
-    local name="$1"
-
-    case "$name" in
-        "$OPENCODE_NAME")
-            printf '%s\n' "$OPENCODE_SECRET"
-            ;;
-        "$CLAUDE_BAILIAN_NAME")
-            printf '%s\n' "$CLAUDE_BAILIAN_SECRET"
-            ;;
-        *)
-            echo "错误: 不支持的 secret: $name" >&2
-            echo "支持的 secret:" >&2
-            list_secrets >&2
-            exit 1
-            ;;
-    esac
-}
-
-install_target_for_secret() {
-    case "$1" in
-        "$OPENCODE_SECRET") printf '%s\n' "$OPENCODE_TARGET" ;;
-        "$CLAUDE_BAILIAN_SECRET") printf '%s\n' "$CLAUDE_BAILIAN_TARGET" ;;
-        *) return 1 ;;
-    esac
-}
-
 oss_args() {
     printf '%s\n' --endpoint "$OSS_ENDPOINT" --config-file "$OSS_CONFIG_FILE"
 }
 
-secret_object_uri() {
-    local name="$1"
-
-    printf '%s/%s\n' "${OSS_URI%/}" "$name"
+ai_providers_object_uri() {
+    printf '%s/%s\n' "${OSS_URI%/}" "$AI_PROVIDERS_SECRET"
 }
 
 init_secrets() {
@@ -130,29 +82,54 @@ EOF
     else
         echo "exists: $SECRETS_DIR/ossutilconfig"
     fi
+
+    if [[ ! -f "$AI_PROVIDERS_PATH" ]]; then
+        cat > "$AI_PROVIDERS_PATH" <<'EOF'
+[
+  {
+    "name": "bailian-token-plan",
+    "endpoint": "https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic",
+    "apiKey": "",
+    "models": [
+      "qwen3.7-max",
+      "qwen3.7-plus",
+      "deepseek-v4-pro",
+      "glm-5.2"
+    ]
+  }
+]
+EOF
+        chmod 600 "$AI_PROVIDERS_PATH"
+        echo "created: $AI_PROVIDERS_PATH"
+        echo "  请手动填写 apiKey，并按需调整 models"
+    else
+        echo "exists: $AI_PROVIDERS_PATH"
+    fi
 }
 
 push_secrets() {
-    local name source
-    name="$(supported_secret "$@")"
-    source="$SECRETS_DIR/$name"
+    if [[ $# -gt 0 ]]; then
+        usage >&2
+        exit 1
+    fi
 
     require_ossutil
     require_oss_config_credentials
 
-    if [[ ! -f "$source" ]]; then
-        echo "错误: 缺少 $source" >&2
+    if [[ ! -f "$AI_PROVIDERS_PATH" ]]; then
+        echo "错误: 缺少 $AI_PROVIDERS_PATH" >&2
         exit 1
     fi
 
     mapfile -t extra_args < <(oss_args)
-    ossutil cp "$source" "$(secret_object_uri "$name")" --no-progress --force "${extra_args[@]}"
+    ossutil cp "$AI_PROVIDERS_PATH" "$(ai_providers_object_uri)" --no-progress --force "${extra_args[@]}"
 }
 
 pull_secrets() {
-    local name target
-    name="$(supported_secret "$@")"
-    target="$SECRETS_DIR/$name"
+    if [[ $# -gt 0 ]]; then
+        usage >&2
+        exit 1
+    fi
 
     require_ossutil
     require_oss_config_credentials
@@ -161,24 +138,8 @@ pull_secrets() {
     chmod 700 "$SECRETS_DIR"
 
     mapfile -t extra_args < <(oss_args)
-    ossutil cp "$(secret_object_uri "$name")" "$target" --no-progress --force "${extra_args[@]}"
-    chmod 600 "$target"
-}
-
-install_secrets() {
-    local name source target
-    name="$(supported_secret "$@")"
-    source="$SECRETS_DIR/$name"
-    target="$(install_target_for_secret "$name")"
-
-    if [[ ! -f "$source" ]]; then
-        echo "错误: 缺少 $source，请先运行: $0 pull $name" >&2
-        exit 1
-    fi
-
-    mkdir -p "$(dirname "$target")"
-    install -m 600 "$source" "$target"
-    echo "installed: $target"
+    ossutil cp "$(ai_providers_object_uri)" "$AI_PROVIDERS_PATH" --no-progress --force "${extra_args[@]}"
+    chmod 600 "$AI_PROVIDERS_PATH"
 }
 
 command="${1:-}"
@@ -198,16 +159,13 @@ case "$command" in
             usage >&2
             exit 1
         fi
-        list_secrets
+        printf '%s\n' "$AI_PROVIDERS_PATH"
         ;;
     push)
         push_secrets "$@"
         ;;
     pull)
         pull_secrets "$@"
-        ;;
-    install)
-        install_secrets "$@"
         ;;
     -h | --help | help)
         usage

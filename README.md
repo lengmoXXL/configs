@@ -79,7 +79,8 @@ configs/
     ├── github-release-latest.sh # 查询 GitHub Release 最新版本
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
-    ├── secrets.sh              # 同步与安装 .secrets 敏感配置
+    ├── install-ai-provider.py  # 从 ai-providers.json 安装 AI CLI 配置
+    ├── secrets.sh              # 同步 .secrets 敏感源配置
     ├── prd/                    # prd TypeScript 源码与构建配置
     │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL
     ├── install-pj.sh           # 安装 pj 环境切换器
