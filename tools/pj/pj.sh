@@ -68,6 +68,7 @@ _pj_switch() {
 
     # shellcheck source=/dev/null
     source "$env_file"
+    export PJ_CMDS="$_PJ_DIR/${PJ_NAME}.pjcmds"
     if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" && -n "${PJ_NAME:-}" ]] && command -v tmux >/dev/null 2>&1; then
         tmux set-option -p -t "$TMUX_PANE" @pj_name "$PJ_NAME" >/dev/null 2>&1 || true
     fi
@@ -234,6 +235,37 @@ _pj_list() {
     done < <(_pj_list_envs)
 }
 
+_pj_migrate_cmds() {
+    local env_file name path old_cmds new_cmds total=0 moved=0
+    for env_file in "$_PJ_DIR"/*.env.sh; do
+        [[ -f "$env_file" ]] || continue
+        name=$(basename "$env_file" .env.sh)
+        path=$(_pj_get_path "$name")
+        old_cmds="$path/.pjcmds"
+        new_cmds="$_PJ_DIR/$name.pjcmds"
+        total=$((total + 1))
+
+        if [[ -n "$path" && -f "$old_cmds" ]]; then
+            if [[ -f "$new_cmds" ]]; then
+                echo "跳过 $name: 目标已存在 $new_cmds（源保留）"
+            else
+                mv "$old_cmds" "$new_cmds"
+                echo "迁移 $name: $old_cmds -> $new_cmds"
+                moved=$((moved + 1))
+            fi
+        else
+            echo "跳过 $name: 无 .pjcmds ($old_cmds)"
+        fi
+
+        if grep -q '^export PJ_CMDS=' "$env_file"; then
+            sed -i '/^export PJ_CMDS=/d' "$env_file"
+        fi
+    done
+
+    echo ""
+    echo "完成: $moved/$total 个环境已迁移命令文件到 $_PJ_DIR"
+}
+
 pj() {
     _pj_ensure_dirs
 
@@ -260,6 +292,9 @@ pj() {
             [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中"; return 1; }
             awk -F: '{label=$1; sub(/^[^:]*:/, ""); printf "%-15s %s\n", label, $0}' "$PJ_CMDS"
             ;;
+        --migrate-cmds)
+            _pj_migrate_cmds
+            ;;
         -h|--help)
             cat << 'EOF'
 pj - 项目环境切换器
@@ -274,8 +309,10 @@ pj - 项目环境切换器
     pj -s [-l <label>]  从 history 选择命令保存到 PJ_CMDS
     pj -c [label]   执行命令（指定标签则直接执行，否则 fzf 选择）
     pj --list-cmds  列出当前环境的所有命令
+    pj --migrate-cmds  把各项目根目录的 .pjcmds 迁移到 ~/.pjs/<name>.pjcmds
 
 命令格式: label:command
+命令文件: ~/.pjs/<name>.pjcmds（切换环境时按 PJ_NAME 派生）
 环境脚本目录: ~/.pjs/
 EOF
             ;;

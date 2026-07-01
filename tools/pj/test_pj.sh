@@ -12,7 +12,6 @@ trap "rm -rf $TEST_DIR" EXIT
 
 # 模拟环境
 export _PJ_DIR="$TEST_DIR/.pjs"
-PJ_CMDS="$TEST_DIR/.pjcmds"
 
 # 复制模板文件
 cp "$SCRIPT_DIR/pj.env.sh" "$TEST_DIR/pj.env.sh"
