@@ -7,7 +7,7 @@ set -euo pipefail
 BIN_DIR="${HOME}/.local/bin"
 CLAUDE_BIN="${BIN_DIR}/claude"
 CLAUDE_SETTINGS="${HOME}/.claude/settings.json"
-CLAUDE_CODE_VERSION="2.1.193"
+CLAUDE_CODE_VERSION="2.1.197"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
