@@ -1,5 +1,5 @@
 #!/bin/bash
-# 一次性安装/更新所有工具的 AGENTS.md 规则（codex / opencode）
+# 一次性安装/更新所有工具的 AGENTS.md / CLAUDE.md 规则（codex / opencode / claude）
 # 为每个工具组合 common 通用提示词与该工具的专属提示词，写入对应全局规则文件
 # 无需参数；可重入：重复执行会替换 managed block，保留块外其它内容
 
@@ -82,3 +82,9 @@ install_mode opencode \
     "${OPENCODE_AGENTS_DEST:-$HOME/.config/opencode/AGENTS.md}" \
     "<!-- BEGIN configs opencode AGENTS -->" \
     "<!-- END configs opencode AGENTS -->"
+
+install_mode claude \
+    "$PROMPTS_DIR/claude.md" \
+    "${CLAUDE_AGENTS_DEST:-$HOME/.claude/CLAUDE.md}" \
+    "<!-- BEGIN configs claude CLAUDE.md -->" \
+    "<!-- END configs claude CLAUDE.md -->"
