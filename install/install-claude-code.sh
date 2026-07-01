@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-for dep in curl find head install jq mktemp tar uname; do
+for dep in curl find head install jq mktemp sed tar uname; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
@@ -65,10 +65,77 @@ ensure_claude_onboarding() {
     rm -f "$tmp_file"
 }
 
+local_claude=""
 if [[ -x "$CLAUDE_BIN" ]]; then
-    echo "Claude Code 已安装: $CLAUDE_BIN"
-    ensure_claude_onboarding
-    "$CLAUDE_BIN" --version
+    local_claude="$CLAUDE_BIN"
+else
+    local_claude="$(command -v claude 2>/dev/null || true)"
+fi
+
+local_version=""
+if [[ -n "$local_claude" ]]; then
+    local_version=$("$local_claude" --version 2>/dev/null | sed -n 's/^\([0-9][0-9.]*\).*/\1/p' | head -1)
+fi
+
+compare_versions() {
+    local left="$1"
+    local right="$2"
+    local IFS=.
+    local left_parts right_parts index left_part right_part
+
+    read -r -a left_parts <<< "$left"
+    read -r -a right_parts <<< "$right"
+
+    for index in 0 1 2; do
+        left_part="${left_parts[$index]:-0}"
+        right_part="${right_parts[$index]:-0}"
+        left_part="${left_part%%[^0-9]*}"
+        right_part="${right_part%%[^0-9]*}"
+        left_part="${left_part:-0}"
+        right_part="${right_part:-0}"
+
+        if ((10#$left_part < 10#$right_part)); then
+            echo -1
+            return
+        fi
+        if ((10#$left_part > 10#$right_part)); then
+            echo 1
+            return
+        fi
+    done
+
+    echo 0
+}
+
+should_install=false
+if [[ -z "$local_claude" || -z "$local_version" ]]; then
+    echo "Claude Code 未安装，将安装目标版本 ${CLAUDE_CODE_VERSION}"
+    should_install=true
+else
+    echo "当前 Claude Code: ${local_version} (${local_claude})"
+    echo "目标 Claude Code: ${CLAUDE_CODE_VERSION}"
+
+    version_cmp=$(compare_versions "$local_version" "$CLAUDE_CODE_VERSION")
+    if [[ "$version_cmp" == "0" ]]; then
+        echo "Claude Code 已是目标版本"
+        ensure_claude_onboarding
+        exit 0
+    fi
+
+    if [[ "$version_cmp" == "1" ]]; then
+        echo "本地 Claude Code 版本高于目标版本，不执行更新"
+        exit 0
+    fi
+
+    answer=""
+    read -r -p "是否更新 Claude Code 到 ${CLAUDE_CODE_VERSION}? [y/N] " answer || true
+    case "$answer" in
+        y | Y | yes | YES) should_install=true ;;
+        *) echo "已取消更新"; exit 0 ;;
+    esac
+fi
+
+if [[ "$should_install" != "true" ]]; then
     exit 0
 fi
 
