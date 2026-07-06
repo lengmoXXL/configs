@@ -128,7 +128,7 @@ function M.pick()
   for _, terminal in ipairs(terminals) do
     items[#items + 1] = {
       text = sync_title(terminal),
-      terminal = terminal,
+      buf = terminal.buf,
     }
   end
 
@@ -140,7 +140,18 @@ function M.pick()
     preview = 'none',
     confirm = function(picker, item)
       picker:close()
-      focus_terminal(item.terminal)
+      if not item then
+        return
+      end
+
+      for _, terminal in ipairs(Snacks.terminal.list()) do
+        if terminal.buf == item.buf then
+          focus_terminal(terminal)
+          return
+        end
+      end
+
+      Snacks.notify.warn('Terminal not found')
     end,
   })
 end
