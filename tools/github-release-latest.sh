@@ -20,6 +20,7 @@ Packages:
   codex
   claude-code, claude
   opencode
+  hermes-agent
   cc-switch-cli, cc-switch
   sarasa
   aurulent
@@ -39,6 +40,7 @@ repo_for_package() {
         codex) echo "openai/codex" ;;
         claude-code | claude) echo "anthropics/claude-code" ;;
         opencode) echo "anomalyco/opencode" ;;
+        hermes-agent) echo "NousResearch/hermes-agent" ;;
         cc-switch-cli | cc-switch) echo "SaladDay/cc-switch-cli" ;;
         sarasa) echo "laishulu/Sarasa-Term-SC-Nerd" ;;
         aurulent) echo "ryanoasis/nerd-fonts" ;;

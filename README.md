@@ -25,6 +25,7 @@ configs/
 │   ├── install-fd.sh           # 安装 fd 到 ~/.local/bin
 │   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
 │   ├── install-go.sh           # 安装 Go 到 ~/.local/go
+│   ├── install-hermes-agent.sh # 安装 Hermes Agent
 │   ├── install-mytask.sh       # 安装 mytask 工具
 │   ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
 │   ├── install-nvim.sh         # 从源码编译安装 Neovim
