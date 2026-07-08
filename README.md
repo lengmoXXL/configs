@@ -25,6 +25,7 @@ configs/
 │   ├── install-fd.sh           # 安装 fd 到 ~/.local/bin
 │   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
 │   ├── install-go.sh           # 安装 Go 到 ~/.local/go
+│   ├── install-herdr.sh        # 从 GitHub Release 安装/更新 Herdr
 │   ├── install-hermes-agent.sh # 安装 Hermes Agent
 │   ├── install-mytask.sh       # 安装 mytask 工具
 │   ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
@@ -52,11 +53,14 @@ configs/
 ├── configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
+│   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
 │   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则
 │   ├── agents/                 # AGENTS.md 提示词源码
 │   │   ├── common.md           # 通用提示词
 │   │   ├── codex.md            # Codex 专属提示词
 │   │   └── opencode.md         # OpenCode 专属提示词
+│   ├── herdr/                  # Herdr 配置
+│   │   └── config.toml         # Herdr 配置：vscode.nvim dark palette、Ctrl-Space 前缀、无 pane 边框与单 tab 隐藏
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/

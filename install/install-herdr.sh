@@ -1,0 +1,112 @@
+#!/bin/bash
+# Install or update Herdr from GitHub Releases.
+# The installed release tag is pinned here; use tools/github-release-latest.sh to check updates.
+
+set -euo pipefail
+
+BIN_DIR="${HOME}/.local/bin"
+HERDR_BIN="${BIN_DIR}/herdr"
+HERDR_VERSION="v0.7.3"
+CURL_USER_AGENT="configs-install-herdr"
+USE_CN=false
+GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理下载 GitHub Release 文件
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+for dep in curl head install mktemp sed uname; do
+    if ! command -v "$dep" &>/dev/null; then
+        echo "错误: 缺少依赖 $dep"
+        exit 1
+    fi
+done
+
+target_version="${HERDR_VERSION#v}"
+
+local_herdr=""
+if [[ -x "$HERDR_BIN" ]]; then
+    local_herdr="$HERDR_BIN"
+else
+    local_herdr="$(command -v herdr 2>/dev/null || true)"
+fi
+
+local_version=""
+if [[ -n "$local_herdr" ]]; then
+    local_version=$("$local_herdr" --version 2>/dev/null | sed -n 's/.* \([0-9][0-9.]*\).*/\1/p' | head -1)
+fi
+
+should_install=false
+if [[ -z "$local_herdr" || -z "$local_version" ]]; then
+    echo "Herdr 未安装，将安装目标版本 ${HERDR_VERSION}"
+    should_install=true
+else
+    echo "当前 Herdr: ${local_version} (${local_herdr})"
+    echo "目标 Herdr: ${target_version}"
+
+    if [[ "$local_version" == "$target_version" ]]; then
+        echo "Herdr 已是目标版本"
+        exit 0
+    fi
+
+    echo "Herdr 版本不匹配，将重装目标版本 ${HERDR_VERSION}"
+    should_install=true
+fi
+
+if [[ "$should_install" != "true" ]]; then
+    exit 0
+fi
+
+os=$(uname -s)
+arch=$(uname -m)
+
+case "$os:$arch" in
+    Linux:x86_64) target="herdr-linux-x86_64" ;;
+    Linux:aarch64 | Linux:arm64) target="herdr-linux-aarch64" ;;
+    Darwin:x86_64) target="herdr-macos-x86_64" ;;
+    Darwin:arm64 | Darwin:aarch64) target="herdr-macos-aarch64" ;;
+    *) echo "错误: 不支持的平台 ${os}/${arch}"; exit 1 ;;
+esac
+
+tmp_dir=$(mktemp -d)
+download="${tmp_dir}/herdr"
+url="https://github.com/ogulcancelik/herdr/releases/download/${HERDR_VERSION}/${target}"
+if [[ "$USE_CN" == "true" ]]; then
+    url="${GITHUB_RELEASE_PROXY}${url}"
+fi
+
+cleanup() {
+    rm -rf "$tmp_dir"
+}
+trap cleanup EXIT
+
+echo "下载 Herdr ${HERDR_VERSION} (${target})..."
+curl -fL -H "User-Agent: ${CURL_USER_AGENT}" "$url" -o "$download"
+
+mkdir -p "$BIN_DIR"
+install -m 755 "$download" "$HERDR_BIN"
+
+echo "Herdr 安装完成: $HERDR_BIN"
+"$HERDR_BIN" --version
