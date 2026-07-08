@@ -138,4 +138,4 @@ npm "${npm_args[@]}"
 
 echo "Pi Agent 安装完成: $PI_BIN"
 "$PI_BIN" --version
-echo "提示: 可运行 ./configs/install-pi-config.sh 安装 Plannotator extension"
+echo "提示: 可运行 ./configs/install-pi-config.sh 安装 Pi extensions"

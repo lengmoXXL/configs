@@ -1,11 +1,14 @@
 #!/bin/bash
-# 安装 Pi Agent 全局扩展 package 到 ~/.pi/agent
+# 安装 Pi Agent 全局扩展 packages 到 ~/.pi/agent
 
 set -euo pipefail
 
 PLANNOTATOR_PACKAGE="@plannotator/pi-extension"
 PLANNOTATOR_VERSION="0.22.0"
 PLANNOTATOR_SOURCE="npm:${PLANNOTATOR_PACKAGE}@${PLANNOTATOR_VERSION}"
+SIMPLIFY_PACKAGE="pi-simplify"
+SIMPLIFY_VERSION="0.2.2"
+SIMPLIFY_SOURCE="npm:${SIMPLIFY_PACKAGE}@${SIMPLIFY_VERSION}"
 USE_CN=false
 NPM_REGISTRY=""
 
@@ -13,8 +16,9 @@ usage() {
     cat << EOF
 用法: $0 [-cn] [--registry URL]
 
-安装 Plannotator Pi extension:
+安装 Pi extensions:
   ${PLANNOTATOR_SOURCE}
+  ${SIMPLIFY_SOURCE}
 
 选项:
   -cn             使用 npmmirror npm registry
@@ -60,6 +64,9 @@ if [[ -n "$NPM_REGISTRY" ]]; then
     export npm_config_registry="$NPM_REGISTRY"
 fi
 
-echo "安装 Pi extension: $PLANNOTATOR_SOURCE"
-pi install "$PLANNOTATOR_SOURCE"
-echo "Plannotator 已安装。Pi 中使用 /reload 后生效；也可以重启 pi。"
+for source in "$PLANNOTATOR_SOURCE" "$SIMPLIFY_SOURCE"; do
+    echo "安装 Pi extension: $source"
+    pi install "$source"
+done
+
+echo "Pi extensions 已安装。Pi 中使用 /reload 后生效；也可以重启 pi。"
