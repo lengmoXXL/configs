@@ -1,13 +1,13 @@
 onboarding = false
 
 [theme.custom]
-accent = "#898989"
+accent = "#636369"
 panel_bg = "#181818"
 surface0 = "#1F1F1F"
 surface1 = "#252526"
 surface_dim = "#202020"
-overlay0 = "#898989"
-overlay1 = "#636369"
+overlay0 = "#303030"
+overlay1 = "#383838"
 text = "#D4D4D4"
 subtext0 = "#BBBBBB"
 mauve = "#C586C0"
@@ -22,5 +22,6 @@ peach = "#CE9178"
 prefix = "ctrl+space"
 
 [ui]
-pane_borders = false
-pane_gaps = true
+pane_borders = true
+pane_gaps = false
+hide_tab_bar_when_single_tab = true
