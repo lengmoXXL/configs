@@ -32,6 +32,7 @@ configs/
 │   ├── install-nvim.sh         # 从源码编译安装 Neovim
 │   ├── install-opencode.sh     # 从 GitHub Release 安装 opencode
 │   ├── install-ossutil.sh      # 安装 ossutil 到 ~/.local/bin
+│   ├── install-pi-agent.sh     # 从 npm 安装/更新 Pi Agent
 │   ├── install-playwright.sh   # 安装 Playwright 与 Chromium
 │   ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
 │   ├── install-tldr.sh         # 安装 tldr 命令行帮助工具
@@ -54,6 +55,7 @@ configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
+│   ├── install-pi-config.sh    # 安装 Plannotator Pi extension
 │   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则
 │   ├── agents/                 # AGENTS.md 提示词源码
 │   │   ├── common.md           # 通用提示词
@@ -84,7 +86,7 @@ configs/
     ├── github-release-latest.sh # 查询 GitHub Release 最新版本
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
-    ├── install-ai-provider.py  # 交互安装 AI CLI provider 配置
+    ├── install-ai-provider.py  # 安装 Claude/opencode/Pi provider 配置
     ├── secrets.sh              # 同步 .secrets 敏感源配置
     ├── prd/                    # prd TypeScript 源码与构建配置
     │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL

@@ -1,0 +1,65 @@
+#!/bin/bash
+# 安装 Pi Agent 全局扩展 package 到 ~/.pi/agent
+
+set -euo pipefail
+
+PLANNOTATOR_PACKAGE="@plannotator/pi-extension"
+PLANNOTATOR_VERSION="0.22.0"
+PLANNOTATOR_SOURCE="npm:${PLANNOTATOR_PACKAGE}@${PLANNOTATOR_VERSION}"
+USE_CN=false
+NPM_REGISTRY=""
+
+usage() {
+    cat << EOF
+用法: $0 [-cn] [--registry URL]
+
+安装 Plannotator Pi extension:
+  ${PLANNOTATOR_SOURCE}
+
+选项:
+  -cn             使用 npmmirror npm registry
+  --registry URL  使用指定 npm registry
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        --registry)
+            if [[ $# -lt 2 ]]; then
+                usage
+                exit 1
+            fi
+            NPM_REGISTRY="$2"
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if [[ "$USE_CN" == "true" && -z "$NPM_REGISTRY" ]]; then
+    NPM_REGISTRY="https://registry.npmmirror.com"
+fi
+
+if ! command -v pi &>/dev/null; then
+    echo "错误: 缺少 pi 命令，可先运行 ./install/install-pi-agent.sh"
+    exit 1
+fi
+
+if [[ -n "$NPM_REGISTRY" ]]; then
+    export npm_config_registry="$NPM_REGISTRY"
+fi
+
+echo "安装 Pi extension: $PLANNOTATOR_SOURCE"
+pi install "$PLANNOTATOR_SOURCE"
+echo "Plannotator 已安装。Pi 中使用 /reload 后生效；也可以重启 pi。"
