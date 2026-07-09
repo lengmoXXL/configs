@@ -106,10 +106,10 @@ def load_models_catalog(path: Path) -> dict[str, dict[str, Any]]:
     return catalog
 
 
-def resolve_model(catalog: dict[str, dict[str, Any]], alias: str, catalog_path: Path) -> dict[str, Any]:
+def resolve_model(catalog: dict[str, dict[str, Any]], alias: str) -> dict[str, Any]:
     entry = catalog.get(alias)
     if entry is None:
-        raise ValueError(f"model alias not found in catalog {catalog_path}: {alias}")
+        raise ValueError(f"model alias not found in catalog: {alias}")
     return entry
 
 

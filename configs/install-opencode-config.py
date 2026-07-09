@@ -34,13 +34,11 @@ def opencode_model_config(entry: dict[str, Any]) -> dict[str, Any]:
 
 
 def install_opencode(provider: dict[str, Any]) -> int:
-    catalog_path = ai.models_catalog_path()
-    catalog = ai.load_models_catalog(catalog_path)
+    catalog = ai.load_models_catalog(ai.models_catalog_path())
 
     models: dict[str, dict[str, Any]] = {}
     for alias, provider_id in provider["models"].items():
-        entry = ai.resolve_model(catalog, alias, catalog_path)
-        models[provider_id] = opencode_model_config(entry)
+        models[provider_id] = opencode_model_config(ai.resolve_model(catalog, alias))
 
     config = {
         "$schema": "https://opencode.ai/config.json",

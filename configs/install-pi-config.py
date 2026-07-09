@@ -48,8 +48,7 @@ def pi_model_config(model_id: str, entry: dict[str, Any]) -> dict[str, Any]:
 
 
 def models_provider_entry(provider: dict[str, Any]) -> dict[str, Any]:
-    catalog_path = ai.models_catalog_path()
-    catalog = ai.load_models_catalog(catalog_path)
+    catalog = ai.load_models_catalog(ai.models_catalog_path())
     return {
         "name": provider["name"],
         "baseUrl": provider["endpoint"].rstrip("/"),
@@ -57,7 +56,7 @@ def models_provider_entry(provider: dict[str, Any]) -> dict[str, Any]:
         "apiKey": provider["apiKey"],
         "compat": PI_ANTHROPIC_COMPAT,
         "models": [
-            pi_model_config(provider_id, ai.resolve_model(catalog, item_alias, catalog_path))
+            pi_model_config(provider_id, ai.resolve_model(catalog, item_alias))
             for item_alias, provider_id in provider["models"].items()
         ],
     }
