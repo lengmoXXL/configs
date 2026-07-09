@@ -29,7 +29,8 @@
   },
   "glm-5.2": {
     "name": "GLM-5.2",
-    "reasoning": true
+    "reasoning": true,
+    "contextWindow": 200000
   },
   "claude-code-4.6": {
     "name": "Claude Code 4.6",
