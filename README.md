@@ -18,9 +18,7 @@ configs/
 ├── install.sh                  # 确保 bashrc 加载 ~/.config/env.d/*.sh
 ├── install/                    # 外部依赖安装脚本
 │   ├── install-basic-tools.sh  # 安装基础命令行工具
-│   ├── install-cc-switch-cli.sh # 安装 cc-switch-cli
 │   ├── install-clash-for-linux.sh # 安装 Clash for Linux
-│   ├── install-claude-code.sh  # 从 GitHub Release 安装 Claude Code
 │   ├── install-codex.sh        # 从 GitHub Release 安装/更新 Codex CLI
 │   ├── install-fd.sh           # 安装 fd 到 ~/.local/bin
 │   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
@@ -55,9 +53,13 @@ configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
-│   ├── install-pi-config.sh    # 安装 Plannotator/pi-simplify extensions
+│   ├── install-pi-extensions.sh # 安装 Plannotator/pi-simplify extensions
+│   ├── install-opencode-config.py # 安装 opencode provider 配置
+│   ├── install-pi-config.py    # 安装 Pi provider 配置（models.json/settings.json/theme）
+│   ├── _ai_provider.py         # install-opencode/install-pi-config 共享的 provider/模型加载逻辑
 │   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则
-│   ├── agents/                 # AGENTS.md 提示词源码
+│   ├── agents/                 # AGENTS.md 提示词与模型目录源码
+│   │   ├── ai-models.json      # AI 模型参数目录（名称/输入模态/推理）
 │   │   ├── common.md           # 通用提示词
 │   │   ├── codex.md            # Codex 专属提示词
 │   │   └── opencode.md         # OpenCode 专属提示词
@@ -71,6 +73,9 @@ configs/
 │   │       │   └── ...
 │   │       └── themes/         # 主题配置
 │   │           └── ...
+│   ├── pi/                     # Pi 配置
+│   │   └── themes/             # Pi 主题 JSON 文件
+│   │       └── gray.json
 │   └── tmux/                   # tmux 配置
 │       └── tmux.conf           # 开启鼠标、基础终端设置与 tmux 插件
 ├── skills/
@@ -86,7 +91,6 @@ configs/
     ├── github-release-latest.sh # 查询 GitHub Release 最新版本
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
-    ├── install-ai-provider.py  # 安装 Claude/opencode/Pi provider 配置
     ├── secrets.sh              # 同步 .secrets 敏感源配置
     ├── prd/                    # prd TypeScript 源码与构建配置
     │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL

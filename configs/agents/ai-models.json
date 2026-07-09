@@ -1,0 +1,72 @@
+{
+  "qwen3.7-max": {
+    "name": "Qwen3.7 Max",
+    "reasoning": true
+  },
+  "qwen3.7-plus": {
+    "name": "Qwen3.7 Plus",
+    "input": ["text", "image"],
+    "reasoning": true
+  },
+  "qwen3.6-plus": {
+    "name": "Qwen3.6 Plus",
+    "input": ["text", "image"],
+    "reasoning": true
+  },
+  "qwen3.6-flash": {
+    "name": "Qwen3.6 Flash",
+    "input": ["text", "image"],
+    "reasoning": true
+  },
+  "deepseek-v4-pro": {
+    "name": "DeepSeek V4 Pro"
+  },
+  "deepseek-v4-flash": {
+    "name": "DeepSeek V4 Flash"
+  },
+  "deepseek-v3.2": {
+    "name": "DeepSeek V3.2"
+  },
+  "kimi-k2.7-code": {
+    "name": "Kimi K2.7 Code",
+    "input": ["text", "image"],
+    "reasoning": true
+  },
+  "kimi-k2.6": {
+    "name": "Kimi K2.6",
+    "input": ["text", "image"],
+    "reasoning": true
+  },
+  "kimi-k2.5": {
+    "name": "Kimi K2.5",
+    "input": ["text", "image"],
+    "reasoning": true
+  },
+  "glm-5.2": {
+    "name": "GLM-5.2",
+    "reasoning": true
+  },
+  "glm-5.1": {
+    "name": "GLM-5.1",
+    "reasoning": true
+  },
+  "glm-5": {
+    "name": "GLM-5",
+    "reasoning": true
+  },
+  "MiniMax-M2.5": {
+    "name": "MiniMax M2.5"
+  },
+  "claude-code-4.6": {
+    "name": "Claude Code 4.6",
+    "input": ["text", "image"],
+    "reasoning": true,
+    "contextWindow": 200000
+  },
+  "claude-code-4.8": {
+    "name": "Claude Code 4.8",
+    "input": ["text", "image"],
+    "reasoning": true,
+    "contextWindow": 200000
+  }
+}
