@@ -82,3 +82,9 @@ install_mode opencode \
     "${OPENCODE_AGENTS_DEST:-$HOME/.config/opencode/AGENTS.md}" \
     "<!-- BEGIN configs opencode AGENTS -->" \
     "<!-- END configs opencode AGENTS -->"
+
+install_mode pi \
+    "$PROMPTS_DIR/pi.md" \
+    "${PI_AGENTS_DEST:-$HOME/.pi/agent/AGENTS.md}" \
+    "<!-- BEGIN configs pi AGENTS -->" \
+    "<!-- END configs pi AGENTS -->"
