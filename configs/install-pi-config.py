@@ -152,7 +152,7 @@ def main() -> int:
             return install_theme(name)
 
         providers = ai.load_providers(ai.providers_path())
-        provider_name = args.provider or ai.choose("provider", list(providers))
+        provider_name = getattr(args, "provider", None) or ai.choose("provider", list(providers))
         provider = providers.get(provider_name)
         if provider is None:
             raise ValueError(f"unknown provider: {provider_name}")
@@ -160,7 +160,7 @@ def main() -> int:
         if target == "models":
             return install_models(provider)
 
-        alias = args.alias or ai.choose("model", list(provider["models"]))
+        alias = getattr(args, "alias", None) or ai.choose("model", list(provider["models"]))
         if alias not in provider["models"]:
             raise ValueError(
                 f"model alias is not configured for provider {provider_name}: {alias}"
