@@ -101,7 +101,7 @@ EOF
 EOF
         chmod 600 "$AI_PROVIDERS_PATH"
         echo "created: $AI_PROVIDERS_PATH"
-        echo "  请手动填写 apiKey，并按需调整 models（key 为 ai-models.json 里的别名，value 为 provider 识别的 model id）"
+        echo "  请手动填写 apiKey，并按需调整 models（key 为 models.json 里的别名，value 为 provider 识别的 model id）"
     else
         echo "exists: $AI_PROVIDERS_PATH"
     fi

@@ -1,8 +1,8 @@
 """Shared helpers for install-opencode-config / install-pi-config.
 
 Loads .secrets/ai-providers.json (provider list with apiKey/endpoint) and
-configs/agents/ai-models.json (model parameter catalog). Provider `models`
-maps an alias (key in ai-models.json) to the provider-recognized model id.
+configs/agents/models.json (model parameter catalog). Provider `models`
+maps an alias (key in models.json) to the provider-recognized model id.
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ def providers_path() -> Path:
 
 def models_catalog_path() -> Path:
     return Path(
-        os.environ.get("AI_MODELS_PATH", _repo_root() / "configs" / "agents" / "ai-models.json")
+        os.environ.get("AI_MODELS_PATH", _repo_root() / "configs" / "agents" / "models.json")
     ).expanduser()
 
 

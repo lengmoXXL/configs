@@ -8,7 +8,7 @@ Usage:
   ./install-pi-config.py theme [name]                  # install a Pi theme
 
 Subcommand selects the sync target. `provider`/`alias` are optional and picked
-interactively when omitted. `alias` is a key in ai-models.json (the provider's
+interactively when omitted. `alias` is a key in models.json (the provider's
 models object maps it to the provider-recognized model id that becomes the Pi
 model `id` and defaultModel); it is not needed for the `models` target.
 
@@ -123,7 +123,7 @@ def main() -> int:
     settings_p = sub.add_parser("settings", help="Sync settings.json only (default)")
     settings_p.add_argument("provider", nargs="?", help="Provider name from ai-providers.json")
     settings_p.add_argument(
-        "alias", nargs="?", help="Default model alias (key in ai-models.json)"
+        "alias", nargs="?", help="Default model alias (key in models.json)"
     )
 
     models_p = sub.add_parser("models", help="Install models.json only")
@@ -132,7 +132,7 @@ def main() -> int:
     all_p = sub.add_parser("all", help="Sync both settings.json and models.json")
     all_p.add_argument("provider", nargs="?", help="Provider name from ai-providers.json")
     all_p.add_argument(
-        "alias", nargs="?", help="Default model alias (key in ai-models.json)"
+        "alias", nargs="?", help="Default model alias (key in models.json)"
     )
 
     theme_p = sub.add_parser("theme", help="Install a Pi theme")

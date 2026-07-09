@@ -59,7 +59,7 @@ configs/
 │   ├── _ai_provider.py         # install-opencode/install-pi-config 共享的 provider/模型加载逻辑
 │   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则
 │   ├── agents/                 # AGENTS.md 提示词与模型目录源码
-│   │   ├── ai-models.json      # AI 模型参数目录（名称/输入模态/推理）
+│   │   ├── models.json         # AI 模型参数目录（名称/输入模态/推理）
 │   │   ├── common.md           # 通用提示词
 │   │   ├── codex.md            # Codex 专属提示词
 │   │   └── opencode.md         # OpenCode 专属提示词
