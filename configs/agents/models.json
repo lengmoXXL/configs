@@ -32,16 +32,14 @@
     "reasoning": true,
     "contextWindow": 200000
   },
-  "claude-code-4.6": {
-    "name": "Claude Code 4.6",
-    "input": ["text", "image"],
-    "reasoning": true,
+  "idealab-opus-4.6": {
+    "name": "Idealab Claude Code 4.6",
+    "input": ["text"],
     "contextWindow": 200000
   },
-  "claude-code-4.8": {
-    "name": "Claude Code 4.8",
-    "input": ["text", "image"],
-    "reasoning": true,
+  "idealab-opus-4.8": {
+    "name": "Idealab Claude Code 4.8",
+    "input": ["text"],
     "contextWindow": 200000
   }
 }
