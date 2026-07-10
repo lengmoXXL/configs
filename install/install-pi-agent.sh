@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_DIR="${HOME}/.local/bin"
 NPM_PREFIX="${HOME}/.local"
 PI_PACKAGE="@earendil-works/pi-coding-agent"
-PI_VERSION="0.80.5"
+PI_VERSION="0.80.6"
 PI_BIN="${BIN_DIR}/pi"
 MIN_NODE_VERSION="22.19.0"
 USE_CN=false
@@ -80,7 +80,7 @@ ensure_node() {
     fi
 }
 
-for dep in sed head; do
+for dep in grep head; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
@@ -98,7 +98,7 @@ fi
 
 local_version=""
 if [[ -n "$local_pi" ]]; then
-    local_version=$("$local_pi" --version 2>/dev/null | sed -n 's/.*\([0-9][0-9.]*\).*/\1/p' | head -1)
+    local_version=$("$local_pi" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 fi
 
 if [[ -n "$local_pi" && "$local_version" == "$PI_VERSION" ]]; then
