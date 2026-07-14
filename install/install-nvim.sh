@@ -7,7 +7,7 @@ set -euo pipefail
 INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
 NVIM_BIN="${BIN_DIR}/nvim"
-VERSION="v0.12.3"
+VERSION="v0.12.4"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
