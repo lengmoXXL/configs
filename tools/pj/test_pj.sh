@@ -1,99 +1,164 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PJ_SCRIPT="$SCRIPT_DIR/pj.sh"
-
-source "$PJ_SCRIPT"
-
-# 测试用的临时目录
 TEST_DIR=$(mktemp -d)
-trap "rm -rf $TEST_DIR" EXIT
+trap 'rm -rf "$TEST_DIR"' EXIT
 
-# 模拟环境
-export _PJ_DIR="$TEST_DIR/.pjs"
+export HOME="$TEST_DIR/home"
+export _PJ_DIR="$HOME/.pjs"
+mkdir -p "$HOME" "$_PJ_DIR"
 
-# 复制模板文件
-cp "$SCRIPT_DIR/pj.env.sh" "$TEST_DIR/pj.env.sh"
+# shellcheck source=pj.sh
+source "$SCRIPT_DIR/pj.sh"
 
-echo "=== 测试开始 ==="
+HISTORY_FIXTURE=""
+FZF_CHOICE=""
+fc() {
+    printf '%s\n' "$HISTORY_FIXTURE"
+}
+fzf() {
+    local line first=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -n "$first" ]] || first="$line"
+        if [[ -n "$FZF_CHOICE" && "$line" == "$FZF_CHOICE" ]]; then
+            printf '%s\n' "$line"
+            return
+        fi
+    done
+    [[ -z "$FZF_CHOICE" && -n "$first" ]] && printf '%s\n' "$first"
+}
 
-# 1. 测试创建环境
-echo -n "1. 创建环境... "
-pj -a testproj >/dev/null
-[[ -f "$_PJ_DIR/testproj.env.sh" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+echo "=== pj 测试开始 ==="
 
-# 2. 测试切换环境
-echo -n "2. 切换环境... "
-pj testproj >/dev/null
-[[ "$PJ_NAME" == "testproj" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+repo="$TEST_DIR/sample-repo"
+mkdir -p "$repo/subdir"
+git init -q "$repo"
+git -C "$repo" remote add origin git@github.com:example/remote-repo.git
+cd "$repo/subdir"
 
-# 3. 测试列出环境
-echo -n "3. 列出环境... "
-result=$(pj --list-envs)
-[[ "$result" == *"testproj"* ]] && echo "OK" || { echo "FAIL"; exit 1; }
+echo -n "1. 按 remote repo 保存带标签命令... "
+HISTORY_FIXTURE=$'echo hello\necho building'
+FZF_CHOICE="echo building"
+pj -s -l build >/dev/null
+cmds_file="$_PJ_DIR/remote-repo.pjcmds"
+[[ -f "$cmds_file" ]] && grep -Fqx 'build:echo building' "$cmds_file"
+echo "OK"
 
-# 4. 测试添加命令
-echo -n "4. 添加命令... "
-echo ":echo hello" > "$PJ_CMDS"
-echo "build:echo building" >> "$PJ_CMDS"
-result=$(pj --list-cmds)
-[[ "$result" == *"echo hello"* && "$result" == *"echo building"* ]] && echo "OK" || { echo "FAIL"; exit 1; }
+echo -n "2. 保存无标签命令... "
+FZF_CHOICE="echo hello"
+pj -s >/dev/null
+grep -Fqx ':echo hello' "$cmds_file"
+echo "OK"
 
-# 5. 测试命令含冒号显示正确
-echo -n "5. 命令含冒号显示... "
-echo "test:echo a:b:c" >> "$PJ_CMDS"
-result=$(pj --list-cmds)
-[[ "$result" == *"echo a:b:c"* ]] && echo "OK" || { echo "FAIL"; exit 1; }
+echo -n "3. 同一命令更新标签且不重复... "
+FZF_CHOICE="echo building"
+pj -s -l compile >/dev/null
+grep -Fqx 'compile:echo building' "$cmds_file"
+! grep -Fq 'build:echo building' "$cmds_file"
+[[ $(grep -Fc 'echo building' "$cmds_file") -eq 1 ]]
+echo "OK"
 
-# 6. 测试按标签执行
-echo -n "6. 按标签执行... "
-pj -c build >/dev/null
-result=$(head -1 "$PJ_CMDS")
-[[ "$result" == "build:echo building" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+echo -n "4. 按标签执行并更新 LRU... "
+result=$(pj -c compile)
+[[ "$result" == *"building"* ]]
+[[ $(head -1 "$cmds_file") == 'compile:echo building' ]]
+echo "OK"
 
-# 7. 测试标签不存在
-echo -n "7. 标签不存在报错... "
-if pj -c notfound 2>&1 | grep -q "未找到标签"; then
+echo -n "5. fzf 选择执行无标签命令... "
+FZF_CHOICE=':echo hello'
+result=$(pj -c)
+[[ "$result" == *"hello"* ]]
+[[ $(head -1 "$cmds_file") == ':echo hello' ]]
+echo "OK"
+
+echo -n "6. 无 origin 时使用 Git 根目录名... "
+local_repo="$TEST_DIR/local-repo"
+git init -q "$local_repo"
+cd "$local_repo"
+HISTORY_FIXTURE='echo local'
+FZF_CHOICE='echo local'
+pj -s >/dev/null
+grep -Fqx ':echo local' "$_PJ_DIR/local-repo.pjcmds"
+echo "OK"
+
+echo -n "7. 自动迁移仓库根目录的旧 .pjcmds... "
+root_legacy="$TEST_DIR/root-legacy"
+git init -q "$root_legacy"
+git -C "$root_legacy" remote add origin https://example.com/team/root-migrated.git
+printf 'legacy:echo root-legacy\n' > "$root_legacy/.pjcmds"
+cd "$root_legacy"
+result=$(pj -c legacy)
+[[ "$result" == *"root-legacy"* ]]
+[[ ! -e "$root_legacy/.pjcmds" ]]
+grep -Fqx 'legacy:echo root-legacy' "$_PJ_DIR/root-migrated.pjcmds"
+echo "OK"
+
+echo -n "8. 自动迁移旧项目名的共享命令文件... "
+shared_legacy="$TEST_DIR/shared-legacy"
+git init -q "$shared_legacy"
+git -C "$shared_legacy" remote add origin git@example.com:team/shared-migrated.git
+printf '#!/usr/bin/env bash\n# Project: old-project\n# Path: %s\n' "$shared_legacy" > "$_PJ_DIR/old-project.env.sh"
+printf 'shared:echo shared-legacy\n' > "$_PJ_DIR/old-project.pjcmds"
+cd "$shared_legacy"
+result=$(pj -c shared)
+[[ "$result" == *"shared-legacy"* ]]
+[[ ! -e "$_PJ_DIR/old-project.pjcmds" ]]
+grep -Fqx 'shared:echo shared-legacy' "$_PJ_DIR/shared-migrated.pjcmds"
+echo "OK"
+
+echo -n "9. 迁移时合并已有命令并去重... "
+merge_repo="$TEST_DIR/merge-repo"
+git init -q "$merge_repo"
+printf 'new:echo new\n:same\n' > "$_PJ_DIR/merge-repo.pjcmds"
+printf 'old:echo old\n:same\n' > "$merge_repo/.pjcmds"
+cd "$merge_repo"
+result=$(pj -c old)
+[[ "$result" == *"old"* ]]
+[[ ! -e "$merge_repo/.pjcmds" ]]
+grep -Fqx 'new:echo new' "$_PJ_DIR/merge-repo.pjcmds"
+[[ $(grep -Fxc ':same' "$_PJ_DIR/merge-repo.pjcmds") -eq 1 ]]
+echo "OK"
+
+echo -n "10. 非 Git 目录拒绝运行... "
+outside="$TEST_DIR/outside"
+mkdir -p "$outside"
+cd "$outside"
+if result=$(pj -c 2>&1); then
+    echo "FAIL"
+    exit 1
+elif [[ "$result" == *'不在 Git 仓库'* ]]; then
     echo "OK"
 else
     echo "FAIL"
     exit 1
 fi
 
-# 8. 测试删除环境
-echo -n "8. 删除环境... "
-pj -d testproj >/dev/null
-[[ ! -f "$_PJ_DIR/testproj.env.sh" ]] && echo "OK" || { echo "FAIL"; exit 1; }
-
-# 9. 测试环境不存在报错
-echo -n "9. 环境不存在报错... "
-if pj nonexistent 2>&1 | grep -q "环境不存在"; then
+echo -n "11. 旧命令入口已下线... "
+cd "$repo"
+if result=$(pj -a old 2>&1); then
+    echo "FAIL"
+    exit 1
+elif [[ "$result" == *'未知选项'* ]]; then
+    echo "OK"
+else
+    echo "FAIL"
+    exit 1
+fi
+if result=$(pj --migrate 2>&1); then
+    echo "FAIL"
+    exit 1
+elif [[ "$result" == *'未知选项'* ]]; then
     echo "OK"
 else
     echo "FAIL"
     exit 1
 fi
 
-# 10. 测试无冒号前缀命令（LRU）
-echo -n "10. 无冒号命令 LRU... "
-echo "echo plain" > "$PJ_CMDS"
-echo "test:echo test" >> "$PJ_CMDS"
-pj -c test >/dev/null
-result=$(grep -n "echo plain" "$PJ_CMDS" | cut -d: -f1)
-[[ "$result" == "2" ]] && echo "OK" || { echo "FAIL"; exit 1; }
+echo -n "12. 帮助只展示新入口... "
+help=$(pj -h)
+[[ "$help" == *'pj -s'* && "$help" == *'pj -c'* ]]
+[[ "$help" != *'--list-envs'* && "$help" != *'--migrate'* ]]
+echo "OK"
 
-# 11. 测试正则特殊字符命令
-echo -n "11. 正则特殊字符命令... "
-echo "spec:echo 'a.b*c[d]e'" > "$PJ_CMDS"
-pj -c spec >/dev/null
-result=$(grep -F "echo 'a.b*c[d]e'" "$PJ_CMDS")
-[[ -n "$result" ]] && echo "OK" || { echo "FAIL"; exit 1; }
-
-# 12. 测试帮助
-echo -n "12. 帮助显示... "
-result=$(pj -h)
-[[ "$result" == *"项目环境切换器"* ]] && echo "OK" || { echo "FAIL"; exit 1; }
-
-echo ""
 echo "=== 所有测试通过 ==="

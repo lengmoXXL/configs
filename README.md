@@ -94,7 +94,7 @@ configs/
     ├── secrets.sh              # 同步 .secrets 敏感源配置
     ├── prd/                    # prd TypeScript 源码与构建配置
     │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL
-    ├── install-pj.sh           # 安装 pj 环境切换器
+    ├── install-pj.sh           # 安装 pj 仓库命令工具
     └── pj/                     # pj 工具源码
         └── ...
 ```

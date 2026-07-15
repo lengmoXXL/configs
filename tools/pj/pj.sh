@@ -1,333 +1,198 @@
 #!/usr/bin/env bash
 
-_PJ_DIR="${HOME}/.pjs"
+_PJ_DIR="${_PJ_DIR:-${HOME}/.pjs}"
 
-_pj_ensure_dirs() {
-    mkdir -p "$_PJ_DIR"
-}
+pj() {
+    local action="${1:-}"
 
-_pj_list_envs() {
-    local env_file
-    for env_file in "$_PJ_DIR"/*.env.sh; do
-        [[ -f "$env_file" ]] || continue
-        basename "$env_file" .env.sh
-    done
-}
+    if [[ "$action" == "-h" || "$action" == "--help" ]]; then
+        cat << 'EOF'
+pj - 当前 Git 仓库的常用命令
 
-_pj_env_file() {
-    echo "$_PJ_DIR/${1}.env.sh"
-}
+用法:
+    pj -s [-l <label>]  从 history 选择命令并保存
+    pj -c [label]       执行命令；不指定标签时用 fzf 选择
+    pj -h               显示帮助
 
-_pj_get_metadata() {
-    local name="$1" field="$2"
-    local env_file
-    env_file=$(_pj_env_file "$name")
-    [[ -f "$env_file" ]] || return
-    sed -n "s/^# ${field}: *//p" "$env_file" 2>/dev/null | head -1
-}
-
-_pj_get_description() { _pj_get_metadata "$1" "Description"; }
-_pj_get_path() { _pj_get_metadata "$1" "Path"; }
-
-_pj_truncate_path() {
-    local path="$1"
-    local max_len="${2:-80}"
-    if [[ ${#path} -gt $max_len ]]; then
-        echo "${path: -$max_len}"
-    else
-        echo "$path"
+命令文件: ~/.pjs/<repo>.pjcmds
+旧版命令文件会在当前仓库首次运行 pj 时自动迁移。
+EOF
+        return
     fi
-}
 
-_pj_fzf_select() {
-    local envs desc path name selection
-    envs=$(_pj_list_envs)
-    [[ -z "$envs" ]] && { echo "错误: 没有找到任何环境，使用 'pj -a <name>' 创建新环境"; return 1; }
-
-    selection=$(while IFS= read -r name; do
-        desc=$(_pj_get_description "$name")
-        path=$(_pj_get_path "$name")
-        printf "%-20s %-80s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
-    done <<< "$envs" | fzf --height=40% --layout=reverse --header="Select Project Environment")
-
-    [[ -n "$selection" ]] && awk '{print $1}' <<< "$selection"
-}
-
-_pj_switch() {
-    local name="$1"
-    local env_file
-    env_file=$(_pj_env_file "$name")
-
-    if [[ ! -f "$env_file" ]]; then
-        echo "错误: 环境不存在: $name"
-        echo "使用 'pj -a $name' 创建新环境"
+    if [[ "$action" != "-s" && "$action" != "-c" ]]; then
+        [[ -n "$action" ]] && echo "错误: 未知选项: $action" || echo "错误: 请指定 -s 或 -c"
+        echo "使用 'pj -h' 查看帮助"
         return 1
     fi
 
-    unset "${!PJ_@}"
+    local git_root remote repo cmds_file
+    git_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "错误: 当前目录不在 Git 仓库中"
+        return 1
+    }
 
-    # shellcheck source=/dev/null
-    source "$env_file"
-    export PJ_CMDS="$_PJ_DIR/${PJ_NAME}.pjcmds"
-    if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" && -n "${PJ_NAME:-}" ]] && command -v tmux >/dev/null 2>&1; then
-        tmux set-option -p -t "$TMUX_PANE" @pj_name "$PJ_NAME" >/dev/null 2>&1 || true
+    remote=$(git -C "$git_root" config --get remote.origin.url 2>/dev/null || true)
+    if [[ -n "$remote" ]]; then
+        remote="${remote%/}"
+        if [[ "$remote" == */* ]]; then
+            repo="${remote##*/}"
+        else
+            repo="${remote##*:}"
+        fi
+        repo="${repo%.git}"
+    else
+        repo="${git_root##*/}"
     fi
-    echo "已切换到环境: $name"
-}
 
-_pj_escape_regex() {
-    printf '%s' "$1" | sed 's/[[\].*^$()+?{|\\]/\\&/g'
-}
+    if [[ -z "$repo" || "$repo" == "." || "$repo" == ".." ]]; then
+        echo "错误: 无法识别当前 Git 仓库名"
+        return 1
+    fi
 
-_pj_exec() {
-    local label="$1"
+    mkdir -p "$_PJ_DIR" || return
+    cmds_file="$_PJ_DIR/$repo.pjcmds"
 
-    [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && return
+    # Migrate command files from both legacy layouts on first use in a repo:
+    # <repo-root>/.pjcmds and ~/.pjs/<old-project-name>.pjcmds.
+    local old_file env_file old_path old_root old_name line
+    local -a old_files=("$git_root/.pjcmds")
+    if [[ -n "${PJ_CMDS:-}" && -n "${PJ_ROOT:-}" ]]; then
+        old_root=$(git -C "$PJ_ROOT" rev-parse --show-toplevel 2>/dev/null || true)
+        [[ "$old_root" == "$git_root" ]] && old_files+=("$PJ_CMDS")
+    fi
+    for env_file in "$_PJ_DIR"/*.env.sh; do
+        [[ -f "$env_file" ]] || continue
+        old_path=$(sed -n 's/^# Path: *//p' "$env_file" 2>/dev/null)
+        [[ -n "$old_path" ]] || continue
+        old_root=$(git -C "$old_path" rev-parse --show-toplevel 2>/dev/null || true)
+        [[ "$old_root" == "$git_root" ]] || continue
+        old_name=$(basename "$env_file" .env.sh)
+        old_files+=("$_PJ_DIR/$old_name.pjcmds")
+    done
+    unset PJ_CMDS PJ_ROOT PJ_NAME
 
-    local cmd line
+    for old_file in "${old_files[@]}"; do
+        [[ -f "$old_file" && "$old_file" != "$cmds_file" ]] || continue
+        if [[ ! -e "$cmds_file" ]]; then
+            if mv -- "$old_file" "$cmds_file"; then
+                echo "已迁移命令: $old_file -> $cmds_file"
+            fi
+            continue
+        fi
+
+        local merge_failed=""
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            if ! grep -Fqx -- "$line" "$cmds_file" 2>/dev/null; then
+                printf '%s\n' "$line" >> "$cmds_file" || {
+                    merge_failed=1
+                    break
+                }
+            fi
+        done < "$old_file"
+        if [[ -z "$merge_failed" ]] && rm -- "$old_file"; then
+            echo "已合并命令: $old_file -> $cmds_file"
+        fi
+    done
+
+    if [[ "$action" == "-s" ]]; then
+        local label=""
+        shift
+        if [[ "${1:-}" == "-l" ]]; then
+            label="${2:-}"
+            if [[ -z "$label" ]]; then
+                echo "错误: -l 需要指定标签"
+                return 1
+            fi
+            shift 2
+        fi
+        if [[ $# -ne 0 ]]; then
+            echo "错误: pj -s 仅支持可选参数 -l <label>"
+            return 1
+        fi
+        if [[ "$label" == *:* || "$label" == *$'\n'* ]]; then
+            echo "错误: 标签不能包含冒号或换行"
+            return 1
+        fi
+
+        local cmd stored_cmd stored_label tmp found=""
+        if ! cmd=$(fc -ln 1 | sed 's/^[[:space:]]*//' | fzf --height=40% --layout=reverse --header="Select Command from History"); then
+            return
+        fi
+        [[ -n "$cmd" ]] || return
+        touch "$cmds_file" || return
+
+        if [[ -n "$label" ]]; then
+            tmp=$(mktemp "$_PJ_DIR/.pjcmds.XXXXXX") || return
+            while IFS= read -r line || [[ -n "$line" ]]; do
+                if [[ "$line" == *:* ]]; then
+                    stored_label="${line%%:*}"
+                    stored_cmd="${line#*:}"
+                else
+                    stored_label=""
+                    stored_cmd="$line"
+                fi
+                [[ "$stored_label" == "$label" || "$stored_cmd" == "$cmd" ]] && continue
+                printf '%s\n' "$line" >> "$tmp"
+            done < "$cmds_file"
+            printf '%s:%s\n' "$label" "$cmd" >> "$tmp"
+            mv -- "$tmp" "$cmds_file"
+            echo "已保存命令: [$label] $cmd"
+            return
+        fi
+
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            [[ "$line" == *:* ]] && stored_cmd="${line#*:}" || stored_cmd="$line"
+            if [[ "$stored_cmd" == "$cmd" ]]; then
+                found=1
+                break
+            fi
+        done < "$cmds_file"
+        if [[ -n "$found" ]]; then
+            echo "命令已存在: $cmd"
+        else
+            printf ':%s\n' "$cmd" >> "$cmds_file"
+            echo "已保存命令: $cmd"
+        fi
+        return
+    fi
+
+    if [[ $# -gt 2 ]]; then
+        echo "错误: pj -c 仅支持一个可选标签"
+        return 1
+    fi
+    [[ -s "$cmds_file" ]] || {
+        echo "错误: 当前仓库还没有保存命令"
+        return 1
+    }
+
+    local label="${2:-}" selection cmd tmp
     if [[ -n "$label" ]]; then
-        cmd=$(grep "^$label:" "$PJ_CMDS" | head -1 | cut -d: -f2-)
-        if [[ -z "$cmd" ]]; then
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            if [[ "$line" == *:* && "${line%%:*}" == "$label" ]]; then
+                selection="$line"
+                break
+            fi
+        done < "$cmds_file"
+        if [[ -z "${selection:-}" ]]; then
             echo "错误: 未找到标签 '$label'"
             return 1
         fi
     else
-        local selection
-        selection=$(awk -F: '{
-            if (NF == 1) {
-                printf "%-15s: %s\n", "", $0
-            } else {
-                label=$1; sub(/^[^:]*:/, ""); printf "%-15s: %s\n", label, $0
-            }
-        }' "$PJ_CMDS" | fzf --height=40% --layout=reverse --header="Select Command")
-        cmd=$(echo "$selection" | cut -d: -f2- | sed 's/^[[:space:]]*//')
-    fi
-
-    if [[ -n "$cmd" ]]; then
-        local escaped_cmd
-        escaped_cmd=$(_pj_escape_regex "$cmd")
-        line=$(grep -n ":$escaped_cmd$" "$PJ_CMDS" | cut -d: -f1)
-        if [[ -n "$line" ]]; then
-            local full_line
-            full_line=$(sed -n "${line}p" "$PJ_CMDS")
-            sed -i "${line}d" "$PJ_CMDS"
-            sed -i "1i $full_line" "$PJ_CMDS"
+        if ! selection=$(fzf --height=40% --layout=reverse --header="Select Command" < "$cmds_file"); then
+            return
         fi
-
-        echo "执行: $cmd"
-        eval "$cmd"
-    fi
-}
-
-_pj_save() {
-    local name="$1"
-    local env_file current_dir template
-
-    if [[ -z "$name" ]]; then
-        echo "错误: 请指定环境名称"
-        echo "用法: pj -a <name>"
-        return 1
+        [[ -n "$selection" ]] || return
     fi
 
-    current_dir="$(pwd)"
-    template="${HOME}/pj.env.sh"
-    env_file=$(_pj_env_file "$name")
+    [[ "$selection" == *:* ]] && cmd="${selection#*:}" || cmd="$selection"
+    tmp=$(mktemp "$_PJ_DIR/.pjcmds.XXXXXX") || return
+    {
+        printf '%s\n' "$selection"
+        grep -Fvx -- "$selection" "$cmds_file" || true
+    } > "$tmp"
+    mv -- "$tmp" "$cmds_file"
 
-    if [[ ! -f "$template" ]]; then
-        echo "错误: 模板文件不存在: $template"
-        return 1
-    fi
-
-    local content
-    content=$(<"$template")
-    content="${content//\/path\/to\/project/$current_dir}"
-    content="${content//myproject/$name}"
-    echo "$content" > "$env_file"
-
-    echo "已创建环境: $name"
-    _pj_switch "$name"
-}
-
-_pj_edit() {
-    local name="$1"
-    local env_file
-
-    if [[ -z "$name" ]]; then
-        if [[ -n "$PJ_NAME" ]]; then
-            name="$PJ_NAME"
-        else
-            name=$(_pj_fzf_select) || return 1
-        fi
-    fi
-
-    env_file=$(_pj_env_file "$name")
-
-    if [[ ! -f "$env_file" ]]; then
-        echo "错误: 环境不存在: $name"
-        return 1
-    fi
-
-    ${EDITOR:-vim} "$env_file"
-}
-
-_pj_savecmd() {
-    local label=""
-
-    if [[ "${1:-}" == "-l" && -n "${2:-}" ]]; then
-        label="$2"
-    fi
-
-    [[ -z "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中 (PJ_CMDS 未设置)"; return 1; }
-
-    local cmd
-    cmd=$(fc -ln 1 | sed 's/^[[:space:]]*//' | fzf --height=40% --layout=reverse --header="Select Command from History")
-
-    [[ -z "$cmd" ]] && return
-
-    if [[ -n "$label" ]]; then
-        sed -i "s/^$label:/:/" "$PJ_CMDS"
-    fi
-
-    local line escaped_cmd
-    escaped_cmd=$(_pj_escape_regex "$cmd")
-    line=$(grep -n ":$escaped_cmd$" "$PJ_CMDS" | cut -d: -f1 | head -1)
-
-    if [[ -n "$line" ]]; then
-        if [[ -n "$label" ]]; then
-            sed -i "${line}s/^[^:]*:/$label:/" "$PJ_CMDS"
-            echo "已更新标签: [$label] $cmd"
-        else
-            echo "命令已存在: $cmd"
-        fi
-    else
-        echo "${label:-}:$cmd" >> "$PJ_CMDS"
-        [[ -n "$label" ]] && echo "已添加命令: [$label] $cmd" || echo "已添加命令: $cmd"
-    fi
-}
-
-_pj_delete() {
-    local name="$1"
-    local env_file
-
-    if [[ -z "$name" ]]; then
-        name=$(_pj_fzf_select) || return 1
-    fi
-
-    env_file=$(_pj_env_file "$name")
-
-    if [[ ! -f "$env_file" ]]; then
-        echo "错误: 环境不存在: $name"
-        return 1
-    fi
-
-    rm "$env_file"
-    echo "已删除环境: $name"
-}
-
-_pj_list() {
-    local name desc path
-    printf "%-20s %-80s %s\n" "NAME" "PATH" "DESCRIPTION"
-    printf "%-20s %-80s %s\n" "----" "----" "-----------"
-    while IFS= read -r name; do
-        desc=$(_pj_get_description "$name")
-        path=$(_pj_get_path "$name")
-        printf "%-20s %-80s %s\n" "$name" "$(_pj_truncate_path "$path")" "$desc"
-    done < <(_pj_list_envs)
-}
-
-_pj_migrate_cmds() {
-    local env_file name path old_cmds new_cmds total=0 moved=0
-    for env_file in "$_PJ_DIR"/*.env.sh; do
-        [[ -f "$env_file" ]] || continue
-        name=$(basename "$env_file" .env.sh)
-        path=$(_pj_get_path "$name")
-        old_cmds="$path/.pjcmds"
-        new_cmds="$_PJ_DIR/$name.pjcmds"
-        total=$((total + 1))
-
-        if [[ -n "$path" && -f "$old_cmds" ]]; then
-            if [[ -f "$new_cmds" ]]; then
-                echo "跳过 $name: 目标已存在 $new_cmds（源保留）"
-            else
-                mv "$old_cmds" "$new_cmds"
-                echo "迁移 $name: $old_cmds -> $new_cmds"
-                moved=$((moved + 1))
-            fi
-        else
-            echo "跳过 $name: 无 .pjcmds ($old_cmds)"
-        fi
-
-        if grep -q '^export PJ_CMDS=' "$env_file"; then
-            sed -i '/^export PJ_CMDS=/d' "$env_file"
-        fi
-    done
-
-    echo ""
-    echo "完成: $moved/$total 个环境已迁移命令文件到 $_PJ_DIR"
-}
-
-pj() {
-    _pj_ensure_dirs
-
-    case "${1:-}" in
-        --list-envs)
-            _pj_list
-            ;;
-        -e|--edit)
-            _pj_edit "${2:-}"
-            ;;
-        -a|--add)
-            _pj_save "${2:-}"
-            ;;
-        -s|--savecmd)
-            _pj_savecmd "${2:-}" "${3:-}"
-            ;;
-        -c|--cmd)
-            _pj_exec "${2:-}"
-            ;;
-        -d|--delete)
-            _pj_delete "${2:-}"
-            ;;
-        --list-cmds)
-            [[ -z "$PJ_CMDS" || ! -f "$PJ_CMDS" ]] && { echo "错误: 当前不在任何环境中"; return 1; }
-            awk -F: '{label=$1; sub(/^[^:]*:/, ""); printf "%-15s %s\n", label, $0}' "$PJ_CMDS"
-            ;;
-        --migrate-cmds)
-            _pj_migrate_cmds
-            ;;
-        -h|--help)
-            cat << 'EOF'
-pj - 项目环境切换器
-
-用法:
-    pj              fzf 交互式选择环境
-    pj <name>       切换到指定环境
-    pj --list-envs  列出所有环境
-    pj -e [name]    编辑环境脚本
-    pj -d [name]    删除环境
-    pj -a <name>    添加当前目录为新环境
-    pj -s [-l <label>]  从 history 选择命令保存到 PJ_CMDS
-    pj -c [label]   执行命令（指定标签则直接执行，否则 fzf 选择）
-    pj --list-cmds  列出当前环境的所有命令
-    pj --migrate-cmds  把各项目根目录的 .pjcmds 迁移到 ~/.pjs/<name>.pjcmds
-
-命令格式: label:command
-命令文件: ~/.pjs/<name>.pjcmds（切换环境时按 PJ_NAME 派生）
-环境脚本目录: ~/.pjs/
-EOF
-            ;;
-        -*)
-            echo "错误: 未知选项: $1"
-            echo "使用 'pj -h' 查看帮助"
-            return 1
-            ;;
-        "")
-            local name
-            name=$(_pj_fzf_select) || return 1
-            _pj_switch "$name"
-            ;;
-        *)
-            _pj_switch "$1"
-            ;;
-    esac
+    echo "执行: $cmd"
+    eval "$cmd"
 }
