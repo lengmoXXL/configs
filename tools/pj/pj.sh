@@ -14,8 +14,8 @@ pj - 当前 Git 仓库的常用命令
     pj -c [label]       执行命令；不指定标签时用 fzf 选择
     pj -h               显示帮助
 
-命令文件: ~/.pjs/<repo>.pjcmds
-旧版命令文件会在当前仓库首次运行 pj 时自动迁移。
+命令文件: ~/.pjs/<完整仓库标识>.pjcmds
+远程仓库使用 host/owner/repo，无 origin 时使用仓库绝对路径。
 EOF
         return
     fi
@@ -35,15 +35,21 @@ EOF
     remote=$(git -C "$git_root" config --get remote.origin.url 2>/dev/null || true)
     if [[ -n "$remote" ]]; then
         remote="${remote%/}"
-        if [[ "$remote" == */* ]]; then
-            repo="${remote##*/}"
+        remote="${remote%.git}"
+        if [[ "$remote" == *://* ]]; then
+            repo="${remote#*://}"
+            repo="${repo#*@}"
+        elif [[ "$remote" == *:* ]]; then
+            repo="${remote#*@}"
+            repo="${repo/:/\/}"
         else
-            repo="${remote##*:}"
+            repo="$remote"
         fi
-        repo="${repo%.git}"
+        repo="${repo//\//__}"
     else
-        repo="${git_root##*/}"
+        repo="local${git_root//\//__}"
     fi
+    repo="${repo//[^[:alnum:]._-]/_}"
 
     if [[ -z "$repo" || "$repo" == "." || "$repo" == ".." ]]; then
         echo "错误: 无法识别当前 Git 仓库名"
@@ -52,48 +58,6 @@ EOF
 
     mkdir -p "$_PJ_DIR" || return
     cmds_file="$_PJ_DIR/$repo.pjcmds"
-
-    # Migrate command files from both legacy layouts on first use in a repo:
-    # <repo-root>/.pjcmds and ~/.pjs/<old-project-name>.pjcmds.
-    local old_file env_file old_path old_root old_name line
-    local -a old_files=("$git_root/.pjcmds")
-    if [[ -n "${PJ_CMDS:-}" && -n "${PJ_ROOT:-}" ]]; then
-        old_root=$(git -C "$PJ_ROOT" rev-parse --show-toplevel 2>/dev/null || true)
-        [[ "$old_root" == "$git_root" ]] && old_files+=("$PJ_CMDS")
-    fi
-    for env_file in "$_PJ_DIR"/*.env.sh; do
-        [[ -f "$env_file" ]] || continue
-        old_path=$(sed -n 's/^# Path: *//p' "$env_file" 2>/dev/null)
-        [[ -n "$old_path" ]] || continue
-        old_root=$(git -C "$old_path" rev-parse --show-toplevel 2>/dev/null || true)
-        [[ "$old_root" == "$git_root" ]] || continue
-        old_name=$(basename "$env_file" .env.sh)
-        old_files+=("$_PJ_DIR/$old_name.pjcmds")
-    done
-    unset PJ_CMDS PJ_ROOT PJ_NAME
-
-    for old_file in "${old_files[@]}"; do
-        [[ -f "$old_file" && "$old_file" != "$cmds_file" ]] || continue
-        if [[ ! -e "$cmds_file" ]]; then
-            if mv -- "$old_file" "$cmds_file"; then
-                echo "已迁移命令: $old_file -> $cmds_file"
-            fi
-            continue
-        fi
-
-        local merge_failed=""
-        while IFS= read -r line || [[ -n "$line" ]]; do
-            if ! grep -Fqx -- "$line" "$cmds_file" 2>/dev/null; then
-                printf '%s\n' "$line" >> "$cmds_file" || {
-                    merge_failed=1
-                    break
-                }
-            fi
-        done < "$old_file"
-        if [[ -z "$merge_failed" ]] && rm -- "$old_file"; then
-            echo "已合并命令: $old_file -> $cmds_file"
-        fi
-    done
 
     if [[ "$action" == "-s" ]]; then
         local label=""
@@ -115,7 +79,7 @@ EOF
             return 1
         fi
 
-        local cmd stored_cmd stored_label tmp found=""
+        local cmd stored_cmd stored_label line tmp found=""
         if ! cmd=$(fc -ln 1 | sed 's/^[[:space:]]*//' | fzf --height=40% --layout=reverse --header="Select Command from History"); then
             return
         fi
@@ -136,7 +100,7 @@ EOF
                 printf '%s\n' "$line" >> "$tmp"
             done < "$cmds_file"
             printf '%s:%s\n' "$label" "$cmd" >> "$tmp"
-            mv -- "$tmp" "$cmds_file"
+            command mv -f -- "$tmp" "$cmds_file"
             echo "已保存命令: [$label] $cmd"
             return
         fi
@@ -166,7 +130,7 @@ EOF
         return 1
     }
 
-    local label="${2:-}" selection cmd tmp
+    local label="${2:-}" selection cmd line tmp
     if [[ -n "$label" ]]; then
         while IFS= read -r line || [[ -n "$line" ]]; do
             if [[ "$line" == *:* && "${line%%:*}" == "$label" ]]; then
@@ -190,8 +154,8 @@ EOF
     {
         printf '%s\n' "$selection"
         grep -Fvx -- "$selection" "$cmds_file" || true
-    } > "$tmp"
-    mv -- "$tmp" "$cmds_file"
+    } >| "$tmp"
+    command mv -f -- "$tmp" "$cmds_file"
 
     echo "执行: $cmd"
     eval "$cmd"
