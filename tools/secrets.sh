@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sync the local ai-providers secret with OSS.
+# Sync provider API keys with OSS.
 
 set -euo pipefail
 
@@ -85,23 +85,13 @@ EOF
 
     if [[ ! -f "$AI_PROVIDERS_PATH" ]]; then
         cat > "$AI_PROVIDERS_PATH" <<'EOF'
-[
-  {
-    "name": "bailian-token-plan",
-    "endpoint": "https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic",
-    "apiKey": "",
-    "models": {
-      "qwen3.7-max": "qwen3.7-max",
-      "qwen3.7-plus": "qwen3.7-plus",
-      "deepseek-v4-pro": "deepseek-v4-pro",
-      "glm-5.2": "glm-5.2"
-    }
-  }
-]
+{
+  "bailian-token-plan": ""
+}
 EOF
         chmod 600 "$AI_PROVIDERS_PATH"
         echo "created: $AI_PROVIDERS_PATH"
-        echo "  请手动填写 apiKey，并按需调整 models（key 为 models.json 里的别名，value 为 provider 识别的 model id）"
+        echo "  请填写 provider 对应的 API key"
     else
         echo "exists: $AI_PROVIDERS_PATH"
     fi

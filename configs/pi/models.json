@@ -1,0 +1,45 @@
+{
+  "providers": {
+    "bailian-token-plan": {
+      "name": "bailian-token-plan",
+      "baseUrl": "https://token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic",
+      "api": "anthropic-messages",
+      "apiKey": "${bailian-token-plan}",
+      "compat": {
+        "supportsEagerToolInputStreaming": false,
+        "supportsLongCacheRetention": false,
+        "supportsCacheControlOnTools": false
+      },
+      "models": [
+        {
+          "id": "qwen3.8-max-preview",
+          "name": "Qwen3.8 Max Preview",
+          "input": ["text", "image"],
+          "reasoning": true
+        },
+        {
+          "id": "qwen3.7-max",
+          "name": "Qwen3.7 Max",
+          "reasoning": true
+        },
+        {
+          "id": "qwen3.7-plus",
+          "name": "Qwen3.7 Plus",
+          "input": ["text", "image"],
+          "reasoning": true
+        },
+        {
+          "id": "deepseek-v4-pro",
+          "name": "DeepSeek V4 Pro",
+          "reasoning": true
+        },
+        {
+          "id": "glm-5.2",
+          "name": "GLM-5.2",
+          "reasoning": true,
+          "contextWindow": 200000
+        }
+      ]
+    }
+  }
+}

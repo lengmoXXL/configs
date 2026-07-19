@@ -56,11 +56,9 @@ configs/
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
 │   ├── install-pi-extensions.sh # 安装 Plannotator/pi-simplify extensions
 │   ├── install-opencode-config.py # 安装 opencode provider 配置
-│   ├── install-pi-config.py    # 安装 Pi provider 配置（models.json/settings.json/theme）
-│   ├── _ai_provider.py         # install-opencode/install-pi-config 共享的 provider/模型加载逻辑
+│   ├── install-pi-config.py    # 安装 Pi models/settings/themes 配置
 │   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则
-│   ├── agents/                 # AGENTS.md 提示词与模型目录源码
-│   │   ├── models.json         # AI 模型参数目录（名称/输入模态/推理）
+│   ├── agents/                 # AGENTS.md 提示词
 │   │   ├── common.md           # 通用提示词
 │   │   ├── codex.md            # Codex 专属提示词
 │   │   └── opencode.md         # OpenCode 专属提示词
@@ -74,7 +72,11 @@ configs/
 │   │       │   └── ...
 │   │       └── themes/         # 主题配置
 │   │           └── ...
+│   ├── opencode/               # OpenCode 配置
+│   │   └── opencode.json       # Provider/model 配置（apiKey 引用 secrets KV）
 │   ├── pi/                     # Pi 配置
+│   │   ├── models.json         # Pi provider/model 配置（apiKey 引用 secrets KV）
+│   │   ├── settings.json       # Pi 默认设置
 │   │   └── themes/             # Pi 主题 JSON 文件
 │   │       └── gray.json
 │   └── tmux/                   # tmux 配置
@@ -92,7 +94,7 @@ configs/
     ├── github-release-latest.sh # 查询 GitHub Release 最新版本
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
-    ├── secrets.sh              # 同步 .secrets 敏感源配置
+    ├── secrets.sh              # 同步 .secrets provider API keys
     ├── prd/                    # prd TypeScript 源码与构建配置
     │   └── src/preview_server.ts # 为本机文件生成 HTTP 预览 URL
     ├── install-pj.sh           # 安装 pj 仓库命令工具

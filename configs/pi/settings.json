@@ -1,0 +1,11 @@
+{
+  "theme": "gray",
+  "defaultProvider": "bailian-token-plan",
+  "defaultModel": "glm-5.2",
+  "packages": [
+    "npm:@plannotator/pi-extension@0.22.0",
+    "npm:pi-simplify@0.2.2"
+  ],
+  "defaultThinkingLevel": "minimal",
+  "hideThinkingBlock": true
+}

@@ -1,78 +1,47 @@
 #!/usr/bin/env python3
-"""Install opencode provider config (~/.config/opencode/opencode.json).
+"""Install opencode config to ~/.config/opencode/opencode.json."""
 
-Usage:
-  ./install-opencode-config.py [provider]    # provider optional; interactive if omitted
-"""
-
-from __future__ import annotations
-
-import argparse
 import json
+import os
 import sys
 from pathlib import Path
-from typing import Any
-
-import _ai_provider as ai
-
-THINKING_OPTIONS = {
-    "thinking": {
-        "type": "enabled",
-        "budgetTokens": 8192,
-    }
-}
-
-
-def opencode_model_config(entry: dict[str, Any]) -> dict[str, Any]:
-    config: dict[str, Any] = {"name": entry["name"]}
-    inputs = ai.input_modalities(entry)
-    if inputs is not None:
-        config["modalities"] = {"input": inputs, "output": ["text"]}
-    if entry.get("reasoning") is True:
-        config["options"] = THINKING_OPTIONS
-    return config
-
-
-def install_opencode(provider: dict[str, Any]) -> int:
-    catalog = ai.load_models_catalog(ai.models_catalog_path())
-
-    models: dict[str, dict[str, Any]] = {}
-    for alias, provider_id in provider["models"].items():
-        models[provider_id] = opencode_model_config(ai.resolve_model(catalog, alias))
-
-    config = {
-        "$schema": "https://opencode.ai/config.json",
-        "provider": {
-            provider["name"]: {
-                "npm": "@ai-sdk/anthropic",
-                "name": "Alibaba Cloud Model Studio",
-                "options": {
-                    "baseURL": provider["endpoint"].rstrip("/") + "/v1",
-                    "apiKey": provider["apiKey"],
-                },
-                "models": models,
-            }
-        },
-    }
-    target = Path.home() / ".config" / "opencode" / "opencode.json"
-    ai.atomic_write_json(target, config)
-    print(f"installed: {target}")
-    return 0
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Install opencode provider config.")
-    parser.add_argument("provider", nargs="?", help="Provider name from ai-providers.json")
-    args = parser.parse_args()
-
     try:
-        providers = ai.load_providers(ai.providers_path())
-        provider_name = args.provider or ai.choose("provider", list(providers))
-        provider = providers.get(provider_name)
-        if provider is None:
-            raise ValueError(f"unknown provider: {provider_name}")
-        return install_opencode(provider)
-    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        root = Path(__file__).resolve().parents[1]
+        source = root / "configs" / "opencode" / "opencode.json"
+        secrets_dir = Path(os.environ.get("SECRETS_DIR", root / ".secrets")).expanduser()
+
+        with source.open("r", encoding="utf-8") as fh:
+            config = json.load(fh)
+        with (secrets_dir / "ai-providers.json").open("r", encoding="utf-8") as fh:
+            api_keys = json.load(fh)
+
+        for provider_name, provider in config["provider"].items():
+            reference = provider["options"]["apiKey"]
+            if (
+                not isinstance(reference, str)
+                or not reference.startswith("${")
+                or not reference.endswith("}")
+            ):
+                raise ValueError(f"provider {provider_name}: apiKey must be a ${{provider}} reference")
+            api_key_name = reference[2:-1]
+            api_key = api_keys.get(api_key_name)
+            if not isinstance(api_key, str) or not api_key:
+                raise ValueError(f"provider {provider_name}: missing API key {api_key_name}")
+            provider["options"]["apiKey"] = api_key
+
+        target = Path.home() / ".config" / "opencode" / "opencode.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(config, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        target.chmod(0o600)
+        print(f"installed: {target}")
+        return 0
+    except (KeyError, OSError, TypeError, json.JSONDecodeError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
 
