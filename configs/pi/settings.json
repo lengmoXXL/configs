@@ -1,7 +1,7 @@
 {
   "theme": "gray",
   "defaultProvider": "bailian-token-plan",
-  "defaultModel": "glm-5.2",
+  "defaultModel": "qwen3.8-max-preview",
   "packages": [
     "npm:@plannotator/pi-extension@0.22.0",
     "npm:pi-simplify@0.2.2"
