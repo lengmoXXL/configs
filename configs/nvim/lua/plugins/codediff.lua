@@ -30,21 +30,6 @@ return {
       desc = 'CodeDiff Workspace',
     },
   },
-  config = function(_, opts)
-    local keymaps = require('codediff.ui.view.keymaps')
-    local setup_keymaps = keymaps.setup_all_keymaps
-    local compact = require('codediff.ui.view.compact')
-    keymaps.setup_all_keymaps = function(tabpage, ...)
-      setup_keymaps(tabpage, ...)
-      local session = require('codediff.ui.lifecycle').get_session(tabpage)
-      local changes = session and session.stored_diff_result and session.stored_diff_result.changes
-      local conflict = session and (session.original_revision == ':2' or session.original_revision == ':3')
-      if session and session.compact_mode == nil and not conflict and changes and #changes > 0 then
-        compact.enable(tabpage)
-      end
-    end
-    require('codediff').setup(opts)
-  end,
   opts = {
     explorer = {
       focus_on_select = true,
