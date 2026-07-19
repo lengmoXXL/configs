@@ -1,0 +1,73 @@
+#!/bin/bash
+# Install clashctl from wnlen/clash-for-linux.
+
+set -euo pipefail
+
+REPO_URL="https://github.com/wnlen/clash-for-linux.git"
+GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
+BRANCH="master"
+INSTALL_DIR="${CLASH_FOR_LINUX_DIR:-${HOME}/.local/share/clash-for-linux}"
+SUBSCRIPTION_PAGE="https://access.fengcheyun.com/#/dashboard"
+USE_CN=false
+
+usage() {
+    cat << EOF
+用法: $0 [-cn]
+
+选项:
+  -cn      通过国内代理 clone GitHub 仓库
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -cn)
+            USE_CN=true
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+if ! command -v git &>/dev/null; then
+    echo "错误: 缺少依赖 git"
+    exit 1
+fi
+
+if [[ "$USE_CN" == "true" ]]; then
+    REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
+fi
+
+if [[ -d "$INSTALL_DIR/.git" ]]; then
+    echo "clash-for-linux 仓库已存在: $INSTALL_DIR"
+elif [[ -e "$INSTALL_DIR" ]]; then
+    echo "错误: 目标路径已存在但不是 git 仓库: $INSTALL_DIR"
+    exit 1
+else
+    mkdir -p "$(dirname "$INSTALL_DIR")"
+    echo "克隆 clash-for-linux 到: $INSTALL_DIR"
+    git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$INSTALL_DIR"
+fi
+
+echo "订阅后台: $SUBSCRIPTION_PAGE"
+echo "请从页面复制订阅链接，并粘贴到接下来的安装提示中。"
+
+if [[ -n "${WSL_DISTRO_NAME:-}" ]] && command -v cmd.exe &>/dev/null; then
+    cmd.exe /c start "" "$SUBSCRIPTION_PAGE" >/dev/null 2>&1 &
+elif [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v xdg-open &>/dev/null; then
+    xdg-open "$SUBSCRIPTION_PAGE" >/dev/null 2>&1 &
+elif [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v gio &>/dev/null; then
+    gio open "$SUBSCRIPTION_PAGE" >/dev/null 2>&1 &
+else
+    echo "未检测到可用的图形浏览器，请手动打开上面的链接。"
+fi
+
+echo "执行 clash-for-linux 官方安装脚本..."
+bash "$INSTALL_DIR/install.sh"
