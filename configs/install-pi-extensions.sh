@@ -9,6 +9,9 @@ PLANNOTATOR_SOURCE="npm:${PLANNOTATOR_PACKAGE}@${PLANNOTATOR_VERSION}"
 SIMPLIFY_PACKAGE="pi-simplify"
 SIMPLIFY_VERSION="0.2.2"
 SIMPLIFY_SOURCE="npm:${SIMPLIFY_PACKAGE}@${SIMPLIFY_VERSION}"
+SUBAGENTS_REPO="github.com/nicobailon/pi-subagents"
+SUBAGENTS_VERSION="v0.35.1"
+SUBAGENTS_SOURCE="git:${SUBAGENTS_REPO}@${SUBAGENTS_VERSION}"
 USE_CN=false
 NPM_REGISTRY=""
 
@@ -19,6 +22,7 @@ usage() {
 安装 Pi extensions:
   ${PLANNOTATOR_SOURCE}
   ${SIMPLIFY_SOURCE}
+  ${SUBAGENTS_SOURCE}
 
 选项:
   -cn             使用 npmmirror npm registry
@@ -64,7 +68,7 @@ if [[ -n "$NPM_REGISTRY" ]]; then
     export npm_config_registry="$NPM_REGISTRY"
 fi
 
-for source in "$PLANNOTATOR_SOURCE" "$SIMPLIFY_SOURCE"; do
+for source in "$PLANNOTATOR_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE"; do
     echo "安装 Pi extension: $source"
     pi install "$source"
 done
