@@ -16,20 +16,23 @@
           "name": "Qwen3.8 Max Preview",
           "input": ["text", "image"],
           "reasoning": true,
-          "contextWindow": 200000
+          "contextWindow": 200000,
+          "maxTokens": 65536
         },
         {
           "id": "qwen3.7-max",
           "name": "Qwen3.7 Max",
           "reasoning": true,
-          "contextWindow": 200000
+          "contextWindow": 200000,
+          "maxTokens": 65536
         },
         {
           "id": "qwen3.7-plus",
           "name": "Qwen3.7 Plus",
           "input": ["text", "image"],
           "reasoning": true,
-          "contextWindow": 200000
+          "contextWindow": 200000,
+          "maxTokens": 65536
         },
         {
           "id": "deepseek-v4-pro",
