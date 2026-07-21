@@ -14,32 +14,51 @@ def main() -> int:
         source = root / "configs" / "pi"
         secrets_dir = Path(os.environ.get("SECRETS_DIR", root / ".secrets")).expanduser()
 
-        with (source / "models.json").open("r", encoding="utf-8") as fh:
-            models = json.load(fh)
         with (secrets_dir / "ai-providers.json").open("r", encoding="utf-8") as fh:
             api_keys = json.load(fh)
 
-        for provider_name, provider in models["providers"].items():
-            reference = provider["apiKey"]
+        def resolve(reference: str, owner: str) -> str:
             if (
                 not isinstance(reference, str)
                 or not reference.startswith("${")
                 or not reference.endswith("}")
             ):
-                raise ValueError(f"provider {provider_name}: apiKey must be a ${{provider}} reference")
-            api_key_name = reference[2:-1]
-            api_key = api_keys.get(api_key_name)
+                raise ValueError(f"{owner}: apiKey must be a ${{provider}} reference")
+            api_key = api_keys.get(reference[2:-1])
             if not isinstance(api_key, str) or not api_key:
-                raise ValueError(f"provider {provider_name}: missing API key {api_key_name}")
-            provider["apiKey"] = api_key
+                raise ValueError(f"{owner}: missing API key {reference[2:-1]}")
+            return api_key
+
+        models_path = source / "models.json"
+        models = None
+        if models_path.exists():
+            with models_path.open("r", encoding="utf-8") as fh:
+                models = json.load(fh)
+            for provider_name, provider in models.get("providers", {}).items():
+                provider["apiKey"] = resolve(provider["apiKey"], f"provider {provider_name}")
+
+        auth_path = source / "auth.json"
+        auth = None
+        if auth_path.exists():
+            with auth_path.open("r", encoding="utf-8") as fh:
+                auth = json.load(fh)
+            for auth_name, entry in auth.items():
+                entry["key"] = resolve(entry["key"], f"auth {auth_name}")
 
         target = Path.home() / ".pi" / "agent"
         target.mkdir(parents=True, exist_ok=True)
-        (target / "models.json").write_text(
-            json.dumps(models, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        (target / "models.json").chmod(0o600)
+        if models is not None:
+            (target / "models.json").write_text(
+                json.dumps(models, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            (target / "models.json").chmod(0o600)
+        if auth is not None:
+            (target / "auth.json").write_text(
+                json.dumps(auth, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            (target / "auth.json").chmod(0o600)
         shutil.copy2(source / "settings.json", target / "settings.json")
         shutil.copytree(source / "themes", target / "themes", dirs_exist_ok=True)
         print(f"installed: {target}")
