@@ -5,7 +5,8 @@
   "packages": [
     "npm:@plannotator/pi-extension@0.22.0",
     "npm:pi-simplify@0.2.2",
-    "git:github.com/nicobailon/pi-subagents@v0.35.1"
+    "git:github.com/nicobailon/pi-subagents@v0.35.1",
+    "git:github.com/MasuRii/pi-tool-display@v0.5.0"
   ],
   "defaultThinkingLevel": "minimal",
   "hideThinkingBlock": true

@@ -12,6 +12,9 @@ SIMPLIFY_SOURCE="npm:${SIMPLIFY_PACKAGE}@${SIMPLIFY_VERSION}"
 SUBAGENTS_REPO="github.com/nicobailon/pi-subagents"
 SUBAGENTS_VERSION="v0.35.1"
 SUBAGENTS_SOURCE="git:${SUBAGENTS_REPO}@${SUBAGENTS_VERSION}"
+TOOL_DISPLAY_REPO="github.com/MasuRii/pi-tool-display"
+TOOL_DISPLAY_VERSION="v0.5.0"
+TOOL_DISPLAY_SOURCE="git:${TOOL_DISPLAY_REPO}@${TOOL_DISPLAY_VERSION}"
 USE_CN=false
 NPM_REGISTRY=""
 
@@ -23,6 +26,7 @@ usage() {
   ${PLANNOTATOR_SOURCE}
   ${SIMPLIFY_SOURCE}
   ${SUBAGENTS_SOURCE}
+  ${TOOL_DISPLAY_SOURCE}
 
 选项:
   -cn             使用 npmmirror npm registry
@@ -68,7 +72,7 @@ if [[ -n "$NPM_REGISTRY" ]]; then
     export npm_config_registry="$NPM_REGISTRY"
 fi
 
-for source in "$PLANNOTATOR_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE"; do
+for source in "$PLANNOTATOR_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$TOOL_DISPLAY_SOURCE"; do
     echo "安装 Pi extension: $source"
     pi install "$source"
 done
