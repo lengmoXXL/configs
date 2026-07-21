@@ -9,5 +9,5 @@
     "git:github.com/MasuRii/pi-tool-display@v0.5.0"
   ],
   "defaultThinkingLevel": "minimal",
-  "hideThinkingBlock": true
+  "hideThinkingBlock": false
 }
