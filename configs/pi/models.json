@@ -1,3 +1,23 @@
 {
-  "providers": {}
+  "providers": {
+    "qwen-token-plan-cn": {
+      "modelOverrides": {
+        "deepseek-v3.2":        { "contextWindow": 200000 },
+        "deepseek-v4-flash":    { "contextWindow": 200000 },
+        "deepseek-v4-pro":      { "contextWindow": 200000 },
+        "glm-5":                { "contextWindow": 200000 },
+        "glm-5.1":              { "contextWindow": 200000 },
+        "glm-5.2":              { "contextWindow": 200000 },
+        "kimi-k2.5":            { "contextWindow": 200000 },
+        "kimi-k2.6":            { "contextWindow": 200000 },
+        "kimi-k2.7-code":       { "contextWindow": 200000 },
+        "MiniMax-M2.5":         { "contextWindow": 200000 },
+        "qwen3.6-flash":        { "contextWindow": 200000 },
+        "qwen3.6-plus":         { "contextWindow": 200000 },
+        "qwen3.7-max":          { "contextWindow": 200000 },
+        "qwen3.7-plus":         { "contextWindow": 200000 },
+        "qwen3.8-max-preview":  { "contextWindow": 200000 }
+      }
+    }
+  }
 }
