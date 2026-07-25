@@ -2,7 +2,7 @@ return {
   'MeanderingProgrammer/render-markdown.nvim',
   ft = 'markdown',
   opts = {
-    max_file_size = 1.5,
+    max_file_size = 0.2,
     nested = false,
     bullet = {
       icons = { '•', '◦' },
