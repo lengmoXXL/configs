@@ -34,8 +34,6 @@ def main() -> int:
         if models_path.exists():
             with models_path.open("r", encoding="utf-8") as fh:
                 models = json.load(fh)
-            for provider_name, provider in models.get("providers", {}).items():
-                provider["apiKey"] = resolve(provider["apiKey"], f"provider {provider_name}")
 
         auth_path = source / "auth.json"
         auth = None
