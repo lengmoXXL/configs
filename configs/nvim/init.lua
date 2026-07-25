@@ -14,6 +14,7 @@ vim.o.autowriteall = true
 vim.o.smoothscroll = true
 
 require('project_filetypes').setup()
+require('binary')
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
