@@ -54,7 +54,7 @@ configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
-│   ├── install-pi-extensions.sh # 安装 Plannotator/pi-simplify extensions
+│   ├── install-pi-extensions.sh # 安装 Pi extensions
 │   ├── install-opencode-config.py # 安装 opencode provider 配置
 │   ├── install-pi-config.py    # 安装 Pi models/settings/themes 配置
 │   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则

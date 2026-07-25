@@ -3,10 +3,11 @@
   "defaultProvider": "bailian-token-plan",
   "defaultModel": "qwen3.8-max-preview",
   "packages": [
-    "npm:@plannotator/pi-extension@0.22.0",
-    "npm:pi-simplify@0.2.2",
+    "npm:@plannotator/pi-extension@0.24.2",
+    "npm:pi-simplify@0.2.3",
     "git:github.com/nicobailon/pi-subagents@v0.35.1",
-    "git:github.com/MasuRii/pi-tool-display@v0.5.0"
+    "git:github.com/MasuRii/pi-tool-display@v0.5.0",
+    "npm:@fyeeme/pi-thinking-ui@1.0.0"
   ],
   "defaultThinkingLevel": "minimal",
   "hideThinkingBlock": false
