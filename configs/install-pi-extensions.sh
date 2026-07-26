@@ -3,9 +3,9 @@
 
 set -euo pipefail
 
-PLANNOTATOR_PACKAGE="@plannotator/pi-extension"
-PLANNOTATOR_VERSION="0.24.2"
-PLANNOTATOR_SOURCE="npm:${PLANNOTATOR_PACKAGE}@${PLANNOTATOR_VERSION}"
+PLAN_MODE_PACKAGE="@narumitw/pi-plan-mode"
+PLAN_MODE_VERSION="0.31.0"
+PLAN_MODE_SOURCE="npm:${PLAN_MODE_PACKAGE}@${PLAN_MODE_VERSION}"
 SIMPLIFY_PACKAGE="pi-simplify"
 SIMPLIFY_VERSION="0.2.3"
 SIMPLIFY_SOURCE="npm:${SIMPLIFY_PACKAGE}@${SIMPLIFY_VERSION}"
@@ -23,7 +23,7 @@ usage() {
 用法: $0 [-cn] [--registry URL]
 
 安装 Pi extensions:
-  ${PLANNOTATOR_SOURCE}
+  ${PLAN_MODE_SOURCE}
   ${SIMPLIFY_SOURCE}
   ${SUBAGENTS_SOURCE}
   ${HASHLINE_SOURCE}
@@ -72,7 +72,7 @@ if [[ -n "$NPM_REGISTRY" ]]; then
     export npm_config_registry="$NPM_REGISTRY"
 fi
 
-for source in "$PLANNOTATOR_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE"; do
+for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE"; do
     echo "安装 Pi extension: $source"
     pi install "$source"
 done
