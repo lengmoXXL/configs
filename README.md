@@ -55,6 +55,7 @@ configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
+│   ├── install-kimi-config.sh  # 安装 Kimi Code 主题到 ~/.kimi-code/themes
 │   ├── install-pi-extensions.sh # 安装 Pi extensions
 │   ├── install-opencode-config.py # 安装 opencode provider 配置
 │   ├── install-pi-config.py    # 安装 Pi models/settings/themes 配置
@@ -65,6 +66,9 @@ configs/
 │   │   └── opencode.md         # OpenCode 专属提示词
 │   ├── herdr/                  # Herdr 配置
 │   │   └── config.toml         # Herdr 配置：vscode.nvim dark palette、Ctrl-Space 前缀、无 pane 边框与单 tab 隐藏
+│   ├── kimi/                   # Kimi Code 配置
+│   │   └── themes/             # Kimi Code 主题 JSON 文件
+│   │       └── gray.json       # 极简灰调暗色主题
 │   ├── nvim/                   # Neovim 配置
 │   │   ├── init.lua
 │   │   └── lua/
