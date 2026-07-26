@@ -1,3 +1,3 @@
 # OpenCode Instructions
 
-- Do not run git commands or otherwise modify git state unless the user explicitly requests it.
+- Do not modify git state unless the user explicitly requests it in every run.
