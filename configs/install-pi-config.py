@@ -59,6 +59,9 @@ def main() -> int:
             (target / "auth.json").chmod(0o600)
         shutil.copy2(source / "settings.json", target / "settings.json")
         shutil.copytree(source / "themes", target / "themes", dirs_exist_ok=True)
+        extensions = source / "extensions"
+        if extensions.is_dir():
+            shutil.copytree(extensions, target / "extensions", dirs_exist_ok=True)
         print(f"installed: {target}")
         return 0
     except (KeyError, OSError, TypeError, json.JSONDecodeError, ValueError) as exc:
