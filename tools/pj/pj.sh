@@ -11,6 +11,7 @@ pj - 当前 Git 仓库的常用命令
 
 用法:
     pj -s [-l <label>]  从 history 选择命令并保存
+    pj -e               用编辑器打开命令文件，可直接修改命令
     pj -c [label]       执行命令；不指定标签时用 fzf 选择
     pj -h               显示帮助
 
@@ -20,8 +21,8 @@ EOF
         return
     fi
 
-    if [[ "$action" != "-s" && "$action" != "-c" ]]; then
-        [[ -n "$action" ]] && echo "错误: 未知选项: $action" || echo "错误: 请指定 -s 或 -c"
+    if [[ "$action" != "-s" && "$action" != "-c" && "$action" != "-e" ]]; then
+        [[ -n "$action" ]] && echo "错误: 未知选项: $action" || echo "错误: 请指定 -s、-c 或 -e"
         echo "使用 'pj -h' 查看帮助"
         return 1
     fi
@@ -58,6 +59,16 @@ EOF
 
     mkdir -p "$_PJ_DIR" || return
     cmds_file="$_PJ_DIR/$repo.pjcmds"
+
+    if [[ "$action" == "-e" ]]; then
+        if [[ $# -ne 1 ]]; then
+            echo "错误: pj -e 不支持额外参数"
+            return 1
+        fi
+        touch "$cmds_file" || return
+        "${EDITOR:-vi}" "$cmds_file"
+        return
+    fi
 
     if [[ "$action" == "-s" ]]; then
         local label=""

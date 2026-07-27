@@ -148,8 +148,25 @@ fi
 
 echo -n "10. 帮助只展示新入口... "
 help=$(pj -h)
-[[ "$help" == *'pj -s'* && "$help" == *'pj -c'* ]]
+[[ "$help" == *'pj -s'* && "$help" == *'pj -c'* && "$help" == *'pj -e'* ]]
 [[ "$help" != *'--list-envs'* && "$help" != *'--migrate'* ]]
 echo "OK"
+
+echo -n "11. pj -e 用编辑器打开命令文件... "
+cd "$repo"
+editor="$TEST_DIR/editor.sh"
+printf '#!/bin/bash\nprintf "edited:echo edited\\n" >> "$1"\n' > "$editor"
+chmod +x "$editor"
+EDITOR="$editor" pj -e
+grep -Fqx 'edited:echo edited' "$cmds_file"
+if result=$(EDITOR=true pj -e extra 2>&1); then
+    echo "FAIL"
+    exit 1
+elif [[ "$result" == *'不支持额外参数'* ]]; then
+    echo "OK"
+else
+    echo "FAIL"
+    exit 1
+fi
 
 echo "=== 所有测试通过 ==="
