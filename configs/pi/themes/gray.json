@@ -14,7 +14,7 @@
     "darkGray": "#505050",
     "accent": "#8abeb7",
     "selectedBg": "#3a3a4a",
-    "userMsgBg": "#22222a",
+    "userMsgBg": "#333333",
     "toolPendingBg": "#1c201c",
     "toolSuccessBg": "#1c201c",
     "toolErrorBg": "#241e1e",
