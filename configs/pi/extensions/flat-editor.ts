@@ -3,7 +3,7 @@
 // "› " prompt on the first content row, gray background block.
 
 import { CustomEditor, UserMessageComponent, type ExtensionAPI, type KeybindingsManager, type Theme } from "@earendil-works/pi-coding-agent";
-import { visibleWidth, type EditorTheme, type TUI } from "@earendil-works/pi-tui";
+import { TUI, visibleWidth, type EditorTheme } from "@earendil-works/pi-tui";
 
 const PROMPT = "› ";
 const BG = "\x1b[48;2;51;51;51m"; // #333333
@@ -53,9 +53,31 @@ function patchUserMessageComponent(ui: { readonly theme: Theme }) {
 	};
 }
 
+// On exit pi overwrites the fake cursor cell with a plain space (default background),
+// which punches a black hole in the gray block; repaint that space with our background.
+const TUI_STOP_PATCH = Symbol.for("flat-editor.tui-stop-patch");
+
+function patchTuiStop() {
+	const proto = TUI.prototype as { stop(): void; [TUI_STOP_PATCH]?: boolean };
+	if (proto[TUI_STOP_PATCH]) return;
+	proto[TUI_STOP_PATCH] = true;
+	const original = proto.stop;
+	proto.stop = function (): void {
+		const { terminal } = this as unknown as { terminal: { write(data: string): void } };
+		const originalWrite = terminal.write.bind(terminal);
+		terminal.write = (data: string) => originalWrite(data === " " ? BG + " " + BG_RESET : data);
+		try {
+			original.call(this);
+		} finally {
+			terminal.write = originalWrite;
+		}
+	};
+}
+
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", (_event, ctx) => {
 		patchUserMessageComponent(ctx.ui);
+		patchTuiStop();
 		class FlatEditor extends CustomEditor {
 			constructor(tui: TUI, theme: EditorTheme, keybindings: KeybindingsManager) {
 				super(tui, theme, keybindings, { paddingX: 0 });
