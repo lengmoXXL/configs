@@ -8,6 +8,6 @@
     "npm:pi-hashline-edit@0.8.3",
     "npm:@narumitw/pi-plan-mode@0.31.0"
   ],
-  "defaultThinkingLevel": "minimal",
+  "defaultThinkingLevel": "high",
   "hideThinkingBlock": true
 }
