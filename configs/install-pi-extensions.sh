@@ -72,9 +72,13 @@ if [[ -n "$NPM_REGISTRY" ]]; then
     export npm_config_registry="$NPM_REGISTRY"
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE"; do
     echo "安装 Pi extension: $source"
     pi install "$source"
 done
+
+bash "$SCRIPT_DIR/pi/extensions/install-extensions.sh"
 
 echo "Pi extensions 已安装。Pi 中使用 /reload 后生效；也可以重启 pi。"
