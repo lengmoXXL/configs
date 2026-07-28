@@ -2,7 +2,7 @@
 // Always padded with one empty row above and below,
 // "› " prompt on the first content row, gray background block.
 
-import { CustomEditor, type ExtensionAPI, type KeybindingsManager } from "@earendil-works/pi-coding-agent";
+import { CustomEditor, UserMessageComponent, type ExtensionAPI, type KeybindingsManager, type Theme } from "@earendil-works/pi-coding-agent";
 import { visibleWidth, type EditorTheme, type TUI } from "@earendil-works/pi-tui";
 
 const PROMPT = "› ";
@@ -10,8 +10,52 @@ const BG = "\x1b[48;2;51;51;51m"; // #333333
 const BG_RESET = "\x1b[49m";
 const SGR_RESET = "\x1b[0m";
 
+// There is no extension hook for the built-in user message component, so patch the
+// shared class prototype. The record lives on the prototype (keyed by Symbol.for)
+// so an extension reload swaps the theme getter instead of stacking wrappers.
+const USER_MESSAGE_PATCH = Symbol.for("flat-editor.user-message-patch");
+
+type UserMessagePatch = { getTheme: () => Theme };
+
+function patchUserMessageComponent(ui: { readonly theme: Theme }) {
+	const proto = UserMessageComponent.prototype as {
+		render(width: number): string[];
+		[USER_MESSAGE_PATCH]?: UserMessagePatch;
+	};
+	const record = proto[USER_MESSAGE_PATCH];
+	if (record) {
+		record.getTheme = () => ui.theme;
+		return;
+	}
+	const original = proto.render;
+	proto[USER_MESSAGE_PATCH] = { getTheme: () => ui.theme };
+	proto.render = function (width: number): string[] {
+		const patch = proto[USER_MESSAGE_PATCH]!;
+		// The component already left-pads content by outputPad (0 or 1); reserve only the
+		// remaining columns so prompt + padding total 2, matching the editor's "› "
+		const { outputPad } = this as { outputPad?: number };
+		const prefixWidth = Math.max(0, PROMPT.length - (typeof outputPad === "number" ? outputPad : 1));
+		const lines = original.call(this, Math.max(1, width - prefixWidth));
+		return lines.map((line, i) => {
+			// pi puts OSC 133 markers on the first and last rendered rows; keep them at line start
+			let osc = "";
+			if (i === 0 || i === lines.length - 1) {
+				const match = line.match(/^(\x1b\]133;[ABC]\x07)+/);
+				if (match) {
+					osc = match[0];
+					line = line.slice(osc.length);
+				}
+			}
+			// Row 0 is the top padding row; the prompt sits on the first content row
+			const prefix = (i === 1 ? PROMPT : " ".repeat(PROMPT.length)).slice(0, prefixWidth);
+			return osc + (prefix ? patch.getTheme().bg("userMessageBg", prefix) : "") + line;
+		});
+	};
+}
+
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", (_event, ctx) => {
+		patchUserMessageComponent(ctx.ui);
 		class FlatEditor extends CustomEditor {
 			constructor(tui: TUI, theme: EditorTheme, keybindings: KeybindingsManager) {
 				super(tui, theme, keybindings, { paddingX: 0 });
