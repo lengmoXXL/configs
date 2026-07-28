@@ -59,11 +59,10 @@ configs/
 │   ├── install-pi-extensions.sh # 安装 Pi extensions
 │   ├── install-opencode-config.py # 安装 opencode provider 配置
 │   ├── install-pi-config.py    # 安装 Pi models/settings/themes 配置
-│   ├── install-agents.sh       # 一次性安装 codex/opencode 的 AGENTS.md 规则
-│   ├── agents/                 # AGENTS.md 提示词
-│   │   ├── common.md           # 通用提示词
-│   │   ├── codex.md            # Codex 专属提示词
-│   │   └── opencode.md         # OpenCode 专属提示词
+│   ├── install-agents.sh       # 安装 AGENTS.md 规则（脚本内声明 agent 与 prompt 的关联）
+│   ├── agents/                 # 按语义命名的 AGENTS.md 提示词
+│   │   ├── inline-functions.md # 优先内联小函数，避免抽出过小的 helper
+│   │   └── git-safety.md       # git 状态修改需当轮明确授权
 │   ├── herdr/                  # Herdr 配置
 │   │   └── config.toml         # Herdr 配置：vscode.nvim dark palette、Ctrl-Space 前缀、无 pane 边框与单 tab 隐藏
 │   ├── kimi/                   # Kimi Code 配置
