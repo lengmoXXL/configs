@@ -6,8 +6,10 @@
     "npm:pi-simplify@0.2.3",
     "git:github.com/nicobailon/pi-subagents@v0.37.0",
     "npm:pi-hashline-edit@0.8.3",
-    "npm:@narumitw/pi-plan-mode@0.31.0"
+    "npm:@narumitw/pi-plan-mode@0.31.0",
+    "npm:pi-zentui@0.14.0"
   ],
   "defaultThinkingLevel": "minimal",
-  "hideThinkingBlock": true
+  "hideThinkingBlock": true,
+  "extensions": ["-flat-editor.ts"]
 }

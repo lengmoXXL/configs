@@ -15,6 +15,9 @@ SUBAGENTS_SOURCE="git:${SUBAGENTS_REPO}@${SUBAGENTS_VERSION}"
 HASHLINE_PACKAGE="pi-hashline-edit"
 HASHLINE_VERSION="0.8.3"
 HASHLINE_SOURCE="npm:${HASHLINE_PACKAGE}@${HASHLINE_VERSION}"
+ZENTUI_PACKAGE="pi-zentui"
+ZENTUI_VERSION="0.14.0"
+ZENTUI_SOURCE="npm:${ZENTUI_PACKAGE}@${ZENTUI_VERSION}"
 USE_CN=false
 NPM_REGISTRY=""
 
@@ -27,6 +30,7 @@ usage() {
   ${SIMPLIFY_SOURCE}
   ${SUBAGENTS_SOURCE}
   ${HASHLINE_SOURCE}
+  ${ZENTUI_SOURCE}
 
 选项:
   -cn             使用 npmmirror npm registry
@@ -72,7 +76,7 @@ if [[ -n "$NPM_REGISTRY" ]]; then
     export npm_config_registry="$NPM_REGISTRY"
 fi
 
-for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE"; do
+for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE" "$ZENTUI_SOURCE"; do
     echo "安装 Pi extension: $source"
     pi install "$source"
 done
