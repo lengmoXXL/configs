@@ -21,7 +21,7 @@ Commands:
   init     Create .secrets/ossutilconfig template.
   ls       Show .secrets/$AI_PROVIDERS_SECRET path.
   push     Upload .secrets/$AI_PROVIDERS_SECRET to OSS.
-  pull     Download $AI_PROVIDERS_SECRET from OSS to .secrets.
+  pull     Merge $AI_PROVIDERS_SECRET from OSS into .secrets (local keys win).
 
 Environment:
   SECRETS_DIR          Local secrets directory. Default: $SECRETS_DIR
@@ -127,8 +127,36 @@ pull_secrets() {
     mkdir -p "$SECRETS_DIR"
     chmod 700 "$SECRETS_DIR"
 
+    local tmp_remote
+    tmp_remote="$(mktemp)"
+    trap 'rm -f "$tmp_remote"' RETURN
+
     mapfile -t extra_args < <(oss_args)
-    ossutil cp "$(ai_providers_object_uri)" "$AI_PROVIDERS_PATH" --no-progress --force "${extra_args[@]}"
+    ossutil cp "$(ai_providers_object_uri)" "$tmp_remote" --no-progress --force "${extra_args[@]}"
+
+    # JSON key 级合并：远端补充缺失 key，本地已有 key 不覆盖
+    python3 - "$AI_PROVIDERS_PATH" "$tmp_remote" <<'EOF'
+import json, os, sys
+
+local_path, remote_path = sys.argv[1], sys.argv[2]
+
+local = {}
+if os.path.exists(local_path):
+    with open(local_path, encoding="utf-8") as fh:
+        local = json.load(fh)
+
+with open(remote_path, encoding="utf-8") as fh:
+    remote = json.load(fh)
+
+merged = {**remote, **local}
+added = sorted(set(remote) - set(local))
+
+with open(local_path, "w", encoding="utf-8") as fh:
+    json.dump(merged, fh, ensure_ascii=False, indent=2)
+    fh.write("\n")
+
+print("新增 key: " + ", ".join(added) if added else "无新增 key")
+EOF
     chmod 600 "$AI_PROVIDERS_PATH"
 }
 
