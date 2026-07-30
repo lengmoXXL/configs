@@ -1,6 +1,6 @@
 ---
 name: style-check
-description: Minimalist style review for code, documentation, configuration, scripts, and other text artifacts. Use when asked to check style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, wording, abstraction, or documentation.
+description: Minimalist style review for code, documentation, configuration, scripts, and other text artifacts. Use when asked to check style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, wording, abstraction, or documentation.
 ---
 
 # Style Check
@@ -61,6 +61,47 @@ If valid calls require a non-nil receiver, the caller should guarantee that prec
 ```go
 func (s *Store) Save(ctx context.Context, item Item) error {
 	return s.db.Save(ctx, item)
+}
+```
+
+
+### Fast Entropy Reduction
+
+Structure each function so every step eliminates uncertainty as early as possible. A necessary check should dispatch its failure branch immediately (early return/throw), keeping the remaining path at the top indentation level. Flag implementations that defer error handling or nest the happy path, forcing the reader to hold unresolved branches in mind.
+
+This applies only to checks that must exist; it never justifies adding new guards (see Over-Defensive Guards).
+
+#### Example: Deferred Error Branch
+
+```go
+func loadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err == nil {
+		var cfg Config
+		if err := json.Unmarshal(data, &cfg); err == nil {
+			return &cfg, nil
+		} else {
+			return nil, err
+		}
+	} else {
+		return nil, err
+	}
+}
+```
+
+Every error branch is known at the check site but resolved later, and the success path sinks two levels deep. Resolve each branch the moment it is known:
+
+```go
+func loadConfig(path string) (*Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var cfg Config
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return nil, err
+	}
+	return &cfg, nil
 }
 ```
 
