@@ -5,7 +5,7 @@
   "packages": [
     "npm:pi-simplify@0.2.3",
     "git:github.com/nicobailon/pi-subagents@v0.37.2",
-    "npm:pi-hashline-edit@0.8.3",
+    "npm:pi-hashline-edit-pro@0.18.1",
     "npm:@narumitw/pi-plan-mode@0.35.0"
   ],
   "defaultThinkingLevel": "high",
