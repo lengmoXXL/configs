@@ -9,5 +9,10 @@
     "npm:@narumitw/pi-plan-mode@0.35.0"
   ],
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": true
+  "hideThinkingBlock": true,
+  "retry": {
+    "enabled": true,
+    "maxRetries": 10,
+    "baseDelayMs": 2000
+  }
 }
