@@ -22,7 +22,7 @@ configs/
 │   ├── install-clashctl.sh     # 从 wnlen/clash-for-linux 安装 clashctl
 │   ├── install-codex.sh        # 从 GitHub Release 安装/更新 Codex CLI
 │   ├── install-fd.sh           # 安装 fd 到 ~/.local/bin
-│   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent)
+│   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent/droid)
 │   ├── install-go.sh           # 安装 Go 到 ~/.local/go
 │   ├── install-herdr.sh        # 从 GitHub Release 安装/更新 Herdr
 │   ├── install-hermes-agent.sh # 安装 Hermes Agent
@@ -32,6 +32,7 @@ configs/
 │   ├── install-nvim.sh         # 从源码编译安装 Neovim
 │   ├── install-opencode.sh     # 从 GitHub Release 安装 opencode
 │   ├── install-ossutil.sh      # 安装 ossutil 到 ~/.local/bin
+│   ├── install-perf-to-profile.sh # 从 OSS 安装预编译 perf_to_profile
 │   ├── install-pi-agent.sh     # 从 npm 安装/更新 Pi Agent
 │   ├── install-playwright.sh   # 安装 Playwright 与 Chromium
 │   ├── install-rust.sh         # 安装 Rust 到 ~/.local/rust
@@ -94,6 +95,7 @@ configs/
 │   ├── frontend-draw/          # frontend-draw skill 源码
 │   └── style-check/            # style-check skill 源码
 └── tools/
+    ├── build-perf-to-profile.sh # 构建并可选发布 perf_to_profile 到 OSS
     ├── codex_batch.py          # Codex 批处理脚本
     ├── install-codex-batch.sh  # 安装 codex-batch
     ├── nvim_ft.py              # 按 git URL 维护 Neovim filetypes.json

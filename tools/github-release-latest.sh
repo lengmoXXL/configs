@@ -23,6 +23,7 @@ Packages:
   hermes-agent
   sarasa
   aurulent
+  droid, droidsansmono
 EOF
 }
 
@@ -41,7 +42,7 @@ repo_for_package() {
         herdr) echo "ogulcancelik/herdr" ;;
         hermes-agent) echo "NousResearch/hermes-agent" ;;
         sarasa) echo "laishulu/Sarasa-Term-SC-Nerd" ;;
-        aurulent) echo "ryanoasis/nerd-fonts" ;;
+        aurulent | droid | droidsansmono) echo "ryanoasis/nerd-fonts" ;;
         */*) echo "$1" ;;
         *) return 1 ;;
     esac

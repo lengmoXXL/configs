@@ -24,7 +24,10 @@ get_font_info() {
             echo "Sarasa Term SC Nerd|$(github_release_url "https://github.com/laishulu/Sarasa-Term-SC-Nerd/releases/download/v2.3.1/SarasaTermSCNerd.ttf.tar.gz")|tar.gz"
             ;;
         aurulent)
-            echo "AurulentSansMono Nerd Font|$(github_release_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/AurulentSansMono.zip")|zip"
+            echo "AurulentSansMono Nerd Font|$(github_release_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.0/AurulentSansMono.zip")|zip"
+            ;;
+        droid)
+            echo "DroidSansMono Nerd Font|$(github_release_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.0/DroidSansMono.zip")|zip"
             ;;
         *)
             return 1
@@ -36,11 +39,16 @@ list_fonts() {
     echo "可用字体:"
     echo "  sarasa   - Sarasa Term SC Nerd"
     echo "  aurulent - AurulentSansMono Nerd Font"
+    echo "  droid    - DroidSansMono Nerd Font"
 }
 
 download_font() {
     local name="$1"
     local info
+
+    case "$name" in
+        droidsansmono | DroidSansMono) name="droid" ;;
+    esac
 
     if ! info=$(get_font_info "$name"); then
         echo "错误: 未知字体 '$name'"
@@ -110,6 +118,7 @@ if [[ ${#FONT_NAMES[@]} -eq 0 ]]; then
     echo "安装全部字体..."
     download_font "sarasa"
     download_font "aurulent"
+    download_font "droid"
 else
     # 安装指定的字体
     for name in "${FONT_NAMES[@]}"; do

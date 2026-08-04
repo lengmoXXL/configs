@@ -6,4 +6,5 @@ fonts/
 __pycache__/
 *.pyc
 .test/
+/dist/
 configs/pi/extensions/node_modules/
