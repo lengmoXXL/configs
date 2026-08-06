@@ -14,9 +14,10 @@ fi
 
 # npm 全局 bin 是指向包内 dist/cli.js 的软链，解析后取包根目录
 PI_PKG="$(cd "$(dirname "$(readlink -f "$PI_BIN")")/.." && pwd)"
+PI_AI_PKG="$PI_PKG/node_modules/@earendil-works/pi-ai"
 TUI_PKG="$PI_PKG/node_modules/@earendil-works/pi-tui"
 
-for pkg in "$PI_PKG" "$TUI_PKG"; do
+for pkg in "$PI_PKG" "$PI_AI_PKG" "$TUI_PKG"; do
     if [[ ! -f "$pkg/package.json" ]]; then
         echo "错误: 未找到 $pkg"
         exit 1
@@ -25,8 +26,10 @@ done
 
 mkdir -p "$EXT_DIR/node_modules/@earendil-works"
 ln -sfn "$PI_PKG" "$EXT_DIR/node_modules/@earendil-works/pi-coding-agent"
+ln -sfn "$PI_AI_PKG" "$EXT_DIR/node_modules/@earendil-works/pi-ai"
 ln -sfn "$TUI_PKG" "$EXT_DIR/node_modules/@earendil-works/pi-tui"
 
 echo "已链接 pi 类型包:"
 echo "  pi-coding-agent -> $PI_PKG"
+echo "  pi-ai           -> $PI_AI_PKG"
 echo "  pi-tui          -> $TUI_PKG"
