@@ -84,7 +84,8 @@ configs/
 │   │   ├── settings.json       # Pi 默认设置
 │   │   ├── extensions/         # Pi 自定义扩展（安装到 ~/.pi/agent/extensions）
 │   │   │   ├── flat-editor.ts  # 扁平无边框输入框：3 行高、› 提示符、灰背景
-│   │   │   └── max-min.ts      # /minmax_loop 切换 MAX/MIN 循环与子代理终止仲裁
+│   │   │   ├── max-min.ts      # /minmax_loop 切换 MAX/MIN 循环与子代理终止仲裁
+│   │   │   └── pi-footer.json  # Pi footer：模型、思考深度、用量与右侧 MIN/MAX 状态
 │   │   └── themes/             # Pi 主题 JSON 文件
 │   │       └── gray.json
 │   └── tmux/                   # tmux 配置

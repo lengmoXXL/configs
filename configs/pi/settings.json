@@ -6,7 +6,8 @@
     "npm:pi-simplify@0.2.3",
     "git:github.com/nicobailon/pi-subagents@v0.40.0",
     "npm:pi-hashline-edit-pro@0.20.0",
-    "npm:@narumitw/pi-plan-mode@0.44.0"
+    "npm:@narumitw/pi-plan-mode@0.44.0",
+    "npm:pi-footer@0.5.1"
   ],
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,

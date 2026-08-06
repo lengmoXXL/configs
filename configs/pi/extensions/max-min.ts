@@ -21,7 +21,7 @@ interface ArbitrationRecord {
 	reason: string;
 }
 
-const WIDGET_KEY = "max-min";
+const STATUS_KEY = "minmax-loop";
 const MIN_ROUNDS_BEFORE_ARBITRATION = 3;
 const ARBITRATION_TIMEOUT_MS = 60_000;
 const FILE_EDIT_TOOLS = new Set(["edit", "write", "replace", "undo_last_replace"]);
@@ -192,9 +192,9 @@ export default function (pi: ExtensionAPI) {
 		phaseHistory = [];
 		arbitrationHistory = [];
 		if (enabled) {
-			ctx.ui.setWidget(WIDGET_KEY, [ctx.ui.theme.fg("muted", "MINMAX")], { placement: "aboveEditor" });
+			ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", "MINMAX"));
 		} else {
-			ctx.ui.setWidget(WIDGET_KEY, undefined);
+			ctx.ui.setStatus(STATUS_KEY, undefined);
 		}
 	};
 
@@ -219,7 +219,7 @@ export default function (pi: ExtensionAPI) {
 		round = 1;
 		originalPrompt = event.prompt;
 		phaseStartSignature = await getWorkspaceSignature(pi, ctx.cwd);
-		ctx.ui.setWidget(WIDGET_KEY, [ctx.ui.theme.fg("accent", "MAX 1")], { placement: "aboveEditor" });
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("accent", "MAX 1"));
 		return { systemPrompt: `${event.systemPrompt}\n\n${LOOP_PROMPT}` };
 	});
 
@@ -279,9 +279,7 @@ export default function (pi: ExtensionAPI) {
 		}
 		let arbitration: ArbitrationRecord | undefined;
 		if (round >= MIN_ROUNDS_BEFORE_ARBITRATION) {
-			ctx.ui.setWidget(WIDGET_KEY, [ctx.ui.theme.fg("warning", `JUDGE ${round}`)], {
-				placement: "aboveEditor",
-			});
+			ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("warning", `JUDGE ${round}`));
 			try {
 				arbitration = await arbitrate(
 					pi,
@@ -318,9 +316,7 @@ export default function (pi: ExtensionAPI) {
 		phaseSummary = "";
 		phaseFiles = new Set<string>();
 		const label = `${mode.toUpperCase()} ${round}`;
-		ctx.ui.setWidget(WIDGET_KEY, [ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", label)], {
-			placement: "aboveEditor",
-		});
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", label));
 		const arbitrationContext = arbitration
 			? `\nThe arbiter chose CONTINUE after round ${arbitration.round}: ${arbitration.reason}`
 			: "";

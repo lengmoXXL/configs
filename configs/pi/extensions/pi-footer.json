@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "enabled": true,
+  "preset": "default",
+  "lines": [
+    [
+      {
+        "id": "model",
+        "type": "model-provider",
+        "enabled": true,
+        "options": {
+          "fg": "pi:accent",
+          "raw": true
+        }
+      },
+      {
+        "id": "thinking",
+        "type": "thinking-level",
+        "enabled": true,
+        "options": {
+          "fg": "pi:customMessageLabel",
+          "raw": true,
+          "hideWhenEmpty": true
+        }
+      },
+      {
+        "id": "tokens",
+        "type": "tokens",
+        "enabled": true,
+        "options": {
+          "fg": "pi:success",
+          "raw": true,
+          "tokenFormatStyle": "compact"
+        }
+      },
+      {
+        "id": "right-align",
+        "type": "flex-separator",
+        "enabled": true,
+        "options": {}
+      },
+      {
+        "id": "minmax-loop",
+        "type": "external-status",
+        "enabled": true,
+        "options": {
+          "externalStatusKey": "minmax-loop",
+          "raw": true,
+          "hideWhenEmpty": true
+        }
+      }
+    ]
+  ],
+  "separator": "dot",
+  "separatorFg": "pi:dim",
+  "separatorBg": "default",
+  "iconMode": "text",
+  "minimalist": false,
+  "terminal": {
+    "widthMode": "full",
+    "colorLevel": "ansi256"
+  },
+  "extensionStatusRow": {
+    "hiddenKeys": [
+      "minmax-loop"
+    ],
+    "knownKeys": [
+      "minmax-loop"
+    ]
+  }
+}

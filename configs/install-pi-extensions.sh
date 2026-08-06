@@ -15,6 +15,9 @@ SUBAGENTS_SOURCE="git:${SUBAGENTS_REPO}@${SUBAGENTS_VERSION}"
 HASHLINE_PACKAGE="pi-hashline-edit-pro"
 HASHLINE_VERSION="0.20.0"
 HASHLINE_SOURCE="npm:${HASHLINE_PACKAGE}@${HASHLINE_VERSION}"
+FOOTER_PACKAGE="pi-footer"
+FOOTER_VERSION="0.5.1"
+FOOTER_SOURCE="npm:${FOOTER_PACKAGE}@${FOOTER_VERSION}"
 USE_CN=false
 NPM_REGISTRY=""
 
@@ -27,6 +30,7 @@ usage() {
   ${SIMPLIFY_SOURCE}
   ${SUBAGENTS_SOURCE}
   ${HASHLINE_SOURCE}
+  ${FOOTER_SOURCE}
 
 选项:
   -cn             使用 npmmirror npm registry
@@ -74,7 +78,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE"; do
+for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE" "$FOOTER_SOURCE"; do
     echo "安装 Pi extension: $source"
     pi install "$source"
 done
