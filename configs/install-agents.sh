@@ -76,4 +76,4 @@ install_mode opencode "${OPENCODE_AGENTS_DEST:-$HOME/.config/opencode/AGENTS.md}
     git-safety.md inline-functions.md
 
 install_mode pi "${PI_AGENTS_DEST:-$HOME/.pi/agent/AGENTS.md}" \
-    git-safety.md inline-functions.md
+    git-safety.md editing-constraints.md inline-functions.md

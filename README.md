@@ -63,6 +63,7 @@ configs/
 │   ├── install-agents.sh       # 安装 AGENTS.md 规则（脚本内声明 agent 与 prompt 的关联）
 │   ├── agents/                 # 按语义命名的 AGENTS.md 提示词
 │   │   ├── inline-functions.md # 优先内联小函数，避免抽出过小的 helper
+│   │   ├── editing-constraints.md # 编辑约束：ASCII 优先、read/replace 编辑、脏 worktree 保护
 │   │   └── git-safety.md       # git 状态修改需当轮明确授权
 │   ├── herdr/                  # Herdr 配置
 │   │   └── config.toml         # Herdr 配置：vscode.nvim dark palette、Ctrl-Space 前缀、无 pane 边框与单 tab 隐藏
