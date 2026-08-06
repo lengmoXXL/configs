@@ -3,7 +3,7 @@
 // "› " prompt on the first content row, gray background block.
 
 import { CustomEditor, UserMessageComponent, type ExtensionAPI, type KeybindingsManager, type Theme } from "@earendil-works/pi-coding-agent";
-import { TUI, visibleWidth, type EditorTheme } from "@earendil-works/pi-tui";
+import { visibleWidth, type EditorTheme, type TUI } from "@earendil-works/pi-tui";
 
 const PROMPT = "› ";
 const BG = "\x1b[48;2;51;51;51m"; // #333333
@@ -57,17 +57,17 @@ function patchUserMessageComponent(ui: { readonly theme: Theme }) {
 // which punches a black hole in the gray block; repaint that space with our background.
 const TUI_STOP_PATCH = Symbol.for("flat-editor.tui-stop-patch");
 
-function patchTuiStop() {
-	const proto = TUI.prototype as { stop(): void; [TUI_STOP_PATCH]?: boolean };
-	if (proto[TUI_STOP_PATCH]) return;
-	proto[TUI_STOP_PATCH] = true;
-	const original = proto.stop;
-	proto.stop = function (): void {
-		const { terminal } = this as unknown as { terminal: { write(data: string): void } };
+function patchTuiStop(tui: TUI) {
+	const patched = tui as TUI & { [TUI_STOP_PATCH]?: boolean };
+	if (patched[TUI_STOP_PATCH]) return;
+	patched[TUI_STOP_PATCH] = true;
+	const original = tui.stop.bind(tui);
+	tui.stop = (options): void => {
+		const { terminal } = tui;
 		const originalWrite = terminal.write.bind(terminal);
 		terminal.write = (data: string) => originalWrite(data === " " ? BG + " " + BG_RESET : data);
 		try {
-			original.call(this);
+			original(options);
 		} finally {
 			terminal.write = originalWrite;
 		}
@@ -77,7 +77,6 @@ function patchTuiStop() {
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", (_event, ctx) => {
 		patchUserMessageComponent(ctx.ui);
-		patchTuiStop();
 		class FlatEditor extends CustomEditor {
 			constructor(tui: TUI, theme: EditorTheme, keybindings: KeybindingsManager) {
 				super(tui, theme, keybindings, { paddingX: 0 });
@@ -115,6 +114,9 @@ export default function (pi: ExtensionAPI) {
 			}
 		}
 
-		ctx.ui.setEditorComponent((tui, theme, keybindings) => new FlatEditor(tui, theme, keybindings));
+		ctx.ui.setEditorComponent((tui, theme, keybindings) => {
+			patchTuiStop(tui);
+			return new FlatEditor(tui, theme, keybindings);
+		});
 	});
 }
