@@ -198,7 +198,7 @@ export default function (pi: ExtensionAPI) {
 		}
 	};
 
-	pi.registerCommand("minmax_loop", {
+	pi.registerCommand("minmax-loop", {
 		description: "Toggle the automatic MAX/MIN coding loop",
 		handler: async (_args, ctx) => {
 			enabled = !enabled;
@@ -291,6 +291,7 @@ export default function (pi: ExtensionAPI) {
 				);
 			} catch (error) {
 				const stoppedRound = round;
+				enabled = false;
 				reset(ctx);
 				ctx.ui.notify(
 					`MAX/MIN stopped after round ${stoppedRound}: arbitration failed (${error instanceof Error ? error.message : String(error)})`,
@@ -301,6 +302,7 @@ export default function (pi: ExtensionAPI) {
 			if (arbitration.decision === "STOP") {
 				const stoppedRound = round;
 				const reason = arbitration.reason;
+				enabled = false;
 				reset(ctx);
 				ctx.ui.notify(`MAX/MIN stopped after round ${stoppedRound}: ${reason}`, "info");
 				return;
