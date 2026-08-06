@@ -29,64 +29,6 @@
           "maxTokens": 65536
         }
       ]
-    },
-    "qwen-token-plan-cn": {
-      "models": [
-        {
-          "id": "deepseek-v4-flash-0731",
-          "name": "DeepSeek V4 Flash 0731",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "low": null,
-            "medium": null,
-            "high": "high",
-            "xhigh": null,
-            "max": "max"
-          },
-          "input": ["text"],
-          "contextWindow": 1000000,
-          "maxTokens": 384000,
-          "compat": {
-            "thinkingFormat": "qwen",
-            "supportsDeveloperRole": false,
-            "supportsStore": false,
-            "supportsReasoningEffort": true
-          }
-        },
-        {
-          "id": "qwen3.8-max",
-          "name": "Qwen3.8 Max",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "minimal": null,
-            "low": "low",
-            "medium": "medium",
-            "high": null,
-            "xhigh": "xhigh",
-            "max": null
-          },
-          "input": ["text", "image"],
-          "contextWindow": 1000000,
-          "maxTokens": 131072,
-          "compat": {
-            "thinkingFormat": "qwen",
-            "supportsDeveloperRole": false,
-            "supportsStore": false,
-            "supportsReasoningEffort": true
-          }
-        }
-      ],
-      "modelOverrides": {
-        "kimi-k2.5":            { "maxTokens": 16384 },
-        "kimi-k2.6":            { "maxTokens": 16384 },
-        "kimi-k2.7-code":       { "maxTokens": 16384 },
-        "qwen3.6-flash":        { "contextWindow": 200000 },
-        "qwen3.6-plus":         { "contextWindow": 200000 },
-        "qwen3.7-max":          { "contextWindow": 200000 },
-        "qwen3.7-plus":         { "contextWindow": 200000 },
-        "qwen3.8-max-preview":  { "contextWindow": 200000 }
-      }
     }
   }
 }
