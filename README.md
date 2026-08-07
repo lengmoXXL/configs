@@ -103,6 +103,8 @@ configs/
     ├── install-codex-batch.sh  # 安装 codex-batch
     ├── nvim_ft.py              # 按 git URL 维护 Neovim filetypes.json
     ├── github-release-latest.sh # 查询 GitHub Release 最新版本
+    ├── git-prune-merged.sh     # 删除已合并到主分支的本地分支
+    ├── install-git-prune-merged.sh # 安装 git-prune-merged 到 ~/.local/bin
     ├── install-nvim-ft.sh      # 安装 nvim-ft
     ├── install-prd.sh          # 安装 prd
     ├── secrets.sh              # 同步 .secrets provider API keys
