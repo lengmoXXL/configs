@@ -85,7 +85,7 @@ configs/
 │   │   ├── settings.json       # Pi 默认设置
 │   │   ├── extensions/         # Pi 自定义扩展（安装到 ~/.pi/agent/extensions）
 │   │   │   ├── flat-editor.ts  # 扁平无边框输入框：3 行高、› 提示符、灰背景
-│   │   │   ├── max-min.ts      # /minmax-loop 切换 MAX/MIN 循环，judge 终止仲裁并退出循环
+│   │   │   ├── max-min.ts      # /max-loop、/min-loop 启动 MAX/MIN 循环，连续三次无变更退出，打断保留状态
 │   │   │   └── pi-footer.json  # Pi footer：模型、思考深度、用量与右侧 MIN/MAX 状态
 │   │   └── themes/             # Pi 主题 JSON 文件
 │   │       └── gray.json
