@@ -10,12 +10,7 @@ const STATUS_KEY = "minmax-loop";
 const NO_CHANGE_PHASES_TO_STOP = 3;
 const FILE_EDIT_TOOLS = new Set(["edit", "write", "replace", "undo_last_replace"]);
 
-const LOOP_PROMPT = `## Automatic MAX/MIN loop
-
-The current user request starts an automatic alternating implementation loop. The start command picks the first mode, and the
-latest <max_min_control> message is authoritative for the current phase.
-
-MAX mode:
+const LOOP_RULES = `MAX mode:
 - Fulfil the original user request completely and correctly. MAX means maximum functional completeness, not maximum code.
 - Re-check the implementation after the preceding MIN phase, restore any required behaviour it removed, and close concrete gaps.
 - Do not add unrelated features or manufacture work merely to keep the loop running.
@@ -29,6 +24,14 @@ In both modes, inspect the current code and existing project instructions, make 
 and report honestly when the phase has no useful change to make. The loop stops automatically after ${NO_CHANGE_PHASES_TO_STOP}
 consecutive phases with no file changes. If the user interrupts a phase, the loop keeps its state and resumes the same phase
 on the next message.`;
+
+// before_agent_start only fires for real user prompts; automated phases receive the rules via the control message.
+const LOOP_PROMPT = `## Automatic MAX/MIN loop
+
+The current user request starts an automatic alternating implementation loop. The start command picks the first mode, and the
+latest <max_min_control> message is authoritative for the current phase.
+
+${LOOP_RULES}`;
 
 async function getWorkspaceSignature(pi: ExtensionAPI, cwd: string): Promise<string | undefined> {
 	const [status, unstaged, staged] = await Promise.all([
@@ -126,37 +129,41 @@ export default function (pi: ExtensionAPI) {
 			return;
 		}
 
+		// The session is idle while this handler awaits, so a user prompt can interleave and reset
+		// phase state via before_agent_start; snapshot everything needed before the first await.
+		const settledMode = mode;
+		const settledRound = round;
+		const settledStopReason = phaseStopReason;
+		const settledChangedByTool = phaseChangedByTool;
+		const settledStartSignature = phaseStartSignature;
 		const endSignature = await getWorkspaceSignature(pi, ctx.cwd);
 		const changed =
-			phaseChangedByTool ||
-			(phaseStartSignature !== undefined && endSignature !== undefined && phaseStartSignature !== endSignature);
+			settledChangedByTool ||
+			(settledStartSignature !== undefined && endSignature !== undefined && settledStartSignature !== endSignature);
 		noChangeStreak = changed ? 0 : noChangeStreak + 1;
 
-		if (phaseStopReason !== "stop") {
-			const stoppedRound = round;
-			const stopReason = phaseStopReason;
+		if (settledStopReason !== "stop") {
 			enabled = false;
 			reset(ctx);
 			ctx.ui.notify(
-				`MAX/MIN stopped after round ${stoppedRound}: phase ended with ${stopReason ?? "no assistant result"}`,
+				`MAX/MIN stopped after round ${settledRound}: phase ended with ${settledStopReason ?? "no assistant result"}`,
 				"warning",
 			);
 			return;
 		}
 
 		if (noChangeStreak >= NO_CHANGE_PHASES_TO_STOP) {
-			const stoppedRound = round;
 			enabled = false;
 			reset(ctx);
 			ctx.ui.notify(
-				`MAX/MIN stopped after round ${stoppedRound}: ${NO_CHANGE_PHASES_TO_STOP} consecutive phases made no changes`,
+				`MAX/MIN stopped after round ${settledRound}: ${NO_CHANGE_PHASES_TO_STOP} consecutive phases made no changes`,
 				"info",
 			);
 			return;
 		}
 
-		mode = mode === "max" ? "min" : "max";
-		round += 1;
+		mode = settledMode === "max" ? "min" : "max";
+		round = settledRound + 1;
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = endSignature;
@@ -169,7 +176,7 @@ export default function (pi: ExtensionAPI) {
 		pi.sendMessage(
 			{
 				customType: "max-min-control",
-				content: `<max_min_control mode="${mode}" round="${round}">\nEnter ${mode.toUpperCase()} mode now. Re-evaluate the original user goal using the current workspace and prior phase results.${streakNote}\n</max_min_control>`,
+				content: `<max_min_control mode="${mode}" round="${round}">\nEnter ${mode.toUpperCase()} mode now. Re-evaluate the original user goal using the current workspace and prior phase results.${streakNote}\n\n${LOOP_RULES}\n</max_min_control>`,
 				display: false,
 			},
 			{ triggerTurn: true, deliverAs: "followUp" },
