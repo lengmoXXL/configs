@@ -20,6 +20,8 @@ window-decoration = true
 window-save-state = always
 # 隐藏 macOS 标题栏（保留红绿灯按钮，悬浮显示）
 macos-titlebar-style = hidden
+# 标题栏隐藏后 tab 栏也不可见，用 Cmd+Shift+\ 打开 tab 总览查看/切换
+keybind = super+shift+backslash=toggle_tab_overview
 
 # 主题: VSCode Dark Modern（Ghostty 内置）
 theme = Dark Modern
