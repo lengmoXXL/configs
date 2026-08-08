@@ -12,6 +12,7 @@ vim.g.mapleader = " "
 vim.g.clipboard = "osc52"
 vim.o.autowriteall = true
 vim.o.smoothscroll = true
+vim.opt.fillchars:append({ eob = " " }) -- 隐藏空行的 ~
 
 require('project_filetypes').setup()
 
