@@ -4,8 +4,8 @@
   "vars": {
     "cyan": "#00d7ff",
     "blue": "#5f87ff",
-    "green": "#b5bd68",
-    "red": "#cc6666",
+    "green": "#bcc374",
+    "red": "#d27070",
     "yellow": "#ffff00",
     "amber": "#d4a646",
     "text": "#d4d4d4",
@@ -15,9 +15,9 @@
     "accent": "#8abeb7",
     "selectedBg": "#3a3a4a",
     "userMsgBg": "#333333",
-    "toolPendingBg": "#1c201c",
-    "toolSuccessBg": "#1c201c",
-    "toolErrorBg": "#241e1e",
+    "toolPendingBg": "#202720",
+    "toolSuccessBg": "#202720",
+    "toolErrorBg": "#2a2121",
     "customMsgBg": "#2d2838"
   },
   "colors": {
