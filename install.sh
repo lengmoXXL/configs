@@ -113,7 +113,7 @@ install_macos() {
     local omz_url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
     local omz_repo="https://github.com/ohmyzsh/ohmyzsh.git"
     local rcfile="$HOME/.zshrc"
-    local theme="robbyrussell"
+    local theme="refined"
 
     if [[ -d "$omz_dir" ]]; then
         echo "Oh My Zsh 已安装: $omz_dir"
