@@ -1,0 +1,32 @@
+# Ghostty 配置
+# 文档: https://ghostty.org/docs/config
+
+# 字体
+font-family = "DroidSansM Nerd Font Mono"
+font-size = 13
+# 字体渲染优化
+# macOS 下加粗笔画，缓解细字体发虚
+font-thicken = true
+font-thicken-strength = 128
+# 低对比度前景色自动提亮，暗色主题下更清晰
+minimum-contrast = 1.1
+# 增加行距，显示更透气
+adjust-cell-height = 5%
+
+# 窗口
+window-padding-x = 8
+window-padding-y = 6
+window-decoration = true
+window-save-state = always
+# 隐藏 macOS 标题栏（保留红绿灯按钮，悬浮显示）
+macos-titlebar-style = hidden
+
+# 主题: VSCode Dark Modern（Ghostty 内置）
+theme = Dark Modern
+
+# 行为
+scrollback-limit = 100000
+confirm-close-surface = false
+quit-after-last-window-closed = true
+mouse-hide-while-typing = true
+copy-on-select = clipboard

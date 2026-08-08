@@ -56,12 +56,15 @@ configs/
 │   ├── install-nvim-config.sh  # 安装 nvim 配置到 ~/.config/nvim
 │   ├── install-tmux-config.sh  # 安装 tmux 配置与 TPM
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
+│   ├── install-ghostty-config.sh # 安装 Ghostty 配置到 ~/.config/ghostty
 │   ├── install-kimi-config.sh  # 安装 Kimi Code 主题到 ~/.kimi-code/themes
 │   ├── install-pi-extensions.sh # 安装 Pi extensions
 │   ├── install-opencode-config.py # 安装 opencode provider 配置
 │   ├── install-pi-config.py    # 安装 Pi models/settings/themes 配置
 │   ├── install-agents.sh       # 安装 AGENTS.md 规则（脚本内声明 agent 与 prompt 的关联）
 │   ├── agents/                 # 按语义命名的 AGENTS.md 提示词
+│   ├── ghostty/                # Ghostty 配置
+│   │   └── config              # 字体、Dark Modern 主题、滚动与剪贴板行为
 │   │   ├── inline-functions.md # 优先内联小函数，避免抽出过小的 helper
 │   │   ├── editing-constraints.md # 编辑约束：ASCII 优先、read/replace 编辑、脏 worktree 保护
 │   │   └── git-safety.md       # git 状态修改需当轮明确授权
