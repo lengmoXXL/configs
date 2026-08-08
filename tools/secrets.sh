@@ -55,10 +55,6 @@ require_oss_config_credentials() {
     fi
 }
 
-oss_args() {
-    printf '%s\n' --endpoint "$OSS_ENDPOINT" --config-file "$OSS_CONFIG_FILE"
-}
-
 ai_providers_object_uri() {
     printf '%s/%s\n' "${OSS_URI%/}" "$AI_PROVIDERS_SECRET"
 }
@@ -111,8 +107,7 @@ push_secrets() {
         exit 1
     fi
 
-    mapfile -t extra_args < <(oss_args)
-    ossutil cp "$AI_PROVIDERS_PATH" "$(ai_providers_object_uri)" --no-progress --force "${extra_args[@]}"
+    ossutil cp "$AI_PROVIDERS_PATH" "$(ai_providers_object_uri)" --no-progress --force --endpoint "$OSS_ENDPOINT" --config-file "$OSS_CONFIG_FILE"
 }
 
 pull_secrets() {
@@ -131,9 +126,7 @@ pull_secrets() {
     tmp_remote="$(mktemp)"
     trap 'rm -f "$tmp_remote"' RETURN
 
-    mapfile -t extra_args < <(oss_args)
-    ossutil cp "$(ai_providers_object_uri)" "$tmp_remote" --no-progress --force "${extra_args[@]}"
-
+    ossutil cp "$(ai_providers_object_uri)" "$tmp_remote" --no-progress --force --endpoint "$OSS_ENDPOINT" --config-file "$OSS_CONFIG_FILE"
     # JSON key 级合并：远端补充缺失 key，本地已有 key 不覆盖
     python3 - "$AI_PROVIDERS_PATH" "$tmp_remote" <<'EOF'
 import json, os, sys
