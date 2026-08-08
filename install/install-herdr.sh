@@ -92,7 +92,7 @@ esac
 
 tmp_dir=$(mktemp -d)
 download="${tmp_dir}/herdr"
-url="https://github.com/ogulcancelik/herdr/releases/download/${HERDR_VERSION}/${target}"
+url="https://github.com/herdrdev/herdr/releases/download/${HERDR_VERSION}/${target}"
 if [[ "$USE_CN" == "true" ]]; then
     url="${GITHUB_RELEASE_PROXY}${url}"
 fi
