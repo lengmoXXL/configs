@@ -1,23 +1,9 @@
 #!/bin/bash
-# 安装 Pi Agent 全局扩展 packages 到 ~/.pi/agent
+# 更新 Pi Agent 全局扩展 packages（列表以 ~/.pi/agent/settings.json 的 packages 为准，
+# pi 启动时会自动安装缺失的 packages），并安装本仓库的自定义扩展到 ~/.pi/agent
 
 set -euo pipefail
 
-PLAN_MODE_PACKAGE="@narumitw/pi-plan-mode"
-PLAN_MODE_VERSION="0.44.0"
-PLAN_MODE_SOURCE="npm:${PLAN_MODE_PACKAGE}@${PLAN_MODE_VERSION}"
-SIMPLIFY_PACKAGE="pi-simplify"
-SIMPLIFY_VERSION="0.2.3"
-SIMPLIFY_SOURCE="npm:${SIMPLIFY_PACKAGE}@${SIMPLIFY_VERSION}"
-SUBAGENTS_REPO="github.com/nicobailon/pi-subagents"
-SUBAGENTS_VERSION="v0.40.0"
-SUBAGENTS_SOURCE="git:${SUBAGENTS_REPO}@${SUBAGENTS_VERSION}"
-HASHLINE_PACKAGE="pi-hashline-edit-pro"
-HASHLINE_VERSION="0.20.0"
-HASHLINE_SOURCE="npm:${HASHLINE_PACKAGE}@${HASHLINE_VERSION}"
-FOOTER_PACKAGE="pi-footer"
-FOOTER_VERSION="0.5.1"
-FOOTER_SOURCE="npm:${FOOTER_PACKAGE}@${FOOTER_VERSION}"
 USE_CN=false
 NPM_REGISTRY=""
 
@@ -25,12 +11,7 @@ usage() {
     cat << EOF
 用法: $0 [-cn] [--registry URL]
 
-安装 Pi extensions:
-  ${PLAN_MODE_SOURCE}
-  ${SIMPLIFY_SOURCE}
-  ${SUBAGENTS_SOURCE}
-  ${HASHLINE_SOURCE}
-  ${FOOTER_SOURCE}
+按 settings.json 的 packages 更新 Pi extensions 到最新，并安装本仓库的自定义扩展。
 
 选项:
   -cn             使用 npmmirror npm registry
@@ -78,10 +59,8 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-for source in "$PLAN_MODE_SOURCE" "$SIMPLIFY_SOURCE" "$SUBAGENTS_SOURCE" "$HASHLINE_SOURCE" "$FOOTER_SOURCE"; do
-    echo "安装 Pi extension: $source"
-    pi install "$source"
-done
+echo "按 settings.json 更新 Pi packages 到最新..."
+pi update --extensions
 
 bash "$SCRIPT_DIR/pi/extensions/install-extensions.sh"
 
