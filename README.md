@@ -24,6 +24,7 @@ configs/
 │   ├── install-fd.sh           # 安装 fd 到 ~/.local/bin
 │   ├── install-fonts.sh        # 安装 Nerd Fonts 字体 (sarasa/aurulent/droid)
 │   ├── install-go.sh           # 安装 Go 到 ~/.local/go
+│   ├── install-ghostty-terminfo.sh # 在服务器安装 xterm-ghostty terminfo（内嵌条目，无需联网）
 │   ├── install-herdr.sh        # 从 GitHub Release 安装/更新 Herdr
 │   ├── install-hermes-agent.sh # 安装 Hermes Agent
 │   ├── install-kimi.sh        # 通过官方脚本安装/更新 Kimi Code CLI
