@@ -25,3 +25,6 @@ prefix = "ctrl+space"
 pane_borders = true
 pane_gaps = false
 hide_tab_bar_when_single_tab = true
+
+[experimental]
+kitty_graphics = true
