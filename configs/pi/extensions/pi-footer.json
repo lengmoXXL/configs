@@ -24,11 +24,31 @@
         }
       },
       {
-        "id": "tokens",
-        "type": "tokens",
+        "id": "context-length",
+        "type": "context-length",
         "enabled": true,
         "options": {
-          "fg": "pi:success",
+          "fg": "pi:warning",
+          "raw": true,
+          "tokenFormatStyle": "compact"
+        }
+      },
+      {
+        "id": "context-sep",
+        "type": "separator",
+        "enabled": true,
+        "options": {
+          "fg": "pi:warning",
+          "separator": "custom",
+          "text": "/"
+        }
+      },
+      {
+        "id": "context-window",
+        "type": "context-window",
+        "enabled": true,
+        "options": {
+          "fg": "pi:warning",
           "raw": true,
           "tokenFormatStyle": "compact"
         }
