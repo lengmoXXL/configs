@@ -1,5 +1,7 @@
-// Automatic MAX/MIN coding loop: stops after consecutive no-change phases; an aborted phase keeps loop state and
-// resumes on the next prompt.
+// Automatic MAX/MIN coding loop: the start command arms its mode (switches when the other mode is active, disables when
+// its own mode is active); round 1 begins on the user's next prompt; phases then alternate automatically and round
+// increments on every switch; stops after consecutive no-change phases; an aborted phase keeps loop state and resumes
+// on the next prompt.
 
 import { createHash } from "node:crypto";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
@@ -28,8 +30,7 @@ on the next message.`;
 // before_agent_start only fires for real user prompts; automated phases receive the rules via the control message.
 const LOOP_PROMPT = `## Automatic MAX/MIN loop
 
-The current user request starts an automatic alternating implementation loop. The start command picks the first mode, and the
-latest <max_min_control> message is authoritative for the current phase.
+The latest <max_min_control> message is authoritative for the current phase.
 
 ${LOOP_RULES}`;
 
@@ -45,7 +46,6 @@ async function getWorkspaceSignature(pi: ExtensionAPI, cwd: string): Promise<str
 
 export default function (pi: ExtensionAPI) {
 	let enabled = false;
-	let startMode: Mode = "max";
 	let mode: Mode | undefined;
 	let round = 0;
 	let noChangeStreak = 0;
@@ -60,24 +60,33 @@ export default function (pi: ExtensionAPI) {
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = undefined;
-		if (enabled) {
-			ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", startMode.toUpperCase()));
-		} else {
-			ctx.ui.setStatus(STATUS_KEY, undefined);
-		}
+		ctx.ui.setStatus(STATUS_KEY, undefined);
 	};
 
 	const registerLoopCommand = (name: string, first: Mode) => {
 		pi.registerCommand(name, {
-			description: `Toggle the automatic MAX/MIN coding loop starting with ${first.toUpperCase()}`,
+			description: `Start or switch the MAX/MIN loop to ${first.toUpperCase()} mode; run again to disable`,
 			handler: async (_args, ctx) => {
-				enabled = !enabled;
-				if (enabled) startMode = first;
-				reset(ctx);
-				ctx.ui.notify(
-					enabled ? `MAX/MIN loop enabled (starts with ${first.toUpperCase()})` : "MAX/MIN loop disabled",
-					"info",
-				);
+				if (enabled && mode === first) {
+					enabled = false;
+					reset(ctx);
+					ctx.ui.notify("MAX/MIN loop disabled", "info");
+				} else {
+					const switched = enabled;
+					enabled = true;
+					reset(ctx);
+					mode = first;
+					round = 1;
+					ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
+					ctx.ui.notify(
+						switched
+							? `MAX/MIN loop switched to ${first.toUpperCase()}; round 1 begins on your next message`
+							: `MAX/MIN loop enabled (starts with ${first.toUpperCase()}); round 1 begins on your next message`,
+						"info",
+					);
+				}
+				// Stop any in-flight phase so the new loop state takes effect immediately.
+				if (!ctx.isIdle()) ctx.abort();
 			},
 		});
 	};
@@ -90,17 +99,18 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => {
-		if (!enabled) return undefined;
-		if (mode === undefined) {
-			mode = startMode;
-			round = 1;
-		}
+		if (!enabled || mode === undefined) return undefined;
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = await getWorkspaceSignature(pi, ctx.cwd);
-		const label = `${mode.toUpperCase()} ${round}`;
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", label));
-		return { systemPrompt: `${event.systemPrompt}\n\n${LOOP_PROMPT}` };
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
+		return {
+			systemPrompt: `${event.systemPrompt}
+
+${LOOP_PROMPT}
+
+Current phase: ${mode.toUpperCase()} mode, round ${round}.`,
+		};
 	});
 
 	pi.on("tool_result", (event) => {
@@ -167,8 +177,7 @@ export default function (pi: ExtensionAPI) {
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = endSignature;
-		const label = `${mode.toUpperCase()} ${round}`;
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", label));
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
 		const streakNote =
 			noChangeStreak > 0
 				? `\nThe previous phase made no file changes (${noChangeStreak} consecutive; the loop stops at ${NO_CHANGE_PHASES_TO_STOP}).`
