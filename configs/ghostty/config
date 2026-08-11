@@ -13,22 +13,7 @@ minimum-contrast = 1.1
 # 增加行距，显示更透气
 adjust-cell-height = 5%
 
-# 窗口
-window-padding-x = 8
-window-padding-y = 6
-window-decoration = true
-macos-titlebar-style = hidden
-window-save-state = always
-# 查看所有 tab 的总览并切换
-keybind = super+shift+o=toggle_tab_overview
-
 # 主题: Kitty Default（Ghostty 内置），背景与 nvim vscode 主题一致
 theme = Kitty Default
 background = 181818
 
-# 行为
-scrollback-limit = 100000
-confirm-close-surface = false
-quit-after-last-window-closed = true
-mouse-hide-while-typing = true
-copy-on-select = clipboard
