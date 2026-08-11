@@ -59,6 +59,9 @@ def main() -> int:
             (target / "auth.json").chmod(0o600)
         shutil.copy2(source / "settings.json", target / "settings.json")
         shutil.copytree(source / "themes", target / "themes", dirs_exist_ok=True)
+        ext_target = target / "extensions"
+        ext_target.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source / "pi-footer.json", ext_target / "pi-footer.json")
         print(f"installed: {target}")
         return 0
     except (KeyError, OSError, TypeError, json.JSONDecodeError, ValueError) as exc:

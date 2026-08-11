@@ -59,9 +59,9 @@ configs/
 │   ├── install-herdr-config.sh # 安装 Herdr 配置到 ~/.config/herdr
 │   ├── install-ghostty-config.sh # 安装 Ghostty 配置到 ~/.config/ghostty
 │   ├── install-kimi-config.sh  # 安装 Kimi Code 主题到 ~/.kimi-code/themes
-│   ├── install-pi-extensions.sh # 安装 Pi extensions
+│   ├── install-pi-extensions.sh # 安装自研 Pi extensions
 │   ├── install-opencode-config.py # 安装 opencode provider 配置
-│   ├── install-pi-config.py    # 安装 Pi models/settings/themes 配置
+│   ├── install-pi-config.py    # 安装 Pi models/settings/themes/pi-footer 配置
 │   ├── install-agents.sh       # 安装 AGENTS.md 规则（脚本内声明 agent 与 prompt 的关联）
 │   ├── agents/                 # 按语义命名的 AGENTS.md 提示词
 │   ├── ghostty/                # Ghostty 配置
@@ -86,12 +86,12 @@ configs/
 │   │   └── opencode.json       # Provider/model 配置（apiKey 引用 secrets KV）
 │   ├── pi/                     # Pi 配置
 │   │   ├── models.json         # Pi provider/model 配置（apiKey 引用 secrets KV）
-│   │   ├── settings.json       # Pi 默认设置
-│   │   ├── extensions/         # Pi 自定义扩展（安装到 ~/.pi/agent/extensions）
+│   │   ├── settings.json       # Pi 默认设置（packages 声明外部插件，pi 启动时自动安装）
+│   │   ├── pi-footer.json      # pi-footer 插件配置：模型、思考深度、上下文与右侧 MIN/MAX 状态
+│   │   ├── extensions/         # 自研 Pi 扩展（安装到 ~/.pi/agent/extensions）
 │   │   │   ├── bash-highlight.ts # bash 工具调用命令的 shell 关键词高亮（执行委托内置实现）
 │   │   │   ├── flat-editor.ts  # 扁平无边框输入框：3 行高、› 提示符、灰背景
-│   │   │   ├── max-min.ts      # /max-loop、/min-loop 启动 MAX/MIN 循环，连续三次无变更退出，打断保留状态
-│   │   │   └── pi-footer.json  # Pi footer：模型、思考深度、用量与右侧 MIN/MAX 状态
+│   │   │   └── max-min.ts      # /max-loop、/min-loop 启动 MAX/MIN 循环，连续三次无变更退出，打断保留状态
 │   │   └── themes/             # Pi 主题 JSON 文件
 │   │       └── gray.json
 │   └── tmux/                   # tmux 配置
