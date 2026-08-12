@@ -1,12 +1,13 @@
 #!/bin/bash
-# Install or update Codex CLI binary from GitHub Releases.
+# Install or update Codex CLI binaries from GitHub Releases.
 # The installed version is pinned here; use tools/github-release-latest.sh to check updates.
 
 set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
-CODEX_VERSION="0.146.1"
+CODE_MODE_HOST_BIN="${BIN_DIR}/codex-code-mode-host"
+CODEX_VERSION="0.147.0"
 CURL_USER_AGENT="configs-install-codex"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
@@ -37,7 +38,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-for dep in curl sed tar find install uname mktemp; do
+for dep in curl sed tar install uname mktemp; do
     if ! command -v "$dep" &>/dev/null; then
         echo "错误: 缺少依赖 $dep"
         exit 1
@@ -98,21 +99,23 @@ else
 
     version_cmp=$(compare_versions "$local_version" "$CODEX_VERSION")
     if [[ "$version_cmp" == "0" ]]; then
-        echo "Codex 已是目标版本"
-        exit 0
-    fi
-
-    if [[ "$version_cmp" == "1" ]]; then
+        if [[ -x "$CODE_MODE_HOST_BIN" ]]; then
+            echo "Codex 已是目标版本"
+            exit 0
+        fi
+        echo "Codex 已是目标版本，但缺少 codex-code-mode-host，将补充安装"
+        should_install=true
+    elif [[ "$version_cmp" == "1" ]]; then
         echo "本地 Codex 版本高于目标版本，不执行更新"
         exit 0
+    else
+        answer=""
+        read -r -p "是否更新 Codex 到 ${CODEX_VERSION}? [y/N] " answer || true
+        case "$answer" in
+            y | Y | yes | YES) should_install=true ;;
+            *) echo "已取消更新"; exit 0 ;;
+        esac
     fi
-
-    answer=""
-    read -r -p "是否更新 Codex 到 ${CODEX_VERSION}? [y/N] " answer || true
-    case "$answer" in
-        y | Y | yes | YES) should_install=true ;;
-        *) echo "已取消更新"; exit 0 ;;
-    esac
 fi
 
 if [[ "$should_install" != "true" ]]; then
@@ -131,8 +134,8 @@ case "$os:$arch" in
 esac
 
 tmp_dir=$(mktemp -d)
-tarball="${tmp_dir}/codex.tar.gz"
-url="https://github.com/openai/codex/releases/download/${target_tag}/codex-${target}.tar.gz"
+tarball="${tmp_dir}/codex-package.tar.gz"
+url="https://github.com/openai/codex/releases/download/${target_tag}/codex-package-${target}.tar.gz"
 if [[ "$USE_CN" == "true" ]]; then
     url="${GITHUB_RELEASE_PROXY}${url}"
 fi
@@ -146,13 +149,15 @@ echo "下载 Codex ${CODEX_VERSION} (${target})..."
 curl -fL -H "User-Agent: ${CURL_USER_AGENT}" "$url" -o "$tarball"
 tar -xzf "$tarball" -C "$tmp_dir"
 
-codex_binary=$(find "$tmp_dir" -type f \( -name "codex-${target}" -o -name codex \) | head -1)
-if [[ -z "$codex_binary" ]]; then
-    echo "错误: Codex 压缩包中没有找到二进制文件"
+codex_binary="${tmp_dir}/bin/codex"
+code_mode_host_binary="${tmp_dir}/bin/codex-code-mode-host"
+if [[ ! -f "$codex_binary" || ! -f "$code_mode_host_binary" ]]; then
+    echo "错误: Codex 压缩包中缺少 codex 或 codex-code-mode-host 二进制文件"
     exit 1
 fi
 
 mkdir -p "$BIN_DIR"
+install -m 755 "$code_mode_host_binary" "$CODE_MODE_HOST_BIN"
 install -m 755 "$codex_binary" "$CODEX_BIN"
 
 echo "Codex 安装完成: $CODEX_BIN"
