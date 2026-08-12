@@ -1,7 +1,7 @@
 // Automatic MAX/MIN coding loop: the start command arms its mode (switches when the other mode is active, disables when
 // its own mode is active); round 1 begins on the user's next prompt; phases then alternate automatically and round
-// increments on every switch; stops after consecutive no-change phases; an aborted phase keeps loop state and resumes
-// on the next prompt.
+// increments on every switch; stops after consecutive no-change phases; enabling or switching mid-run leaves the
+// in-flight turn untouched (it is not a loop phase and its settle is ignored); an aborted phase keeps loop state.
 
 import { createHash } from "node:crypto";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
@@ -45,14 +45,13 @@ async function getWorkspaceSignature(pi: ExtensionAPI, cwd: string): Promise<str
 }
 
 export default function (pi: ExtensionAPI) {
-	let enabled = false;
-	let mode: Mode | undefined;
+	let mode: Mode | undefined; // undefined = loop off, which also implies phaseInFlight === false
 	let round = 0;
 	let noChangeStreak = 0;
 	let phaseStopReason: string | undefined;
 	let phaseChangedByTool = false;
 	let phaseStartSignature: string | undefined;
-
+	let phaseInFlight = false;
 	const reset = (ctx: ExtensionContext) => {
 		mode = undefined;
 		round = 0;
@@ -60,6 +59,7 @@ export default function (pi: ExtensionAPI) {
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = undefined;
+		phaseInFlight = false;
 		ctx.ui.setStatus(STATUS_KEY, undefined);
 	};
 
@@ -67,13 +67,11 @@ export default function (pi: ExtensionAPI) {
 		pi.registerCommand(name, {
 			description: `Start or switch the MAX/MIN loop to ${first.toUpperCase()} mode; run again to disable`,
 			handler: async (_args, ctx) => {
-				if (enabled && mode === first) {
-					enabled = false;
+				if (mode === first) {
 					reset(ctx);
 					ctx.ui.notify("MAX/MIN loop disabled", "info");
 				} else {
-					const switched = enabled;
-					enabled = true;
+					const switched = mode !== undefined;
 					reset(ctx);
 					mode = first;
 					round = 1;
@@ -85,8 +83,6 @@ export default function (pi: ExtensionAPI) {
 						"info",
 					);
 				}
-				// Stop any in-flight phase so the new loop state takes effect immediately.
-				if (!ctx.isIdle()) ctx.abort();
 			},
 		});
 	};
@@ -94,12 +90,12 @@ export default function (pi: ExtensionAPI) {
 	registerLoopCommand("min-loop", "min");
 
 	pi.on("session_start", (_event, ctx) => {
-		enabled = false;
 		reset(ctx);
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => {
-		if (!enabled || mode === undefined) return undefined;
+		if (mode === undefined) return undefined;
+		phaseInFlight = true;
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = await getWorkspaceSignature(pi, ctx.cwd);
@@ -126,57 +122,54 @@ Current phase: ${mode.toUpperCase()} mode, round ${round}.`,
 
 	pi.on("agent_end", (event) => {
 		if (!mode) return;
-		const assistant = [...event.messages].reverse().find((message) => message.role === "assistant");
+		const assistant = event.messages.findLast((message) => message.role === "assistant");
 		if (!assistant) return;
 		phaseStopReason = assistant.stopReason;
 	});
 
 	pi.on("agent_settled", async (_event, ctx) => {
-		if (!mode) return;
+		if (!mode || !phaseInFlight) return;
+		phaseInFlight = false;
 
 		if (phaseStopReason === "aborted") {
 			ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `${mode.toUpperCase()} ${round}`));
 			return;
 		}
 
-		// The session is idle while this handler awaits, so a user prompt can interleave and reset
-		// phase state via before_agent_start; snapshot everything needed before the first await.
+		// The session is idle while this handler awaits, so a user prompt or loop command can interleave
+		// and re-arm state; bail out if that happened. There are no awaits below, so state stays stable.
 		const settledMode = mode;
-		const settledRound = round;
-		const settledStopReason = phaseStopReason;
-		const settledChangedByTool = phaseChangedByTool;
-		const settledStartSignature = phaseStartSignature;
 		const endSignature = await getWorkspaceSignature(pi, ctx.cwd);
+		if (phaseInFlight || mode !== settledMode) return;
 		const changed =
-			settledChangedByTool ||
-			(settledStartSignature !== undefined && endSignature !== undefined && settledStartSignature !== endSignature);
+			phaseChangedByTool ||
+			(phaseStartSignature !== undefined && endSignature !== undefined && phaseStartSignature !== endSignature);
 		noChangeStreak = changed ? 0 : noChangeStreak + 1;
 
-		if (settledStopReason !== "stop") {
-			enabled = false;
-			reset(ctx);
+		if (phaseStopReason !== "stop") {
 			ctx.ui.notify(
-				`MAX/MIN stopped after round ${settledRound}: phase ended with ${settledStopReason ?? "no assistant result"}`,
+				`MAX/MIN stopped after round ${round}: phase ended with ${phaseStopReason ?? "no assistant result"}`,
 				"warning",
 			);
+			reset(ctx);
 			return;
 		}
 
 		if (noChangeStreak >= NO_CHANGE_PHASES_TO_STOP) {
-			enabled = false;
-			reset(ctx);
 			ctx.ui.notify(
-				`MAX/MIN stopped after round ${settledRound}: ${NO_CHANGE_PHASES_TO_STOP} consecutive phases made no changes`,
+				`MAX/MIN stopped after round ${round}: ${NO_CHANGE_PHASES_TO_STOP} consecutive phases made no changes`,
 				"info",
 			);
+			reset(ctx);
 			return;
 		}
 
 		mode = settledMode === "max" ? "min" : "max";
-		round = settledRound + 1;
+		round += 1;
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = endSignature;
+		phaseInFlight = true;
 		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
 		const streakNote =
 			noChangeStreak > 0
