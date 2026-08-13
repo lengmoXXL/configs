@@ -102,7 +102,7 @@ EOF
 }
 
 install_rg() {
-    local version arch target url tmp_dir tarball rg_bin existing_rg
+    local version os arch target url tmp_dir tarball rg_bin existing_rg
 
     existing_rg="$(command -v rg 2>/dev/null || true)"
     if [[ -z "$existing_rg" && -x "$BIN_DIR/rg" ]]; then
@@ -117,11 +117,14 @@ install_rg() {
 
     version="$RIPGREP_VERSION"
 
+    os=$(uname -s)
     arch=$(uname -m)
-    case "$arch" in
-        x86_64) target="x86_64-unknown-linux-musl" ;;
-        aarch64 | arm64) target="aarch64-unknown-linux-gnu" ;;
-        *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+    case "${os}-${arch}" in
+        Darwin-x86_64) target="x86_64-apple-darwin" ;;
+        Darwin-arm64) target="aarch64-apple-darwin" ;;
+        Linux-x86_64) target="x86_64-unknown-linux-musl" ;;
+        Linux-aarch64 | Linux-arm64) target="aarch64-unknown-linux-gnu" ;;
+        *) echo "错误: 不支持的平台 ${os}-${arch}"; exit 1 ;;
     esac
 
     url="https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-${target}.tar.gz"
