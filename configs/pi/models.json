@@ -29,6 +29,27 @@
           "maxTokens": 65536
         }
       ]
+    },
+    "zai-coding-cn": {
+      "models": [
+        {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": "low",
+            "low": "low",
+            "medium": "high",
+            "high": "high",
+            "xhigh": "max",
+            "max": "max"
+          },
+          "input": ["text"],
+          "contextWindow": 1000000,
+          "maxTokens": 131072
+        }
+      ]
     }
   }
 }
