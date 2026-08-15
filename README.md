@@ -91,7 +91,7 @@ configs/
 │   │   ├── extensions/         # 自研 Pi 扩展（安装到 ~/.pi/agent/extensions）
 │   │   │   ├── bash-highlight.ts # bash 工具调用命令的 shell 关键词高亮（执行委托内置实现）
 │   │   │   ├── flat-editor.ts  # 扁平无边框输入框：3 行高、› 提示符、灰背景
-│   │   │   └── max-min.ts      # /max-loop、/min-loop 启动 MAX/MIN 循环，连续三次无变更退出，打断保留状态
+│   │   │   └── max-min.ts      # /max-loop、/min-loop 启动 MAX/MIN 循环，working 中执行会打断并自动进入，连续三次无变更退出，打断保留状态
 │   │   └── themes/             # Pi 主题 JSON 文件
 │   │       └── gray.json
 │   └── tmux/                   # tmux 配置

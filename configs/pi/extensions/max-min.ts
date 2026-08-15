@@ -1,9 +1,9 @@
-// Automatic MAX/MIN coding loop: the start command arms its mode (switches when the other mode is active, disables when
-// its own mode is active); round 1 begins on the user's next prompt; phases then alternate automatically and round
-// increments on every switch; stops after consecutive no-change phases; enabling or switching mid-run leaves the
-// in-flight turn untouched (it is not a loop phase and its settle is ignored); an aborted phase keeps loop state.
+// Automatic MAX/MIN coding loop. `mode` (undefined = off) is the phase that is running, queued, or paused. Each
+// completed phase queues the next one with the opposite mode; an aborted phase keeps mode and round and resumes; the
+// loop stops after consecutive no-change phases.
 
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 type Mode = "max" | "min";
@@ -34,24 +34,21 @@ The latest <max_min_control> message is authoritative for the current phase.
 
 ${LOOP_RULES}`;
 
-async function getWorkspaceSignature(pi: ExtensionAPI, cwd: string): Promise<string | undefined> {
-	const [status, unstaged, staged] = await Promise.all([
-		pi.exec("git", ["status", "--porcelain=v1", "--untracked-files=all"], { cwd, timeout: 5_000 }),
-		pi.exec("git", ["diff", "--no-ext-diff", "--binary", "--"], { cwd, timeout: 5_000 }),
-		pi.exec("git", ["diff", "--cached", "--no-ext-diff", "--binary", "--"], { cwd, timeout: 5_000 }),
-	]);
-	if (status.code !== 0 || unstaged.code !== 0 || staged.code !== 0) return undefined;
-	return createHash("sha256").update(status.stdout).update(unstaged.stdout).update(staged.stdout).digest("hex");
+function getWorkspaceSignature(cwd: string): string | undefined {
+	const status = spawnSync("git", ["status", "--porcelain=v1", "--untracked-files=all"], { cwd, timeout: 5_000 });
+	const diff = spawnSync("git", ["diff", "HEAD", "--no-ext-diff", "--binary", "--"], { cwd, timeout: 5_000 });
+	if (status.status !== 0 || diff.status !== 0) return undefined;
+	return createHash("sha256").update(status.stdout).update(diff.stdout).digest("hex");
 }
 
 export default function (pi: ExtensionAPI) {
-	let mode: Mode | undefined; // undefined = loop off, which also implies phaseInFlight === false
+	let mode: Mode | undefined; // undefined = loop off
 	let round = 0;
 	let noChangeStreak = 0;
 	let phaseStopReason: string | undefined;
 	let phaseChangedByTool = false;
 	let phaseStartSignature: string | undefined;
-	let phaseInFlight = false;
+
 	const reset = (ctx: ExtensionContext) => {
 		mode = undefined;
 		round = 0;
@@ -59,8 +56,22 @@ export default function (pi: ExtensionAPI) {
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = undefined;
-		phaseInFlight = false;
 		ctx.ui.setStatus(STATUS_KEY, undefined);
+	};
+
+	const setStatus = (ctx: ExtensionContext, letter: Mode) => {
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(letter === "max" ? "accent" : "muted", `${letter.toUpperCase()} ${round}`));
+	};
+
+	const sendControl = (letter: Mode, streakNote = "") => {
+		pi.sendMessage(
+			{
+				customType: "max-min-control",
+				content: `<max_min_control mode="${letter}" round="${round}">\nEnter ${letter.toUpperCase()} mode now. Re-evaluate the original user goal using the current workspace and prior phase results.${streakNote}\n\n${LOOP_RULES}\n</max_min_control>`,
+				display: false,
+			},
+			{ triggerTurn: true, deliverAs: "followUp" },
+		);
 	};
 
 	const registerLoopCommand = (name: string, first: Mode) => {
@@ -70,19 +81,27 @@ export default function (pi: ExtensionAPI) {
 				if (mode === first) {
 					reset(ctx);
 					ctx.ui.notify("MAX/MIN loop disabled", "info");
-				} else {
-					const switched = mode !== undefined;
-					reset(ctx);
-					mode = first;
-					round = 1;
-					ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
-					ctx.ui.notify(
-						switched
-							? `MAX/MIN loop switched to ${first.toUpperCase()}; round 1 begins on your next message`
-							: `MAX/MIN loop enabled (starts with ${first.toUpperCase()}); round 1 begins on your next message`,
-						"info",
-					);
+					return;
 				}
+				const switched = mode !== undefined;
+				const interrupted = !ctx.isIdle();
+				reset(ctx);
+				mode = first;
+				round = 1;
+				setStatus(ctx, first);
+				if (interrupted) {
+					ctx.abort();
+					sendControl(first);
+				}
+				const startNote = interrupted
+					? "the running turn was interrupted and round 1 starts when it ends"
+					: "round 1 begins on your next message";
+				ctx.ui.notify(
+					switched
+						? `MAX/MIN loop switched to ${first.toUpperCase()}; ${startNote}`
+						: `MAX/MIN loop enabled (starts with ${first.toUpperCase()}); ${startNote}`,
+					"info",
+				);
 			},
 		});
 	};
@@ -93,13 +112,12 @@ export default function (pi: ExtensionAPI) {
 		reset(ctx);
 	});
 
-	pi.on("before_agent_start", async (event, ctx) => {
+	pi.on("before_agent_start", (event, ctx) => {
 		if (mode === undefined) return undefined;
-		phaseInFlight = true;
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
-		phaseStartSignature = await getWorkspaceSignature(pi, ctx.cwd);
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
+		phaseStartSignature = getWorkspaceSignature(ctx.cwd);
+		setStatus(ctx, mode);
 		return {
 			systemPrompt: `${event.systemPrompt}
 
@@ -120,27 +138,29 @@ Current phase: ${mode.toUpperCase()} mode, round ${round}.`,
 		phaseChangedByTool = true;
 	});
 
-	pi.on("agent_end", (event) => {
+	pi.on("agent_end", (event, ctx) => {
 		if (!mode) return;
 		const assistant = event.messages.findLast((message) => message.role === "assistant");
 		if (!assistant) return;
 		phaseStopReason = assistant.stopReason;
+		if (phaseStopReason === "aborted") {
+			// Reset the change baseline for the resume.
+			phaseChangedByTool = false;
+			phaseStartSignature = getWorkspaceSignature(ctx.cwd);
+		}
 	});
 
-	pi.on("agent_settled", async (_event, ctx) => {
-		if (!mode || !phaseInFlight) return;
-		phaseInFlight = false;
+	pi.on("agent_settled", (_event, ctx) => {
+		if (mode === undefined) return;
 
+		// An aborted phase pauses: the queued control or the next prompt resumes it.
 		if (phaseStopReason === "aborted") {
-			ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("muted", `${mode.toUpperCase()} ${round}`));
+			setStatus(ctx, mode);
 			return;
 		}
 
-		// The session is idle while this handler awaits, so a user prompt or loop command can interleave
-		// and re-arm state; bail out if that happened. There are no awaits below, so state stays stable.
-		const settledMode = mode;
-		const endSignature = await getWorkspaceSignature(pi, ctx.cwd);
-		if (phaseInFlight || mode !== settledMode) return;
+		// A phase completed: settle it and queue the next one.
+		const endSignature = getWorkspaceSignature(ctx.cwd);
 		const changed =
 			phaseChangedByTool ||
 			(phaseStartSignature !== undefined && endSignature !== undefined && phaseStartSignature !== endSignature);
@@ -164,24 +184,16 @@ Current phase: ${mode.toUpperCase()} mode, round ${round}.`,
 			return;
 		}
 
-		mode = settledMode === "max" ? "min" : "max";
+		mode = mode === "max" ? "min" : "max";
 		round += 1;
 		phaseStopReason = undefined;
 		phaseChangedByTool = false;
 		phaseStartSignature = endSignature;
-		phaseInFlight = true;
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(mode === "max" ? "accent" : "muted", `${mode.toUpperCase()} ${round}`));
+		setStatus(ctx, mode);
 		const streakNote =
 			noChangeStreak > 0
 				? `\nThe previous phase made no file changes (${noChangeStreak} consecutive; the loop stops at ${NO_CHANGE_PHASES_TO_STOP}).`
 				: "";
-		pi.sendMessage(
-			{
-				customType: "max-min-control",
-				content: `<max_min_control mode="${mode}" round="${round}">\nEnter ${mode.toUpperCase()} mode now. Re-evaluate the original user goal using the current workspace and prior phase results.${streakNote}\n\n${LOOP_RULES}\n</max_min_control>`,
-				display: false,
-			},
-			{ triggerTurn: true, deliverAs: "followUp" },
-		);
+		sendControl(mode, streakNote);
 	});
 }
