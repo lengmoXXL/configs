@@ -30,6 +30,34 @@
         }
       ]
     },
+    "qwen-token-plan-cn": {
+      "baseUrl": "https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+      "api": "openai-completions",
+      "models": [
+        {
+          "id": "deepseek-v4-pro-0813",
+          "name": "DeepSeek V4 Pro 0813",
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "minimal": null,
+            "low": null,
+            "medium": null,
+            "high": "high",
+            "xhigh": null,
+            "max": "max"
+          },
+          "input": ["text"],
+          "contextWindow": 1000000,
+          "maxTokens": 384000,
+          "compat": {
+            "thinkingFormat": "qwen",
+            "supportsDeveloperRole": false,
+            "supportsStore": false,
+            "supportsReasoningEffort": true
+          }
+        }
+      ]
+    },
     "zai-coding-cn": {
       "models": [
         {

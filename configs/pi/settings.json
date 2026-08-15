@@ -22,8 +22,8 @@
   "enabledModels": [
     "deepseek/deepseek-v4-flash",
     "deepseek/deepseek-v4-pro",
-    "qwen-token-plan-cn/deepseek-v4-pro",
     "qwen-token-plan-cn/deepseek-v4-flash-0731",
+    "qwen-token-plan-cn/deepseek-v4-pro-0813",
     "qwen-token-plan-cn/qwen3.8-max",
     "zai-coding-cn/glm-5.3",
     "kimi-code/k3",
