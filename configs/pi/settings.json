@@ -1,7 +1,7 @@
 {
   "theme": "gray",
-  "defaultProvider": "kimi-code",
-  "defaultModel": "k3",
+  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek-v4-flash",
   "packages": [
     "npm:pi-simplify",
     "git:github.com/nicobailon/pi-subagents",
@@ -9,7 +9,7 @@
     "npm:@narumitw/pi-plan-mode",
     "npm:pi-footer"
   ],
-  "defaultThinkingLevel": "high",
+  "defaultThinkingLevel": "max",
   "hideThinkingBlock": true,
   "retry": {
     "enabled": true,
@@ -18,5 +18,15 @@
     "provider": {
       "maxRetries": 10
     }
-  }
+  },
+  "enabledModels": [
+    "deepseek/deepseek-v4-flash",
+    "deepseek/deepseek-v4-pro",
+    "qwen-token-plan-cn/deepseek-v4-pro",
+    "qwen-token-plan-cn/deepseek-v4-flash-0731",
+    "qwen-token-plan-cn/qwen3.8-max",
+    "zai-coding-cn/glm-5.3",
+    "kimi-code/k3",
+    "kimi-code/k3-256k"
+  ]
 }
