@@ -2,6 +2,9 @@
   "theme": "gray",
   "defaultProvider": "deepseek",
   "defaultModel": "deepseek-v4-flash",
+  "subagents": {
+    "defaultModel": "qwen-token-plan-cn/deepseek-v4-flash-0731"
+  },
   "packages": [
     "npm:pi-simplify",
     "git:github.com/nicobailon/pi-subagents",
