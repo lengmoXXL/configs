@@ -28,7 +28,6 @@ configs/
 │   ├── install-herdr.sh        # 从 GitHub Release 安装/更新 Herdr
 │   ├── install-hermes-agent.sh # 安装 Hermes Agent
 │   ├── install-kimi.sh        # 通过官方脚本安装/更新 Kimi Code CLI
-│   ├── install-mytask.sh       # 安装 mytask 工具
 │   ├── install-node.sh         # 安装 Node.js 到 ~/.local/node
 │   ├── install-nvim.sh         # 安装 Neovim（macOS 预编译包 / Linux 源码编译）
 │   ├── install-opencode.sh     # 从 GitHub Release 安装 opencode
