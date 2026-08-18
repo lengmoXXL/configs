@@ -40,7 +40,6 @@ configs/
 │   ├── install-tmux.sh         # 从源码编译安装 tmux
 │   ├── install-tree-sitter.sh  # 安装 tree-sitter-cli
 │   ├── install-zig.sh          # 安装 Zig 到 ~/.local/zig
-│   ├── install-zlib.sh         # 安装 zlib (Z-Library CLI) 到 ~/.local/bin
 │   ├── lsp/                    # LSP 安装脚本
 │   │   ├── install-bash-lsp.sh # 安装 bash-language-server
 │   │   ├── install-lua-lsp.sh  # 安装 lua-language-server
