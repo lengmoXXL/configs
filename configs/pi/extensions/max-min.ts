@@ -18,9 +18,9 @@ const LOOP_RULES = `MAX mode:
 - Do not add unrelated features or manufacture work merely to keep the loop running.
 
 MIN mode:
-- Preserve the behaviour required by the original request while deleting code that is unnecessary, redundant, duplicated, dead, or needlessly abstract.
-- Prefer a smaller and clearer implementation only when behaviour, public APIs, compatibility, error handling, and tests remain intact.
-- Do not broaden scope, rewrite code for taste alone, or modify unrelated and pre-existing user changes.
+- Every function, branch, option, comment, and abstraction must earn its place; remove what exists only out of caution or habit, and accept a small amount of duplication over a meaningless abstraction.
+- Keep required behaviour, public APIs, error handling, and tests intact; do not broaden scope or touch unrelated pre-existing changes.
+- Prefer doing this review through an available skill when one fits the task.
 
 In both modes, inspect the current code and existing project instructions, make only meaningful edits, run proportionate checks,
 and report honestly when the phase has no useful change to make. The loop stops automatically after ${NO_CHANGE_PHASES_TO_STOP}
