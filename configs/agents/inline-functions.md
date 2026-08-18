@@ -1,1 +1,2 @@
 - Prefer inlining small functions near their implementation over extracting tiny helper functions away from the implementation.
+- Prefer a small amount of duplication over extracting a helper that carries no meaningful abstraction of its own.

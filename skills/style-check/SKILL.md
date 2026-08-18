@@ -19,7 +19,7 @@ Confirm the review range before checking.
 
 ### Minimal Implementation
 
-For each changed part, decide whether it must exist and whether it can be part of another existing entity instead.
+For each changed part, decide whether it must exist and whether it can be part of another existing entity instead. A small amount of duplication is acceptable; flag helpers and abstractions that carry no meaningful abstraction of their own, even when they have multiple call sites.
 
 #### Example: Single-Use Helper
 
