@@ -3,6 +3,8 @@
 
 # 字体
 font-family = "DroidSansM Nerd Font Mono"
+# 回退字体：仓耳云黑，补齐主字体缺失的中文字形
+font-family = "TsangerYunHei"
 font-size = 13
 # 字体渲染优化
 # macOS 下加粗笔画，缓解细字体发虚

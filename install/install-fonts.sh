@@ -29,6 +29,9 @@ get_font_info() {
         droid)
             echo "DroidSansMono Nerd Font|$(github_release_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.0/DroidSansMono.zip")|zip"
             ;;
+        yunhei)
+            echo "TsangerYunHei W04 (仓耳云黑)|https://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BA%91%E9%BB%91-W04.ttf|ttf"
+            ;;
         *)
             return 1
             ;;
@@ -40,6 +43,7 @@ list_fonts() {
     echo "  sarasa   - Sarasa Term SC Nerd"
     echo "  aurulent - AurulentSansMono Nerd Font"
     echo "  droid    - DroidSansMono Nerd Font"
+    echo "  yunhei   - TsangerYunHei W04 (仓耳云黑)"
 }
 
 download_font() {
@@ -75,6 +79,12 @@ download_font() {
             ;;
         zip)
             unzip -o "$tmp_file" -d "$font_dir" >/dev/null
+            ;;
+        ttf)
+            # 单文件字体，还原 URL 里百分号编码的文件名
+            local filename
+            filename=$(basename "$url")
+            mv "$tmp_file" "$font_dir/$(printf '%b' "${filename//%/\\x}")"
             ;;
     esac
 
@@ -119,6 +129,7 @@ if [[ ${#FONT_NAMES[@]} -eq 0 ]]; then
     download_font "sarasa"
     download_font "aurulent"
     download_font "droid"
+    download_font "yunhei"
 else
     # 安装指定的字体
     for name in "${FONT_NAMES[@]}"; do
