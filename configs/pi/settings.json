@@ -9,6 +9,7 @@
     "npm:pi-simplify",
     "git:github.com/nicobailon/pi-subagents",
     "npm:pi-hashline-edit-pro",
+    "npm:pi-web-access",
     "npm:@narumitw/pi-plan-mode",
     "npm:pi-footer"
   ],
