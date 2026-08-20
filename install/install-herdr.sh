@@ -6,7 +6,7 @@ set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 HERDR_BIN="${BIN_DIR}/herdr"
-HERDR_VERSION="v0.8.0"
+HERDR_VERSION="v0.8.2"
 CURL_USER_AGENT="configs-install-herdr"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
