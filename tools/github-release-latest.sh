@@ -39,7 +39,7 @@ repo_for_package() {
         typos-lsp | typos) echo "tekumara/typos-lsp" ;;
         codex) echo "openai/codex" ;;
         opencode) echo "anomalyco/opencode" ;;
-        herdr) echo "ogulcancelik/herdr" ;;
+        herdr) echo "herdrdev/herdr" ;;
         hermes-agent) echo "NousResearch/hermes-agent" ;;
         sarasa) echo "laishulu/Sarasa-Term-SC-Nerd" ;;
         aurulent | droid | droidsansmono) echo "ryanoasis/nerd-fonts" ;;
