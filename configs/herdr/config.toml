@@ -6,8 +6,8 @@ panel_bg = "#181818"
 surface0 = "#1F1F1F"
 surface1 = "#252526"
 surface_dim = "#202020"
-overlay0 = "#303030"
-overlay1 = "#383838"
+overlay0 = "#3A3A3A"
+overlay1 = "#464646"
 text = "#D4D4D4"
 subtext0 = "#BBBBBB"
 mauve = "#C586C0"
@@ -23,6 +23,7 @@ prefix = "ctrl+space"
 
 [ui]
 pane_borders = true
+pane_outer_borders = false
 pane_gaps = false
 hide_tab_bar_when_single_tab = true
 
