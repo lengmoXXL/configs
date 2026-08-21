@@ -60,6 +60,7 @@ def main() -> int:
         shutil.copy2(source / "settings.json", target / "settings.json")
         shutil.copy2(source / "pi-plan-mode.json", target / "pi-plan-mode.json")
         shutil.copytree(source / "themes", target / "themes", dirs_exist_ok=True)
+        shutil.copytree(source / "agents", target / "agents", dirs_exist_ok=True)
         ext_target = target / "extensions"
         ext_target.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source / "pi-footer.json", ext_target / "pi-footer.json")

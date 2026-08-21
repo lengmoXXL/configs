@@ -26,6 +26,7 @@ interface DelegationRequest {
 	task: string;
 	context: "fresh" | "fork";
 	cwd: string;
+	model?: string;
 	timeoutMs?: number;
 	result: { kind: "structured"; schema: Record<string, unknown> };
 }
@@ -131,7 +132,7 @@ export default function (pi: ExtensionAPI) {
 			requestId,
 			ownerRunId: `refine-${ctx.sessionManager.getSessionId()}`,
 			nodeId: `refine-r${round}-${requestId.slice(0, 8)}`,
-			agent: "reviewer",
+			agent: "refiner",
 			task: `Refinement check, round ${round}.
 Acceptance criteria:
 ${criteria}
@@ -143,6 +144,8 @@ Report the verdict ONLY by calling the structured_output tool with
 { "passed": <boolean>, "findings": [<string>, ...] }; a prose-only final answer fails this step.`,
 			context: "fork",
 			cwd: ctx.cwd,
+			// Per-run override: inherit the main session model (frontmatter cannot bypass defaultModel).
+			model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined,
 			timeoutMs: CHECK_TIMEOUT_MS,
 			result: { kind: "structured", schema: FINDINGS_SCHEMA },
 		};
