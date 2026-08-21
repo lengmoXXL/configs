@@ -87,6 +87,7 @@ configs/
 │   │   ├── models.json         # Pi provider/model 配置（apiKey 引用 secrets KV）
 │   │   ├── settings.json       # Pi 默认设置（packages 声明外部插件，pi 启动时自动安装）
 │   │   ├── pi-footer.json      # pi-footer 插件配置：模型、思考深度、上下文与右侧 MIN/MAX 状态
+│   │   ├── pi-plan-mode.json   # pi-plan-mode 插件配置：plan 模式默认工具集（含 subagent 与 web 查询，排除写工具）
 │   │   ├── extensions/         # 自研 Pi 扩展（安装到 ~/.pi/agent/extensions）
 │   │   │   ├── bash-highlight.ts # bash 工具调用命令的 shell 关键词高亮（执行委托内置实现）
 │   │   │   ├── flat-editor.ts  # 扁平无边框输入框：3 行高、› 提示符、灰背景

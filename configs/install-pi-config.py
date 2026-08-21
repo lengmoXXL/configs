@@ -58,6 +58,7 @@ def main() -> int:
             )
             (target / "auth.json").chmod(0o600)
         shutil.copy2(source / "settings.json", target / "settings.json")
+        shutil.copy2(source / "pi-plan-mode.json", target / "pi-plan-mode.json")
         shutil.copytree(source / "themes", target / "themes", dirs_exist_ok=True)
         ext_target = target / "extensions"
         ext_target.mkdir(parents=True, exist_ok=True)
