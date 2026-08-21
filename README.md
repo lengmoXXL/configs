@@ -89,11 +89,11 @@ configs/
 │   │   ├── pi-footer.json      # pi-footer 插件配置：模型、思考深度、上下文与右侧 refine 轮次状态
 │   │   ├── pi-plan-mode.json   # pi-plan-mode 插件配置：plan 模式默认工具集（含 subagent 与 web 查询，排除写工具）
 │   │   ├── agents/             # pi-subagents 子代理定义（安装到 ~/.pi/agent/agents）
-│   │   │   └── refiner.md      # /refine 循环检查者：除写工具外全工具，模型随主会话，结构化 findings 输出
+│   │   │   └── verifier.md     # 只读检查者：按验收标准核查工作并输出结构化 findings（/refine 循环与通用检查复用）
 │   │   ├── extensions/         # 自研 Pi 扩展（安装到 ~/.pi/agent/extensions）
 │   │   │   ├── bash-highlight.ts # bash 工具调用命令的 shell 关键词高亮（执行委托内置实现）
 │   │   │   ├── flat-editor.ts  # 扁平无边框输入框：3 行高、› 提示符、灰背景
-│   │   │   └── refine.ts       # /refine <标准> 循环打磨：fork 上下文 refiner 子代理按验收标准检查，有问题注入修改指令后自动复查，通过退出
+│   │   │   └── refine.ts       # /refine <标准> 循环打磨：fork 上下文 verifier 子代理按验收标准检查，有问题注入修改指令后自动复查，通过退出
 │   │   └── themes/             # Pi 主题 JSON 文件
 │   │       └── gray.json
 │   └── tmux/                   # tmux 配置
