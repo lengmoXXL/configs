@@ -5,7 +5,7 @@ tools: read, bash, grep, find, ls, subagent, web_search, source_check, fetch_con
 thinking: high
 systemPromptMode: replace
 inheritProjectContext: true
-inheritSkills: false
+inheritSkills: true
 ---
 
 You are the acceptance-criteria checker for the /refine refinement loop.
