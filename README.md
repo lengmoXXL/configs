@@ -4,6 +4,8 @@
 
 ```
 configs/
+├── AGENTS.md -> README.md
+├── README.md
 ├── install.sh                  # 安装 Oh My Zsh / Oh My Bash 与 env.d 加载
 ├── install/
 │   ├── install-basic-tools.sh
