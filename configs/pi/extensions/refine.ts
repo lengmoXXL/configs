@@ -144,7 +144,7 @@ Report the verdict ONLY by calling the structured_output tool with
 { "passed": <boolean>, "findings": [<string>, ...] }; a prose-only final answer fails this step.`,
 			context: "fork",
 			cwd: ctx.cwd,
-			// Per-run override: inherit the main session model (frontmatter cannot bypass defaultModel).
+			// Per-run override: inherit the main session model.
 			model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined,
 			timeoutMs: CHECK_TIMEOUT_MS,
 			result: { kind: "structured", schema: FINDINGS_SCHEMA },
