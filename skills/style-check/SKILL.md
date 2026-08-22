@@ -41,6 +41,26 @@ if _, ok := values[key]; !ok {
 }
 ```
 
+### Self-Explanatory Code Over Comments
+
+Flag newly added comments that restate what the code already says: narrating the next line, translating a well-named identifier into prose, or labeling an obvious block. Prefer renaming or restructuring the code so it explains itself. A comment earns its place only when it says what code cannot: why a non-obvious decision was made, a workaround for an external quirk, or an invisible constraint.
+
+#### Example: Narrating Comment
+
+```go
+// check whether the user exists
+if _, ok := users[id]; !ok {
+	return ErrUserNotFound
+}
+```
+
+The comment duplicates the condition in prose. Delete it; the code already says what it does. The same applies to doc comments that merely repeat the signature:
+
+```go
+// GetUserByID returns the user with the given ID.
+func GetUserByID(id string) (*User, error) {
+```
+
 ### Over-Defensive Guards
 
 Flag newly added checks that only protect against caller misuse or impossible states when the surrounding contract should already guarantee the invariant.
