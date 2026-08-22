@@ -106,7 +106,7 @@ export default function (pi: ExtensionAPI) {
 			const command = typeof args?.command === "string" ? args.command : "";
 			const timeout = typeof args?.timeout === "number" ? args.timeout : undefined;
 
-			const prefix = theme.fg("toolTitle", theme.bold("$ "));
+			const prefix = theme.fg("muted", theme.bold("› "));
 			const body = command ? highlightShell(command, theme) : theme.fg("toolOutput", "...");
 			const suffix = timeout ? theme.fg("muted", ` (timeout ${timeout}s)`) : "";
 			return new Text(prefix + body + suffix, 0, 0);

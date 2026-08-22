@@ -4,7 +4,7 @@
   "vars": {
     "cyan": "#00d7ff",
     "blue": "#5f87ff",
-    "green": "#b5bd68",
+    "green": "#6e8d58",
     "red": "#cc6666",
     "yellow": "#ffff00",
     "amber": "#d4a646",
@@ -45,7 +45,7 @@
     "mdHeading": "#8abeb7",
     "mdLink": "#81a2be",
     "mdLinkUrl": "dimGray",
-    "mdCode": "accent",
+    "mdCode": "#e8e8e8",
     "mdCodeBlock": "green",
     "mdCodeBlockBorder": "gray",
     "mdQuote": "gray",
@@ -58,8 +58,8 @@
     "toolDiffContext": "dimGray",
 
     "syntaxComment": "#6A9955",
-    "syntaxKeyword": "#569CD6",
-    "syntaxFunction": "#DCDCAA",
+    "syntaxKeyword": "#C586C0",
+    "syntaxFunction": "#c0c0c0",
     "syntaxVariable": "#9CDCFE",
     "syntaxString": "#CE9178",
     "syntaxNumber": "#B5CEA8",
