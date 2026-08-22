@@ -102,3 +102,6 @@ vim.keymap.set('n', '<C-w>H', function()
   local wins = vim.api.nvim_tabpage_list_wins(0)
   vim.api.nvim_set_current_win(wins[1])
 end, { desc = 'Jump to leftmost window' })
+
+-- C-w F: open file:line under cursor in a right vertical split
+vim.keymap.set('n', '<C-w>F', '<cmd>botright vertical wincmd F<cr>', { desc = 'Open file:line in right split' })
