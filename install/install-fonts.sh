@@ -1,36 +1,28 @@
 #!/bin/bash
-# 下载 Nerd Fonts 字体
+# 从 OSS 下载字体到 fonts/ 目录
+# 可重入：重复执行覆盖同名文件
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FONTS_DIR="$SCRIPT_DIR/../fonts"
-USE_CN=false
-GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
+OSS_BASE_URL="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/fonts"
 
-github_release_url() {
-    local url="$1"
-
-    if [[ "$USE_CN" == "true" ]]; then
-        echo "${GITHUB_RELEASE_PROXY}${url}"
-    else
-        echo "$url"
-    fi
-}
-
-get_font_info() {
+# 每个字体对应的 OSS 文件清单（URL 编码形式）
+font_files() {
     case "$1" in
         sarasa)
-            echo "Sarasa Term SC Nerd|$(github_release_url "https://github.com/laishulu/Sarasa-Term-SC-Nerd/releases/download/v2.3.1/SarasaTermSCNerd.ttf.tar.gz")|tar.gz"
+            echo "SarasaTermSCNerd-Bold.ttf SarasaTermSCNerd-BoldItalic.ttf SarasaTermSCNerd-ExtraLight.ttf SarasaTermSCNerd-ExtraLightItalic.ttf SarasaTermSCNerd-Italic.ttf SarasaTermSCNerd-Light.ttf SarasaTermSCNerd-LightItalic.ttf SarasaTermSCNerd-Regular.ttf SarasaTermSCNerd-SemiBold.ttf SarasaTermSCNerd-SemiBoldItalic.ttf"
             ;;
         aurulent)
-            echo "AurulentSansMono Nerd Font|$(github_release_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.0/AurulentSansMono.zip")|zip"
+            echo "AurulentSansMNerdFont-Regular.otf AurulentSansMNerdFontMono-Regular.otf AurulentSansMNerdFontPropo-Regular.otf README.md SIL%20Open%20Font%20License.txt"
             ;;
         droid)
-            echo "DroidSansMono Nerd Font|$(github_release_url "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.0/DroidSansMono.zip")|zip"
+            # 打过补丁的版本：补了 U+25CB ○ 字形（herdr idle 符号）
+            echo "DroidSansMNerdFontMono-Regular.ttf"
             ;;
         yunhei)
-            echo "TsangerYunHei W04 (仓耳云黑)|https://tsanger.cn/download/%E4%BB%93%E8%80%B3%E4%BA%91%E9%BB%91-W04.ttf|ttf"
+            echo "%E4%BB%93%E8%80%B3%E4%BA%91%E9%BB%91-W04.ttf"
             ;;
         *)
             return 1
@@ -42,76 +34,41 @@ list_fonts() {
     echo "可用字体:"
     echo "  sarasa   - Sarasa Term SC Nerd"
     echo "  aurulent - AurulentSansMono Nerd Font"
-    echo "  droid    - DroidSansMono Nerd Font"
+    echo "  droid    - DroidSansMono Nerd Font（含 ○ 补丁）"
     echo "  yunhei   - TsangerYunHei W04 (仓耳云黑)"
 }
 
 download_font() {
-    local name="$1"
-    local info
-
-    case "$name" in
-        droidsansmono | DroidSansMono) name="droid" ;;
-    esac
-
-    if ! info=$(get_font_info "$name"); then
+    local name="$1" files
+    if ! files=$(font_files "$name"); then
         echo "错误: 未知字体 '$name'"
         list_fonts
         return 1
     fi
 
-    local display_name url format
-    display_name=$(echo "$info" | cut -d'|' -f1)
-    url=$(echo "$info" | cut -d'|' -f2)
-    format=$(echo "$info" | cut -d'|' -f3)
-
-    echo "下载 $display_name ..."
-
-    local tmp_file="$TMPDIR/font.$format"
-    curl -fL "$url" -o "$tmp_file"
-
     local font_dir="$FONTS_DIR/$name"
     mkdir -p "$font_dir"
 
-    case "$format" in
-        tar.gz)
-            tar -xzf "$tmp_file" -C "$font_dir"
-            ;;
-        zip)
-            unzip -o "$tmp_file" -d "$font_dir" >/dev/null
-            ;;
-        ttf)
-            # 单文件字体，还原 URL 里百分号编码的文件名
-            local filename
-            filename=$(basename "$url")
-            mv "$tmp_file" "$font_dir/$(printf '%b' "${filename//%/\\x}")"
-            ;;
-    esac
-
-    echo "  -> $font_dir"
+    local encoded filename
+    for encoded in $files; do
+        # 还原 URL 编码的文件名（空格、中文等）
+        filename=$(printf '%b' "${encoded//%/\\x}")
+        echo "下载 $name/$filename ..."
+        curl -fL "$OSS_BASE_URL/$name/$encoded" -o "$font_dir/$filename"
+    done
 }
 
 usage() {
-    echo "用法: $0 [-cn] [字体名...]"
+    echo "用法: $0 [字体名...]"
     echo ""
     list_fonts
-    echo ""
-    echo "选项:"
-    echo "  -cn      通过国内代理下载 GitHub Release 文件"
     echo ""
     echo "不带参数则安装全部字体"
 }
 
-mkdir -p "$FONTS_DIR"
-TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
-
 FONT_NAMES=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -124,18 +81,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ${#FONT_NAMES[@]} -eq 0 ]]; then
-    # 安装全部
     echo "安装全部字体..."
-    download_font "sarasa"
-    download_font "aurulent"
-    download_font "droid"
-    download_font "yunhei"
-else
-    # 安装指定的字体
-    for name in "${FONT_NAMES[@]}"; do
-        download_font "$name"
-    done
+    FONT_NAMES=(sarasa aurulent droid yunhei)
 fi
 
+for name in "${FONT_NAMES[@]}"; do
+    download_font "$name"
+done
+
 echo ""
-echo "字体已安装到: $FONTS_DIR"
