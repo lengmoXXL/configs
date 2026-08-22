@@ -11,8 +11,9 @@ OSS_BASE_URL="https://lengmo-asserts.oss-cn-beijing.aliyuncs.com/fonts"
 # 每个字体对应的 OSS 文件清单（URL 编码形式）
 font_files() {
     case "$1" in
-        sarasa)
-            echo "SarasaTermSCNerd-Bold.ttf SarasaTermSCNerd-BoldItalic.ttf SarasaTermSCNerd-ExtraLight.ttf SarasaTermSCNerd-ExtraLightItalic.ttf SarasaTermSCNerd-Italic.ttf SarasaTermSCNerd-Light.ttf SarasaTermSCNerd-LightItalic.ttf SarasaTermSCNerd-Regular.ttf SarasaTermSCNerd-SemiBold.ttf SarasaTermSCNerd-SemiBoldItalic.ttf"
+        dejavu)
+            # Regular + Bold，主字体
+            echo "DejaVuSansMNerdFontMono-Regular.ttf DejaVuSansMNerdFontMono-Bold.ttf"
             ;;
         aurulent)
             echo "AurulentSansMNerdFont-Regular.otf AurulentSansMNerdFontMono-Regular.otf AurulentSansMNerdFontPropo-Regular.otf README.md SIL%20Open%20Font%20License.txt"
@@ -22,7 +23,8 @@ font_files() {
             echo "DroidSansMNerdFontMono-Regular.ttf"
             ;;
         yunhei)
-            echo "%E4%BB%93%E8%80%B3%E4%BA%91%E9%BB%91-W04.ttf"
+            # 打过补丁的版本：声明等宽并规范家族名为 TsangerYunHei（Ghostty 只收等宽字体）
+            echo "%E4%BB%93%E8%80%B3%E4%BA%91%E9%BB%91-W04.ttf %E4%BB%93%E8%80%B3%E4%BA%91%E9%BB%91-W07.ttf"
             ;;
         *)
             return 1
@@ -32,10 +34,10 @@ font_files() {
 
 list_fonts() {
     echo "可用字体:"
-    echo "  sarasa   - Sarasa Term SC Nerd"
     echo "  aurulent - AurulentSansMono Nerd Font"
     echo "  droid    - DroidSansMono Nerd Font（含 ○ 补丁）"
-    echo "  yunhei   - TsangerYunHei W04 (仓耳云黑)"
+    echo "  dejavu   - DejaVuSansMono Nerd Font Regular+Bold（主字体）"
+    echo "  yunhei   - TsangerYunHei W04 (仓耳云黑，等宽补丁)"
 }
 
 download_font() {
@@ -82,7 +84,7 @@ done
 
 if [[ ${#FONT_NAMES[@]} -eq 0 ]]; then
     echo "安装全部字体..."
-    FONT_NAMES=(sarasa aurulent droid yunhei)
+    FONT_NAMES=(dejavu aurulent droid yunhei)
 fi
 
 for name in "${FONT_NAMES[@]}"; do
