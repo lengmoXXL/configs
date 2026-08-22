@@ -26,7 +26,7 @@ mkdir -p "$BIN_DIR"
 mkdir -p "$INSTALL_DIR"
 
 # 使用 npm 安装到指定目录
-npm install --prefix "$INSTALL_DIR" typescript typescript-language-server
+npm install --prefix "$INSTALL_DIR" typescript@^6 typescript-language-server
 
 # 创建符号链接
 ln -sf "$INSTALL_DIR/node_modules/.bin/typescript-language-server" "$BINARY"
