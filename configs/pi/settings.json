@@ -3,7 +3,8 @@
   "defaultProvider": "kimi-code",
   "defaultModel": "k3",
   "subagents": {
-    "defaultModel": "qwen-token-plan-cn/deepseek-v4-flash-0731"
+    "defaultModel": "qwen-token-plan-cn/deepseek-v4-flash-0731",
+    "disableBuiltins": true
   },
   "packages": [
     "npm:pi-simplify",

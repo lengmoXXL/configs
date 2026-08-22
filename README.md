@@ -80,7 +80,8 @@ configs/
 │   │   ├── pi-footer.json
 │   │   ├── pi-plan-mode.json
 │   │   ├── agents/
-│   │   │   └── verifier.md
+│   │   │   ├── verifier.md
+│   │   │   └── worker.md       # 拷贝自 pi-subagents 内置（builtin 已全局禁用）
 │   │   ├── extensions/
 │   │   │   ├── bash-highlight.ts
 │   │   │   ├── flat-editor.ts
