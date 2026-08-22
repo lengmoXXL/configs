@@ -8,7 +8,7 @@
 set -e
 
 MODE="binary"
-VERSION="0.1.52"
+VERSION="0.1.55"
 USE_CN=false
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 

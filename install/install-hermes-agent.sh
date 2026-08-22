@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-HERMES_AGENT_TAG="v2026.7.1"
+HERMES_AGENT_TAG="v2026.8.19"
 INSTALLER_URL="https://hermes-agent.nousresearch.com/install.sh"
 SKIP_SETUP=true
 SKIP_BROWSER=true

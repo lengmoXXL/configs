@@ -5,10 +5,10 @@ set -e
 
 BIN_DIR="${HOME}/.local/bin"
 SHARE_DIR="${HOME}/.local/share"
-FZF_VERSION="0.73.1"
-RIPGREP_VERSION="15.1.0"
+FZF_VERSION="0.74.3"
+RIPGREP_VERSION="15.2.0"
 FD_VERSION="v10.4.2"
-CMAKE_VERSION="4.3.3"
+CMAKE_VERSION="4.4.2"
 CMAKE_DIR="${HOME}/.local/cmake"
 ENV_DIR="${HOME}/.config/env.d"
 USE_CN=false

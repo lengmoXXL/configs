@@ -8,7 +8,7 @@ set -e
 INSTALL_DIR="${HOME}/.local/lua-language-server"
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/lua-language-server"
-VERSION="3.18.2"
+VERSION="3.19.1"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
