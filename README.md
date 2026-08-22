@@ -91,9 +91,11 @@ configs/
 │   └── tmux/
 │       └── tmux.conf
 ├── skills/
+│   ├── install-code-report.sh
 │   ├── install-frontend-draw.sh
 │   ├── install-neovim-skill.sh
 │   ├── install-style-check.sh
+│   ├── code-report/
 │   ├── frontend-draw/
 │   └── style-check/
 └── tools/
