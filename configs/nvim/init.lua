@@ -34,7 +34,6 @@ require('lazy').setup({
   { import = "themes" },
 })
 
--- theme
 vim.cmd.colorscheme("vscode")
 
 vim.lsp.config('clangd', {
@@ -60,10 +59,8 @@ vim.lsp.enable('bashls')
 vim.lsp.enable('lua_ls')
 vim.lsp.enable('starpls')
 
--- switch source/header (clangd)
 vim.keymap.set('n', '<leader>ch', '<cmd>LspClangdSwitchSourceHeader<cr>', { desc = 'Switch source/header' })
 
--- diagnostic
 vim.diagnostic.config({
   signs = false,
   underline = true,         -- 错误代码下划线
@@ -75,7 +72,6 @@ vim.diagnostic.config({
   },
 })
 
--- system clipboard
 vim.keymap.set('v', '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 
 -- 复制项目内文件位置 (可视模式下)

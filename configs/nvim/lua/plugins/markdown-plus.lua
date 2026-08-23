@@ -48,7 +48,7 @@ local function open_or_create_wiki_link()
   end
 
   local dir = vim.fs.dirname(path)
-  if dir and vim.fn.isdirectory(dir) == 0 then
+  if vim.fn.isdirectory(dir) == 0 then
     vim.fn.mkdir(dir, "p")
   end
 

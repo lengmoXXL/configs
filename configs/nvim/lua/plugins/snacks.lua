@@ -114,15 +114,10 @@ return
         end
 
         -- Override print to use snacks for `:=` command
-        if vim.fn.has("nvim-0.11") == 1 then
-          vim._print = function(_, ...)
-            dd(...)
-          end
-        else
-          vim.print = _G.dd 
+        vim._print = function(_, ...)
+          dd(...)
         end
 
-        -- Create some toggle mappings
         Snacks.toggle.option("spell", { name = "Spelling" }):map("<leader>us")
         Snacks.toggle.option("wrap", { name = "Wrap" }):map("<leader>uw")
         Snacks.toggle.option("relativenumber", { name = "Relative Number" }):map("<leader>uL")
