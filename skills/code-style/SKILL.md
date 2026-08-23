@@ -1,12 +1,12 @@
 ---
-name: style-check
-description: Minimalist style review for code, documentation, configuration, scripts, and other text artifacts. Use when asked to check style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, wording, abstraction, or documentation.
+name: code-style
+description: Minimalist style review for code, scripts, and configuration. Use when asked to check code style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, or compatibility logic.
 ---
 
-# Style Check
+# Code Style
 
-Use this skill to review changes for necessity. Treat code and documents the same way: every function, paragraph,
-option, helper, abstraction, comment, file, and dependency must earn its place.
+Use this skill to review code changes for necessity. Every function, option, helper, abstraction, comment, file, and
+dependency must earn its place.
 
 ## Scope
 

@@ -96,12 +96,14 @@ configs/
 │       └── tmux.conf
 ├── skills/
 │   ├── install-code-report.sh
+│   ├── install-code-style.sh
+│   ├── install-doc-style.sh
 │   ├── install-frontend-draw.sh
 │   ├── install-neovim-skill.sh
-│   ├── install-style-check.sh
 │   ├── code-report/
-│   ├── frontend-draw/
-│   └── style-check/
+│   ├── code-style/
+│   ├── doc-style/
+│   └── frontend-draw/
 └── tools/
     ├── build-perf-to-profile.sh
     ├── codex_batch.py
