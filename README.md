@@ -54,13 +54,10 @@ configs/
 │   ├── install-opencode-config.py
 │   ├── install-pi-config.py
 │   ├── install-agents.sh
-│   ├── install-dprint-config.sh
 │   ├── agents/
 │   │   ├── editing-constraints.md
 │   │   ├── git-safety.md
 │   │   └── inline-functions.md
-│   ├── dprint/
-│   │   └── dprint.jsonc
 │   ├── ghostty/
 │   │   └── config
 │   ├── herdr/
