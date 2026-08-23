@@ -12,6 +12,7 @@ configs/
 │   ├── install-clash-for-linux.sh
 │   ├── install-clashctl.sh
 │   ├── install-codex.sh
+│   ├── install-dprint.sh
 │   ├── install-fd.sh
 │   ├── install-fonts.sh
 │   ├── install-go.sh
