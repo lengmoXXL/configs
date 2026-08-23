@@ -24,12 +24,12 @@ Confirm before writing:
 2. Build the dependency and call relationships that matter for the chosen scope.
    Skip anything that does not serve the report's purpose.
 3. Structure for the scope: overview → module/architecture breakdown → core
-   flows → notable implementation details → risks or caveats. Drop sections that
-   have nothing to say; do not pad.
+   flows → notable implementation details → risks or caveats. Drop sections
+   that have nothing to say; do not pad.
 
 ## Link rules
 
-The links are the point of this skill. Follow them strictly:
+Follow them strictly:
 
 - Every claim about code cites it: `[src/server.ts:42](src/server.ts#L42)`.
   Ranges use `#L42-L58`.
@@ -38,17 +38,18 @@ The links are the point of this skill. Follow them strictly:
 - Links are relative to the report file's location, so they work on GitHub and
   in standard markdown viewers.
 - Read the file before citing it; line numbers must be exact at writing time.
-  Line anchors drift when code changes — if the codebase is moving, note the
+- Line anchors drift when code changes — if the codebase is moving, note the
   commit or date in the report header.
 
 ## Output
 
 - One markdown file: one-paragraph summary first, then the sections.
 - Write the report in the user's language.
-- After writing, format the report with `dprint fmt <report>` (wraps at 80
-  columns via the repo or global dprint config). If wrapping splits a link or
-  inline code span across lines, shorten the link text or move long targets into
-  reference-style definitions instead.
+- Keep every line within 80 characters while writing; wrap prose manually
+  instead of relying on post-formatting.
+- After writing, run `dprint fmt <report>` to verify the wrapping. If it
+  splits a link or inline code span across lines, shorten the link text or
+  move long targets into reference-style definitions instead.
 - Then run the bundled `validate.py <report>` (path relative to the skill
   directory) and fix any missing link targets it reports.
 - When done, report the output path.
