@@ -47,9 +47,6 @@ Follow them strictly:
 - Write the report in the user's language.
 - Keep every line within 80 characters while writing; wrap prose manually
   instead of relying on post-formatting.
-- After writing, run `dprint fmt <report>` to verify the wrapping. If it
-  splits a link or inline code span across lines, shorten the link text or
-  move long targets into reference-style definitions instead.
 - Then run the bundled `validate.py <report>` (path relative to the skill
   directory) and fix any missing link targets it reports.
 - When done, report the output path.
