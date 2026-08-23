@@ -35,4 +35,5 @@ The links are the point of this skill. Follow them strictly:
 - One markdown file: one-paragraph summary first, then the sections.
 - Hard-wrap lines at 80 characters. Never split a link or inline code span across lines; shorten the link text or move long targets into reference-style definitions instead.
 - Write the report in the user's language.
+- After writing, run the bundled `validate.py <report>` (path relative to the skill directory) and fix any missing link targets it reports.
 - When done, report the output path.
