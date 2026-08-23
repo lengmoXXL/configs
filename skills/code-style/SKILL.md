@@ -15,7 +15,9 @@ Confirm the review range before checking.
 - If the user names a range, use it: uncommitted changes, a base commit, a base
   branch, or one commit.
 - If no range is named, review uncommitted changes.
-- Use repository tools to inspect the exact diff before judging.
+- Use repository tools to inspect the exact diff before judging. Review the
+  changes together with the parts they relate to: existing code a change
+  duplicates, calls, or alters in behavior.
 
 ## Checks
 
@@ -174,8 +176,8 @@ Use this format for each finding:
 
 ```text
 <file>:<line>
-判断：<specific changed part> 不必要
-原因：<why this changed part does not need to exist>
+判断：<specific part> 不必要
+原因：<why this part does not need to exist>
 ```
 
-Keep reasons specific to the diff. Avoid general style essays.
+Keep reasons specific to the reviewed range. Avoid general style essays.
