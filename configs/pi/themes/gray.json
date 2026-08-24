@@ -3,7 +3,7 @@
   "name": "gray",
   "vars": {
     "cyan": "#00d7ff",
-    "blue": "#5f87ff",
+    "blue": "#7295ff",
     "green": "#6e8d58",
     "red": "#cc6666",
     "yellow": "#ffff00",
@@ -12,7 +12,7 @@
     "gray": "#808080",
     "dimGray": "#666666",
     "darkGray": "#505050",
-    "accent": "#8abeb7",
+    "accent": "#569CD6",
     "selectedBg": "#3a3a4a",
     "userMsgBg": "#333333",
     "customMsgBg": "#2d2838"
@@ -63,7 +63,7 @@
     "syntaxVariable": "#9CDCFE",
     "syntaxString": "#CE9178",
     "syntaxNumber": "#B5CEA8",
-    "syntaxType": "#4EC9B0",
+    "syntaxType": "#569CD6",
     "syntaxOperator": "#D4D4D4",
     "syntaxPunctuation": "#D4D4D4",
 
