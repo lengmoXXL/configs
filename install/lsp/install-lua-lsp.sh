@@ -45,13 +45,18 @@ fi
 
 echo "安装 lua-language-server $VERSION"
 
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+case "$OS" in
+    linux | darwin) ;;
+    *) echo "不支持的操作系统: $OS"; exit 1 ;;
+esac
+
 ARCH=$(uname -m)
 case "$ARCH" in
     x86_64)  ARCH="x64" ;;
-    aarch64) ARCH="arm64" ;;
+    arm64 | aarch64) ARCH="arm64" ;;
     *)       echo "不支持的架构: $ARCH"; exit 1 ;;
 esac
-
 mkdir -p "$BIN_DIR"
 
 TMPDIR=$(mktemp -d)
@@ -59,7 +64,7 @@ trap "rm -rf $TMPDIR" EXIT
 
 cd "$TMPDIR"
 
-TARBALL="lua-language-server-$VERSION-linux-$ARCH.tar.gz"
+TARBALL="lua-language-server-$VERSION-$OS-$ARCH.tar.gz"
 DOWNLOAD_URL="https://github.com/LuaLS/lua-language-server/releases/download/$VERSION/$TARBALL"
 if [[ "$USE_CN" == "true" ]]; then
     DOWNLOAD_URL="${GITHUB_RELEASE_PROXY}${DOWNLOAD_URL}"
@@ -68,7 +73,12 @@ curl -fL "$DOWNLOAD_URL" -o "$TARBALL"
 
 mkdir -p "$INSTALL_DIR"
 tar -xzf "$TARBALL" -C "$INSTALL_DIR"
-ln -sf "$INSTALL_DIR/bin/lua-language-server" "$BINARY"
+# 不能用符号链接：macOS 上二进制按 argv[0] 定位 main.lua，经链接调用会找错目录
+cat > "$BINARY" << EOF
+#!/bin/sh
+exec "$INSTALL_DIR/bin/lua-language-server" "\$@"
+EOF
+chmod +x "$BINARY"
 
 echo ""
 echo "lua-language-server 安装完成: $BINARY"
