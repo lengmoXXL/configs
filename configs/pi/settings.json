@@ -1,6 +1,6 @@
 {
   "theme": "gray",
-  "defaultProvider": "kimi-code",
+  "defaultProvider": "kimi-coding",
   "defaultModel": "k3",
   "subagents": {
     "defaultModel": "qwen-token-plan-cn/deepseek-v4-flash-0731",
@@ -31,7 +31,7 @@
     "qwen-token-plan-cn/deepseek-v4-pro-0813",
     "qwen-token-plan-cn/qwen3.8-max",
     "zai-coding-cn/glm-5.3",
-    "kimi-code/k3",
-    "kimi-code/k3-256k"
+    "kimi-coding/k3",
+    "kimi-coding/k3-256k"
   ]
 }
