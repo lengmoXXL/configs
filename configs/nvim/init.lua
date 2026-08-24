@@ -36,8 +36,6 @@ require('lazy').setup({
 
 vim.cmd.colorscheme("vscode")
 
-require('bufshift').setup()
-
 vim.lsp.config('clangd', {
   filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
   cmd = {
