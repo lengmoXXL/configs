@@ -42,7 +42,7 @@ return
   keys = {
     -- Top Pickers & Explorer
     { "<leader><space>", function() Snacks.picker.recent() end, desc = "Recent" },
-    { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
+    { "<leader>,", function() require("bufshift").pick_buffer() end, desc = "Buffers" },
     { "<leader>/", function() Snacks.picker.grep({ cwd = vim.fn.expand('%:p:h') }) end, desc = "Grep current file dir" },
     { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
     { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
@@ -74,7 +74,7 @@ return
     { "<leader>sr", function() Snacks.picker.resume() end, desc = "Resume" },
     { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
     -- LSP
-    { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
+    { "gd", function() require("bufshift").goto_definition() end, desc = "Goto Definition" },
     { "<leader>gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
     { "<leader>gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
     { "<leader>gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
