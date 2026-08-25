@@ -18,6 +18,8 @@ Confirm the review range before checking.
 - Use repository tools to inspect the exact diff before judging. Review the
   changes together with the parts they relate to: existing prose a change
   restates, contradicts, or makes outdated.
+- Apply every check to the full review range, including pre-existing prose in
+  it, not only to lines a diff adds.
 
 ## Checks
 
@@ -45,8 +47,8 @@ side effects, or non-obvious options.
 
 ### Unrequested Documentation
 
-Flag newly added documentation the user did not request: doc files, README
-sections, usage guides, or tutorial paragraphs added alongside a code change.
+Flag documentation in the reviewed range that the user did not request: doc
+files, README sections, usage guides, or tutorial paragraphs.
 Documentation is a change like any other; do not invent it from general caution.
 
 ## Output

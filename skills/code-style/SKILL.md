@@ -18,12 +18,14 @@ Confirm the review range before checking.
 - Use repository tools to inspect the exact diff before judging. Review the
   changes together with the parts they relate to: existing code a change
   duplicates, calls, or alters in behavior.
+- Apply every check to the full review range, including pre-existing code in
+  it, not only to lines a diff adds.
 
 ## Checks
 
 ### Minimal Implementation
 
-For each changed part, decide whether it must exist and whether it can be part
+For each part in the review range, decide whether it must exist and whether it can be part
 of another existing entity instead. A small amount of duplication is acceptable;
 flag helpers and abstractions that carry no meaningful abstraction of their own,
 even when they have multiple call sites.
@@ -50,7 +52,7 @@ if _, ok := values[key]; !ok {
 
 ### Self-Explanatory Code Over Comments
 
-Flag newly added comments that restate what the code already says: narrating the
+Flag comments that restate what the code already says: narrating the
 next line, translating a well-named identifier into prose, or labeling an
 obvious block. Prefer renaming or restructuring the code so it explains itself.
 A comment earns its place only when it says what code cannot: why a non-obvious
@@ -76,7 +78,7 @@ func GetUserByID(id string) (*User, error) {
 
 ### Over-Defensive Guards
 
-Flag newly added checks that only protect against caller misuse or impossible
+Flag checks that only protect against caller misuse or impossible
 states when the surrounding contract should already guarantee the invariant.
 
 #### Example: Go Nil Receiver Check
@@ -147,13 +149,13 @@ func loadConfig(path string) (*Config, error) {
 
 ### Compatibility Logic
 
-Flag newly added compatibility branches, fallbacks, shims, legacy paths, version
+Flag compatibility branches, fallbacks, shims, legacy paths, version
 checks, platform checks, aliases, migrations, or tolerance for old formats
 unless they are clearly part of the user's requested behavior.
 
 Do not invent compatibility support from general caution, possible old data,
 existing consumers, platform differences, dependency versions, or unknown
-deployments. If the diff adds compatibility logic, verify that the user asked
+deployments. If the reviewed range contains compatibility logic, verify that the user asked
 for that compatibility before accepting it.
 
 #### Example: Unrequested Legacy Format
