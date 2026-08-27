@@ -14,8 +14,8 @@ Confirm before writing:
 
 - Range: whole repo, a module, or specific files.
 - Audience and depth: onboarding overview vs. deep mechanism analysis.
-- Output path and filename: no fixed convention; use the user's path if given,
-  otherwise pick a name that fits the report topic.
+- Output path and filename: use the user's path if given, otherwise pick
+  a name that fits the report topic.
 
 ## Process
 
@@ -23,8 +23,8 @@ Confirm before writing:
    Then read the key files. Do not write from filenames or guesses.
 2. Build the dependency and call relationships that matter for the chosen scope.
    Skip anything that does not serve the report's purpose.
-3. Structure for the scope: overview → module/architecture breakdown → core
-   flows → notable implementation details → risks or caveats. Drop sections
+3. Structure for the scope: module/architecture breakdown → core flows →
+   notable implementation details → risks or caveats. Drop sections
    that have nothing to say; do not pad.
 
 ## Citation rules
