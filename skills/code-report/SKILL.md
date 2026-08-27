@@ -1,11 +1,11 @@
 ---
 name: code-report
-description: Analyze a codebase or module and produce a markdown report whose code references are clickable links. Use when asked to analyze code, explain a codebase, document a module, or generate a code analysis report with file/line links.
+description: Analyze a codebase or module and produce a markdown report that cites code with verbatim fenced excerpts labeled by path and line. Use when asked to analyze code, explain a codebase, document a module, or generate a code analysis report.
 ---
 
 # Code Report
 
-Produce a markdown report that explains code, where every claim links to the
+Produce a markdown report that explains code, where every claim cites the
 exact code it describes.
 
 ## Scope
@@ -27,18 +27,19 @@ Confirm before writing:
    flows → notable implementation details → risks or caveats. Drop sections
    that have nothing to say; do not pad.
 
-## Link rules
+## Citation rules
 
-Follow them strictly:
+Reports are read in Neovim with otter.nvim, where fenced excerpts carry a
+live LSP context. Follow them strictly:
 
-- Every claim about code cites it: `[src/server.ts:42](src/server.ts#L42)`.
-  Ranges use `#L42-L58`.
-- Link text always includes path and line, so readers know the location without
-  clicking.
-- Links are relative to the report file's location, so they work on GitHub and
-  in standard markdown viewers.
+- Every claim about code cites it with a fenced block quoting the exact
+  lines, labeled by a caption above the block: `src/server.ts:42-58`.
+- Quote verbatim with the real language tag (`ts`, `lua`, ...); never
+  reformat. Code lines are exempt from the 80-character wrap rule.
+- Trim excerpts to the lines that matter for the claim.
+- Captions are paths relative to the report file's location.
 - Read the file before citing it; line numbers must be exact at writing time.
-- Line anchors drift when code changes — if the codebase is moving, note the
+- Captions drift when code changes — if the codebase is moving, note the
   commit or date in the report header.
 
 ## Output
@@ -48,5 +49,5 @@ Follow them strictly:
 - Keep every line within 80 characters while writing; wrap prose manually
   instead of relying on post-formatting.
 - Then run the bundled `validate.py <report>` (path relative to the skill
-  directory) and fix any missing link targets it reports.
+  directory) and fix any citation problems it reports.
 - When done, report the output path.
