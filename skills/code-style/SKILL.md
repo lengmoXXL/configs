@@ -1,12 +1,13 @@
 ---
 name: code-style
-description: Minimalist style review for code, scripts, and configuration. Use when asked to check code style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, or compatibility logic.
+description: Minimalist style review for code, scripts, configuration, and documentation. Use when asked to check code or doc style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, compatibility logic, redundant sections, restated content, or unrequested documentation.
 ---
 
 # Code Style
 
-Use this skill to review code changes for necessity. Every function, option,
-helper, abstraction, comment, file, and dependency must earn its place.
+Use this skill to review code and documentation changes for necessity; docs
+are reviewed as code. Every function, option, helper, abstraction, comment,
+file, dependency, section, paragraph, and sentence must earn its place.
 
 ## Scope
 
@@ -16,10 +17,10 @@ Confirm the review range before checking.
   branch, or one commit.
 - If no range is named, review uncommitted changes.
 - Use repository tools to inspect the exact diff before judging. Review the
-  changes together with the parts they relate to: existing code a change
-  duplicates, calls, or alters in behavior.
-- Apply every check to the full review range, including pre-existing code in
-  it, not only to lines a diff adds.
+  changes together with the parts they relate to: existing code or prose a
+  change duplicates, calls, alters, restates, contradicts, or makes outdated.
+- Apply every check to the full review range, including pre-existing code or
+  prose in it, not only to lines a diff adds.
 
 ## Checks
 
@@ -49,6 +50,28 @@ if _, ok := values[key]; !ok {
 	values[key] = value
 }
 ```
+
+### One Intent Per Paragraph
+
+Every paragraph has exactly one primary intent. State that intent and stop;
+anything beyond it is excess. The reverse also holds: each intent is primarily
+described in at most one place. Flag content beyond the intent (delete it),
+paragraphs that mix two intents (split them), and one intent described primarily
+in multiple places (merge them). Typical excess: restating what the code, the
+UI, or an adjacent sentence already says, and pointers the reader did not ask
+for.
+
+#### Example: Restating the Code
+
+```markdown
+## install.sh
+
+This script installs the tool. Run it to install the tool.
+```
+
+The heading already says what the file is; the sentences add nothing. Delete
+them, or replace them with information the reader cannot see: prerequisites,
+side effects, or non-obvious options.
 
 ### Self-Explanatory Code Over Comments
 
@@ -169,6 +192,12 @@ if cfg.Endpoint == "" && cfg.LegacyURL != "" {
 If the requested behavior only uses `Endpoint`, the legacy field support is
 unnecessary unless the user asked to preserve old config files. Prefer removing
 the compatibility path.
+
+### Unrequested Documentation
+
+Flag documentation in the reviewed range that the user did not request: doc
+files, README sections, usage guides, or tutorial paragraphs.
+Documentation is a change like any other; do not invent it from general caution.
 
 ## Output
 

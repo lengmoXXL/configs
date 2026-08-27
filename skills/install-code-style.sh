@@ -5,7 +5,6 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src="$root/skills/code-style"
 dest_root="${AGENTS_HOME:-$HOME/.agents}/skills"
 dest="$dest_root/code-style"
-legacy="$dest_root/style-check"
 
 if [[ ! -f "$src/SKILL.md" ]]; then
   echo "Missing skill source: $src" >&2
@@ -18,7 +17,10 @@ cp -a "$src" "$dest"
 
 echo "Installed code-style to $dest"
 
-if [[ -d "$legacy" ]]; then
-  rm -rf "$legacy"
-  echo "Removed legacy style-check from $legacy"
-fi
+for legacy in style-check doc-style; do
+  dir="$dest_root/$legacy"
+  if [[ -d "$dir" ]]; then
+    rm -rf "$dir"
+    echo "Removed legacy $legacy from $dir"
+  fi
+done

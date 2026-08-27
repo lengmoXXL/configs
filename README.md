@@ -94,12 +94,10 @@ configs/
 ├── skills/
 │   ├── install-code-report.sh
 │   ├── install-code-style.sh
-│   ├── install-doc-style.sh
 │   ├── install-frontend-draw.sh
 │   ├── install-neovim-skill.sh
 │   ├── code-report/
 │   ├── code-style/
-│   ├── doc-style/
 │   └── frontend-draw/
 └── tools/
     ├── build-perf-to-profile.sh
