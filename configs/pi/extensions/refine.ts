@@ -133,12 +133,16 @@ export default function (pi: ExtensionAPI) {
 			ownerRunId: `refine-${ctx.sessionManager.getSessionId()}`,
 			nodeId: `refine-r${round}-${requestId.slice(0, 8)}`,
 			agent: "verifier",
-			task: `Refinement check, round ${round}.
+			task: `Refinement check, round ${round} of an iterative loop that repeats after every fix turn.
 Acceptance criteria:
 ${criteria}
 
 You have the parent session's conversation context. Inspect the current
 workspace state and verify whether the work satisfies ALL criteria.
+Go through the criteria ONE BY ONE and check each against the actual files;
+do not stop at the first issue, and do not assume earlier rounds' findings
+were fixed -- verify them again in the current state.
+A premature pass ends the loop with unfinished work; when in doubt, report a finding.
 Only report issues you can justify with evidence (cite file paths).
 Report the verdict ONLY by calling the structured_output tool with
 { "passed": <boolean>, "findings": [<string>, ...] }; a prose-only final answer fails this step.`,
