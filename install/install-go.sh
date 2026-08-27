@@ -24,15 +24,25 @@ else
 
     echo "版本: $GO_VERSION"
 
-    # 确定架构
+    # 确定系统和架构
+    OS=$(uname -s)
+    case "$OS" in
+        Linux) OS="linux" ;;
+        Darwin) OS="darwin" ;;
+        *)
+            echo "错误：不支持的系统: $OS"
+            exit 1
+            ;;
+    esac
+
     ARCH=$(uname -m)
     case "$ARCH" in
         x86_64) ARCH="amd64" ;;
-        aarch64) ARCH="arm64" ;;
+        aarch64|arm64) ARCH="arm64" ;;
     esac
 
     # 下载地址（使用 golang.google.cn 镜像）
-    DOWNLOAD_URL="https://golang.google.cn/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz"
+    DOWNLOAD_URL="https://golang.google.cn/dl/go${GO_VERSION}.${OS}-${ARCH}.tar.gz"
 
     mkdir -p "$BIN_DIR"
 
