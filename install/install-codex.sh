@@ -7,7 +7,7 @@ set -euo pipefail
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
 CODE_MODE_HOST_BIN="${BIN_DIR}/codex-code-mode-host"
-CODEX_VERSION="0.149.1"
+CODEX_VERSION="0.150.1"
 CURL_USER_AGENT="configs-install-codex"
 USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
