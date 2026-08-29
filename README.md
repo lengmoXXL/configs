@@ -69,6 +69,7 @@ configs/
 │   │   ├── init.lua
 │   │   └── lua/
 │   │       ├── project_filetypes.lua
+│   │       ├── buffer_columns.lua
 │   │       ├── caption_jump.lua
 │   │       ├── plugins/
 │   │       │   └── ...
