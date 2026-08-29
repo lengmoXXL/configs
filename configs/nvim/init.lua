@@ -15,6 +15,7 @@ vim.o.smoothscroll = true
 vim.opt.fillchars:append({ eob = " " }) -- 隐藏空行的 ~
 
 require('project_filetypes').setup()
+require('caption_jump').setup()
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
