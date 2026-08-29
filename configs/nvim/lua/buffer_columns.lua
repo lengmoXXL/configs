@@ -4,18 +4,12 @@ local M = { enabled = true }
 
 local mrus = {} -- tabpage -> buffer 号列表，最新在前
 local last_cursor = {}
-local win_buf = {} -- 每个窗口当前显示的 buffer，用于区分焦点移动和内容变化
 local in_sync = false
 
 local function track_mru(buf)
   if in_sync or not (vim.bo[buf].buflisted and vim.bo[buf].buftype == '') then
     return
   end
-  local win = vim.api.nvim_get_current_win()
-  if win_buf[win] == buf then
-    return -- 焦点移动，窗口内容没变，不算最近使用
-  end
-  win_buf[win] = buf
   local tab = vim.api.nvim_get_current_tabpage()
   local mru = mrus[tab]
   if not mru then
@@ -76,14 +70,17 @@ function M.sync()
   for i = 1, #wins do
     local win, buf = wins[i], mru[i]
     if vim.api.nvim_win_get_buf(win) ~= buf then
-      if pcall(vim.api.nvim_win_set_buf, win, buf) then
-        win_buf[win] = buf
-      end
+      pcall(vim.api.nvim_win_set_buf, win, buf)
       local pos = last_cursor[buf]
       if pos then
         pcall(vim.api.nvim_win_set_cursor, win, pos)
       end
     end
+  end
+  -- 焦点跟随最新 buffer 到最左栏；仅在当前窗口是文件窗口时跟随
+  local cur = vim.api.nvim_get_current_win()
+  if vim.tbl_contains(wins, cur) and vim.api.nvim_win_get_buf(cur) ~= mru[1] then
+    vim.api.nvim_set_current_win(wins[1])
   end
   in_sync = false
 end
@@ -111,12 +108,7 @@ function M.setup()
   })
   vim.api.nvim_create_autocmd({ 'WinNew', 'WinClosed', 'TabEnter' }, {
     group = group,
-    callback = function(args)
-      if args.event == 'WinClosed' then
-        win_buf[tonumber(args.match)] = nil
-      end
-      schedule_sync()
-    end,
+    callback = schedule_sync,
   })
   vim.api.nvim_create_user_command('WatchBuffers', function()
     M.enabled = not M.enabled
