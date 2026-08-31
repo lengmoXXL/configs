@@ -15,6 +15,7 @@ configs/
 │   ├── install-dprint.sh
 │   ├── install-fd.sh
 │   ├── install-fonts.sh
+│   ├── install-gh.sh
 │   ├── install-go.sh
 │   ├── install-ghostty-terminfo.sh
 │   ├── install-herdr.sh
