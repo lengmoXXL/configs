@@ -8,11 +8,11 @@ return {
         local ok, lifecycle = pcall(require, 'codediff.ui.lifecycle')
         if ok then
           for _, tabpage in ipairs(vim.api.nvim_list_tabpages()) do
-            local session = lifecycle.get_session(tabpage)
-            local explorer = lifecycle.get_explorer(tabpage)
+            local panel = lifecycle.get_panel(tabpage)
+            local explorer = lifecycle.get_panel_view(tabpage)
             if
-              session
-              and session.mode == 'explorer'
+              panel
+              and panel.name == 'explorer'
               and explorer
               and not explorer.base_revision
               and not explorer.target_revision
