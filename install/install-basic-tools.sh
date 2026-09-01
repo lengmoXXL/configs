@@ -66,11 +66,14 @@ install_fzf() {
         echo "fzf 已安装: $fzf_bin"
         "$fzf_bin" --version
     else
+        os=$(uname -s)
         arch=$(uname -m)
-        case "$arch" in
-            x86_64) target="linux_amd64" ;;
-            aarch64 | arm64) target="linux_arm64" ;;
-            *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+        case "${os}-${arch}" in
+            Darwin-x86_64) target="darwin_amd64" ;;
+            Darwin-arm64 | Darwin-aarch64) target="darwin_arm64" ;;
+            Linux-x86_64) target="linux_amd64" ;;
+            Linux-aarch64 | Linux-arm64) target="linux_arm64" ;;
+            *) echo "错误: 不支持的平台 ${os}-${arch}"; exit 1 ;;
         esac
 
         url="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-${target}.tar.gz"
@@ -168,14 +171,27 @@ install_cmake() {
 
     version="$CMAKE_VERSION"
 
+    os=$(uname -s)
     arch=$(uname -m)
-    case "$arch" in
-        x86_64) arch="x86_64" ;;
-        aarch64 | arm64) arch="aarch64" ;;
-        *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+    case "$os" in
+        Darwin)
+            # macOS 官方只发布 universal 包
+            target="macos-universal"
+            ;;
+        Linux)
+            case "$arch" in
+                x86_64) target="linux-x86_64" ;;
+                aarch64 | arm64) target="linux-aarch64" ;;
+                *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+            esac
+            ;;
+        *)
+            echo "错误: 不支持的系统 $os"
+            exit 1
+            ;;
     esac
 
-    url="https://github.com/Kitware/CMake/releases/download/v${version}/cmake-${version}-linux-${arch}.tar.gz"
+    url="https://github.com/Kitware/CMake/releases/download/v${version}/cmake-${version}-${target}.tar.gz"
     if [[ "$USE_CN" == "true" ]]; then
         url="${GITHUB_RELEASE_PROXY}${url}"
     fi
@@ -190,9 +206,15 @@ install_cmake() {
     tar -xzf "$tarball" -C "$CMAKE_DIR" --strip-components=1
     rm -rf "$tmp_dir"
 
-    ln -sf "$CMAKE_DIR/bin/cmake" "$BIN_DIR/cmake"
-    ln -sf "$CMAKE_DIR/bin/ctest" "$BIN_DIR/ctest"
-    ln -sf "$CMAKE_DIR/bin/cpack" "$BIN_DIR/cpack"
+    # macOS 包是 CMake.app 结构，Linux 包是平铺 bin/
+    if [[ "$os" == "Darwin" ]]; then
+        cmake_bin_dir="$CMAKE_DIR/CMake.app/Contents/bin"
+    else
+        cmake_bin_dir="$CMAKE_DIR/bin"
+    fi
+    ln -sf "$cmake_bin_dir/cmake" "$BIN_DIR/cmake"
+    ln -sf "$cmake_bin_dir/ctest" "$BIN_DIR/ctest"
+    ln -sf "$cmake_bin_dir/cpack" "$BIN_DIR/cpack"
 
     echo "cmake 安装完成: $BIN_DIR/cmake"
     "$BIN_DIR/cmake" --version | head -1
@@ -214,11 +236,17 @@ install_fd() {
 
     version="$FD_VERSION"
 
+    os=$(uname -s)
     arch=$(uname -m)
-    case "$arch" in
-        x86_64) target="x86_64-unknown-linux-musl" ;;
-        aarch64 | arm64) target="aarch64-unknown-linux-gnu" ;;
-        *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+    case "${os}-${arch}" in
+        Darwin-x86_64)
+            target="x86_64-apple-darwin"
+            version="v10.3.0" # v10.4.0 起不再发布 Intel mac 包
+            ;;
+        Darwin-arm64 | Darwin-aarch64) target="aarch64-apple-darwin" ;;
+        Linux-x86_64) target="x86_64-unknown-linux-musl" ;;
+        Linux-aarch64 | Linux-arm64) target="aarch64-unknown-linux-gnu" ;;
+        *) echo "错误: 不支持的平台 ${os}-${arch}"; exit 1 ;;
     esac
 
     url="https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-${target}.tar.gz"

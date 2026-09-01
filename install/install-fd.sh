@@ -56,11 +56,17 @@ fi
 
 version="$FD_VERSION"
 
+os=$(uname -s)
 arch=$(uname -m)
-case "$arch" in
-    x86_64) target="x86_64-unknown-linux-musl" ;;
-    aarch64 | arm64) target="aarch64-unknown-linux-gnu" ;;
-    *) echo "错误: 不支持的架构 $arch"; exit 1 ;;
+case "${os}-${arch}" in
+    Darwin-x86_64)
+        target="x86_64-apple-darwin"
+        version="v10.3.0" # v10.4.0 起不再发布 Intel mac 包
+        ;;
+    Darwin-arm64 | Darwin-aarch64) target="aarch64-apple-darwin" ;;
+    Linux-x86_64) target="x86_64-unknown-linux-musl" ;;
+    Linux-aarch64 | Linux-arm64) target="aarch64-unknown-linux-gnu" ;;
+    *) echo "错误: 不支持的平台 ${os}-${arch}"; exit 1 ;;
 esac
 
 tmp_dir=$(mktemp -d)
