@@ -12,6 +12,7 @@ configs/
 │   ├── install-clash-for-linux.sh
 │   ├── install-clashctl.sh
 │   ├── install-codex.sh
+│   ├── install-doc-research.sh   # doc-research CLI（固定 commit，对比远端提示更新）
 │   ├── install-dprint.sh
 │   ├── install-fd.sh
 │   ├── install-fonts.sh
@@ -32,6 +33,7 @@ configs/
 │   ├── install-tldr.sh
 │   ├── install-tmux.sh
 │   ├── install-tree-sitter.sh
+│   ├── install-uv.sh
 │   ├── install-zig.sh
 │   ├── lsp/
 │   │   ├── install-bash-lsp.sh
@@ -107,7 +109,9 @@ configs/
 └── tools/
     ├── build-perf-to-profile.sh
     ├── codex_batch.py
+    ├── doc-research-init.sh      # 初始化文献调研项目（raw/tr/dist + 工作流 README）
     ├── install-codex-batch.sh
+    ├── install-doc-research-init.sh
     ├── nvim_ft.py               # 按 git URL 管理 Neovim filetype
     ├── github-release-latest.sh
     ├── git-prune-merged.sh
