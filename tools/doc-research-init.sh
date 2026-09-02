@@ -56,6 +56,8 @@ doc-research fetch <url> -o raw/<slug>        # 网页
 
 对照 `raw/<slug>/raw.md` 与原文逐段校对、翻译为中文，写入 `tr/<slug>.md`。
 
+换行要求：每行总宽度不超过 100，中文字符按 1.5 宽度计（纯中文约 66 字一行）。
+
 ## 3. 报告
 
 ```bash
