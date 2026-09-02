@@ -1,6 +1,6 @@
 ---
 name: code-style
-description: Minimalist style review for code, scripts, configuration, and documentation. Use when asked to check code or doc style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, compatibility logic, redundant sections, restated content, misplaced content, or unrequested documentation.
+description: Minimalist style review for code, scripts, configuration, and documentation. Use when asked to check code or doc style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, compatibility logic, redundant sections, restated content, misplaced content, scattered related code, or unrequested documentation.
 ---
 
 # Code Style
@@ -90,6 +90,33 @@ This script requires bash 5+.
 
 A requirement is not usage; it belongs with prerequisites or installation,
 not under the heading that promises commands to run.
+
+### Related Code Stays Together
+
+Code that is read or changed together should sit together: a helper next to
+its only caller, the branches of one decision in one place, one topic's logic
+in one contiguous block. Flag implementations that scatter a single logical
+task across distant locations (far-apart spots in a file, or separate files)
+so the reader must jump back and forth to follow one flow. Use a variable
+immediately after modifying it; nothing unrelated may sit between the change
+and its use.
+
+#### Example: Rewrite Separated From Its Use
+
+```bash
+if [[ "$USE_CN" == "true" ]]; then
+    REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
+fi
+
+# ... local-path early return that never reads REPO_URL ...
+
+remote_head="$(git ls-remote "$REPO_URL" HEAD)"
+```
+
+The rewrite is cut off from its only reader and also runs on paths that
+never use the value. Put the local-path return first, then keep the rewrite
+directly above the `ls-remote` that consumes it.
+
 ### Self-Explanatory Code Over Comments
 
 Flag comments that restate what the code already says: narrating the
