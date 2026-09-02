@@ -12,8 +12,8 @@ UV_BIN="${BIN_DIR}/uv"
 mkdir -p "$BIN_DIR"
 
 if ! command -v uv &>/dev/null && [[ ! -x "$UV_BIN" ]]; then
-    echo "安装 uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "错误: 缺少 uv，请先运行 $(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/install-uv.sh" >&2
+    exit 1
 fi
 
 if command -v uv &>/dev/null; then

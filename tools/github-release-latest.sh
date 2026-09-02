@@ -24,6 +24,7 @@ Packages:
   sarasa
   aurulent
   droid, droidsansmono
+  uv
 EOF
 }
 
@@ -43,6 +44,7 @@ repo_for_package() {
         hermes-agent) echo "NousResearch/hermes-agent" ;;
         sarasa) echo "laishulu/Sarasa-Term-SC-Nerd" ;;
         aurulent | droid | droidsansmono) echo "ryanoasis/nerd-fonts" ;;
+        uv) echo "astral-sh/uv" ;;
         */*) echo "$1" ;;
         *) return 1 ;;
     esac
