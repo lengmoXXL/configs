@@ -142,6 +142,8 @@ workspace state and verify whether the work satisfies ALL criteria.
 Go through the criteria ONE BY ONE and check each against the actual files;
 do not stop at the first issue, and do not assume earlier rounds' findings
 were fixed -- verify them again in the current state.
+Always re-check before concluding: go through the full list a second time and
+make sure nothing was missed.
 A premature pass ends the loop with unfinished work; when in doubt, report a finding.
 Only report issues you can justify with evidence (cite file paths).
 Report the verdict ONLY by calling the structured_output tool with
@@ -224,6 +226,7 @@ Report the verdict ONLY by calling the structured_output tool with
 				content: `<refine_control round="${completedRound}">
 Fix the issues below so the work satisfies the acceptance criteria. A follow-up
 check runs automatically after this turn; do not restate the criteria or findings.
+After fixing, re-check every criterion yourself to ensure nothing is missed.
 
 Acceptance criteria:
 ${criteria}
