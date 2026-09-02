@@ -98,7 +98,11 @@ install_fzf() {
     cat > "${ENV_DIR}/fzf.sh" << 'EOF'
 # fzf key bindings
 if command -v fzf &>/dev/null; then
-    eval "$(fzf --bash)"
+    if [ -n "$ZSH_VERSION" ]; then
+        eval "$(fzf --zsh)"
+    else
+        eval "$(fzf --bash)"
+    fi
 fi
 EOF
     echo "创建 fzf 配置: ${ENV_DIR}/fzf.sh"
