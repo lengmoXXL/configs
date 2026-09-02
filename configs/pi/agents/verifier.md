@@ -1,7 +1,6 @@
 ---
 name: verifier
 description: Read-only verification agent that checks work against acceptance criteria
-tools: read, bash, grep, find, ls, subagent, web_search, source_check, fetch_content, get_search_content
 thinking: high
 systemPromptMode: replace
 inheritProjectContext: true

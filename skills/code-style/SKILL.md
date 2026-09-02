@@ -1,6 +1,6 @@
 ---
 name: code-style
-description: Minimalist style review for code, scripts, configuration, and documentation. Use when asked to check code or doc style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, compatibility logic, redundant sections, restated content, or unrequested documentation.
+description: Minimalist style review for code, scripts, configuration, and documentation. Use when asked to check code or doc style, review whether changes are necessary, enforce minimal implementation, or inspect changed files for unnecessary helpers, structure, control flow, comments, abstraction, compatibility logic, redundant sections, restated content, misplaced content, or unrequested documentation.
 ---
 
 # Code Style
@@ -73,6 +73,23 @@ The heading already says what the file is; the sentences add nothing. Delete
 them, or replace them with information the reader cannot see: prerequisites,
 side effects, or non-obvious options.
 
+### Placement Matches Intent
+
+Each piece of content must live where a reader would look for it given its
+intent: the right file, section, or heading. Flag content that is necessary
+but misplaced under a heading or in a file about something else; move it
+instead of tolerating or duplicating it where it belongs.
+
+#### Example: Prerequisites Under Usage
+
+```markdown
+## Usage
+
+This script requires bash 5+.
+```
+
+A requirement is not usage; it belongs with prerequisites or installation,
+not under the heading that promises commands to run.
 ### Self-Explanatory Code Over Comments
 
 Flag comments that restate what the code already says: narrating the

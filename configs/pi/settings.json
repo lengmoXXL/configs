@@ -1,7 +1,7 @@
 {
   "theme": "gray",
-  "defaultProvider": "zai-coding-cn",
-  "defaultModel": "glm-5.3",
+  "defaultProvider": "kimi-coding",
+  "defaultModel": "k3",
   "subagents": {
     "disableBuiltins": true
   },
