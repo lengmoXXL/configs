@@ -1,6 +1,6 @@
 // /refine <prompt>: iterative refinement loop against acceptance criteria.
 // <prompt> is the acceptance standard. Each round forks the current context into a
-// read-only verifier subagent via the pi-subagents delegation API; if the check
+// worker subagent via the pi-subagents delegation API; if the check
 // reports findings, they are injected as a fix directive for the main agent, and
 // the work is re-checked after the fix turn. The loop exits when the check passes.
 
@@ -132,7 +132,7 @@ export default function (pi: ExtensionAPI) {
 			requestId,
 			ownerRunId: `refine-${ctx.sessionManager.getSessionId()}`,
 			nodeId: `refine-r${round}-${requestId.slice(0, 8)}`,
-			agent: "verifier",
+			agent: "worker",
 			task: `Refinement check, round ${round} of an iterative loop that repeats after every fix turn.
 Acceptance criteria:
 ${criteria}
@@ -140,10 +140,9 @@ ${criteria}
 You have the parent session's conversation context. Inspect the current
 workspace state and verify whether the work satisfies ALL criteria.
 Go through the criteria ONE BY ONE and check each against the actual files;
-do not stop at the first issue, and do not assume earlier rounds' findings
-were fixed -- verify them again in the current state.
-Always re-check before concluding: go through the full list a second time and
-make sure nothing was missed.
+do not stop at the first issue. Earlier rounds' findings were not necessarily
+exhaustive, and reported ones are not necessarily fixed -- verify the full
+criteria list against the current state.
 Every round, if the criteria rely on a skill, reload its SKILL.md first;
 do not judge from memory of earlier rounds.
 A premature pass ends the loop with unfinished work; when in doubt, report a finding.
