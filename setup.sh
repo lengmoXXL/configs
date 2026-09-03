@@ -98,5 +98,6 @@ case "$MODE" in
         ;;
 esac
 
+# ${MODE} 花括号必需：macOS bash 3.2 会把 $MODE 后紧贴的全角字符并进变量名
 echo ""
-echo "setup 完成（$MODE）"
+echo "setup 完成（${MODE}）"
