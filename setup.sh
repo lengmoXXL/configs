@@ -16,7 +16,7 @@ usage() {
   -cn      子脚本使用国内代理/镜像
 
 模式:
-  --init   基础配置: secrets、shell 环境（env.d）、pi agent（含配置与 extensions）、系统配置（默认）
+  --init   基础配置: secrets、shell 环境（env.d）、pi agent（含配置与 extensions）、python、系统配置（默认）
   --nvim   编辑场景: Neovim + 配置（需先 --init）
 EOF
 }
@@ -72,7 +72,7 @@ install_ghostty_macos() {
 
 case "$MODE" in
     init)
-        # 基础配置: secrets、shell 环境（env.d）、pi agent
+        # 基础配置: secrets、shell 环境（env.d）、pi agent、python
         run "$ROOT/tools/secrets.sh" init
         if [[ "$(uname -s)" == "Darwin" ]]; then
             run "$ROOT/install/oh-my-zsh.sh" "${cn_args[@]}"
@@ -82,6 +82,8 @@ case "$MODE" in
         run "$ROOT/install/pi-agent.sh" "${cn_args[@]}"
         run python3 "$ROOT/install/pi-config.py"
         run "$ROOT/install/pi-extensions.sh"
+        run "$ROOT/install/uv.sh"
+        run "$ROOT/install/compiler/python.sh"
 
         # 系统配置
         if [[ "$(uname -s)" == "Darwin" ]]; then
