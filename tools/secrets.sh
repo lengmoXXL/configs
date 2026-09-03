@@ -18,7 +18,7 @@ usage() {
 Usage: $0 <init|ls|push|pull>
 
 Commands:
-  init     Create .secrets/ossutilconfig template.
+  init     Interactively create .secrets/ossutilconfig and ai-providers.json.
   ls       Show .secrets/$AI_PROVIDERS_SECRET path.
   push     Upload .secrets/$AI_PROVIDERS_SECRET to OSS.
   pull     Merge $AI_PROVIDERS_SECRET from OSS into .secrets (local keys win).
@@ -64,30 +64,39 @@ init_secrets() {
     chmod 700 "$SECRETS_DIR"
 
     if [[ ! -f "$SECRETS_DIR/ossutilconfig" ]]; then
+        local access_key_id="" access_key_secret=""
+        read -rp "accessKeyId (留空跳过): " access_key_id
+        if [[ -n "$access_key_id" ]]; then
+            read -rsp "accessKeySecret: " access_key_secret
+            echo
+        fi
         cat > "$SECRETS_DIR/ossutilconfig" <<EOF
 [default]
 language=CH
-accessKeyId=
-accessKeySecret=
+accessKeyId=$access_key_id
+accessKeySecret=$access_key_secret
 endpoint=$OSS_ENDPOINT
 region=cn-beijing
 EOF
         chmod 600 "$SECRETS_DIR/ossutilconfig"
         echo "created: $SECRETS_DIR/ossutilconfig"
-        echo "  请手动填写 accessKeyId/accessKeySecret"
+        if [[ -z "$access_key_id" ]]; then
+            echo "  未填写凭据，请稍后补填"
+        fi
     else
         echo "exists: $SECRETS_DIR/ossutilconfig"
     fi
 
     if [[ ! -f "$AI_PROVIDERS_PATH" ]]; then
-        cat > "$AI_PROVIDERS_PATH" <<'EOF'
+        local bailian_token=""
+        read -rp "bailian-token-plan API key (留空跳过): " bailian_token
+        cat > "$AI_PROVIDERS_PATH" <<EOF
 {
-  "bailian-token-plan": ""
+  "bailian-token-plan": "$bailian_token"
 }
 EOF
         chmod 600 "$AI_PROVIDERS_PATH"
         echo "created: $AI_PROVIDERS_PATH"
-        echo "  请填写 provider 对应的 API key"
     else
         echo "exists: $AI_PROVIDERS_PATH"
     fi
