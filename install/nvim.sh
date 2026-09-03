@@ -9,23 +9,19 @@ INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
 NVIM_BIN="${BIN_DIR}/nvim"
 VERSION="v0.12.5"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -55,8 +51,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 已安装同版本则直接退出；不同版本询问后覆盖
-check_existing_install() {
+exit_if_same_version_or_confirm_upgrade() {
     [[ -x "$NVIM_BIN" ]] || return 0
 
     local installed_version
@@ -81,7 +76,7 @@ check_existing_install() {
 # 下载并解压到临时目录，输出解压后的根目录路径
 download_release() {
     local url="$1"
-    if [[ "$USE_CN" == "true" ]]; then
+    if [[ "${CN:-}" == "1" ]]; then
         url="${GITHUB_RELEASE_PROXY}${url}"
     fi
 
@@ -152,7 +147,7 @@ setup_alias() {
 }
 
 require_deps awk curl find head mktemp sed tar
-check_existing_install
+exit_if_same_version_or_confirm_upgrade
 
 case "$(uname -s)" in
     Darwin) install_macos ;;

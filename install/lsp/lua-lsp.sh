@@ -9,23 +9,19 @@ INSTALL_DIR="${HOME}/.local/lua-language-server"
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/lua-language-server"
 VERSION="3.19.1"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -66,7 +62,7 @@ cd "$TMPDIR"
 
 TARBALL="lua-language-server-$VERSION-$OS-$ARCH.tar.gz"
 DOWNLOAD_URL="https://github.com/LuaLS/lua-language-server/releases/download/$VERSION/$TARBALL"
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     DOWNLOAD_URL="${GITHUB_RELEASE_PROXY}${DOWNLOAD_URL}"
 fi
 curl -fL "$DOWNLOAD_URL" -o "$TARBALL"

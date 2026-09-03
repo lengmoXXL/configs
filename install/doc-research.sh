@@ -6,15 +6,14 @@ set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/doc-research.git}"
 PINNED_COMMIT="2d004122b57ac358e95401ed269648f133d6f954"
-USE_CN=false
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn] [本地仓库路径]
+用法: $0 [本地仓库路径]
 
-选项:
-  -cn      通过国内代理访问 GitHub
+环境变量:
+  CN=1     通过国内代理访问 GitHub
 
 给定本地路径时以 editable 模式安装（本地修改即时生效），跳过远端对比
 EOF
@@ -22,9 +21,6 @@ EOF
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -52,7 +48,7 @@ if [[ -n "${LOCAL_PATH:-}" ]]; then
     exit 0
 fi
 
-if [[ "$USE_CN" == "true" && "$REPO_URL" == https://github.com/* ]]; then
+if [[ "${CN:-}" == "1" && "$REPO_URL" == https://github.com/* ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
 fi
 

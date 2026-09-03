@@ -6,23 +6,19 @@ set -e
 BIN_DIR="${HOME}/.local/bin"
 FZF_VERSION="0.74.3"
 ENV_DIR="${HOME}/.config/env.d"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -64,7 +60,7 @@ else
     esac
 
     url="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-${target}.tar.gz"
-    if [[ "$USE_CN" == "true" ]]; then
+    if [[ "${CN:-}" == "1" ]]; then
         url="${GITHUB_RELEASE_PROXY}${url}"
     fi
     tmp_dir=$(mktemp -d)
@@ -80,7 +76,6 @@ else
     "$BIN_DIR/fzf" --version
 fi
 
-# 创建 fzf bash 配置
 mkdir -p "$ENV_DIR"
 cat > "${ENV_DIR}/fzf.sh" << 'EOF'
 # fzf key bindings

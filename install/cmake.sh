@@ -6,23 +6,19 @@ set -e
 BIN_DIR="${HOME}/.local/bin"
 CMAKE_VERSION="4.4.2"
 CMAKE_DIR="${HOME}/.local/cmake"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -80,7 +76,7 @@ esac
 tmp_dir=$(mktemp -d)
 tarball="${tmp_dir}/cmake.tar.gz"
 url="https://github.com/Kitware/CMake/releases/download/v${version}/cmake-${version}-${target}.tar.gz"
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     url="${GITHUB_RELEASE_PROXY}${url}"
 fi
 

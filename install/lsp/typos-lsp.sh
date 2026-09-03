@@ -1,25 +1,23 @@
 #!/bin/bash
 # 安装 typos-lsp (拼写检查 LSP)
-# 支持两种模式：
-#   --binary  从 GitHub 下载预编译包 (默认)
-#   --source  从源码编译 (需要 Rust 环境)
 # 可重入：已安装时跳过
 
 set -e
 
 MODE="binary"
 VERSION="0.1.55"
-USE_CN=false
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn] [--binary|--source]
+用法: $0 [--binary|--source]
 
 选项:
-  -cn       通过国内代理访问 GitHub
   --binary  从 GitHub Release 下载预编译包 (默认)
   --source  从源码编译
+
+环境变量:
+  CN=1     通过国内代理访问 GitHub
 EOF
 }
 
@@ -27,7 +25,6 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --binary) MODE="binary"; shift ;;
         --source) MODE="source"; shift ;;
-        -cn) USE_CN=true; shift ;;
         -h | --help) usage; exit 0 ;;
         *) usage; exit 1 ;;
     esac
@@ -36,7 +33,6 @@ done
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/typos-lsp"
 
-# 检查是否已安装
 if [[ -x "$BINARY" ]]; then
     echo "typos-lsp 已安装"
     exit 0
@@ -53,7 +49,7 @@ if [[ "$MODE" == "binary" ]]; then
     esac
 
     URL="https://github.com/tekumara/typos-lsp/releases/download/v${VERSION}/typos-lsp-v${VERSION}-${ARCH}.tar.gz"
-    if [[ "$USE_CN" == "true" ]]; then
+    if [[ "${CN:-}" == "1" ]]; then
         URL="${GITHUB_PROXY_PREFIX}${URL}"
     fi
     TMPDIR=$(mktemp -d)
@@ -62,11 +58,9 @@ if [[ "$MODE" == "binary" ]]; then
     echo "下载 typos-lsp v${VERSION} (${ARCH})"
     curl -fsSL "$URL" | tar -xzf - -C "$TMPDIR"
 
-    # 查找并安装二进制文件
     find "$TMPDIR" -name typos-lsp -type f -exec mv {} "$BINARY" \;
     chmod +x "$BINARY"
 else
-    # 从源码编译
     RUST_DIR="${HOME}/.local/rust"
     export RUSTUP_HOME="$RUST_DIR/rustup"
     export CARGO_HOME="$RUST_DIR"
@@ -78,7 +72,7 @@ else
 
     echo "从源码编译 typos-lsp"
     REPO_URL="https://github.com/tekumara/typos-lsp"
-    if [[ "$USE_CN" == "true" ]]; then
+    if [[ "${CN:-}" == "1" ]]; then
         REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
     fi
     "$RUST_DIR/bin/cargo" install --git "$REPO_URL" --tag "v${VERSION}" --locked

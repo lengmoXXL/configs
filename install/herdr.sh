@@ -8,23 +8,19 @@ BIN_DIR="${HOME}/.local/bin"
 HERDR_BIN="${BIN_DIR}/herdr"
 HERDR_VERSION="v0.8.2"
 CURL_USER_AGENT="configs-install-herdr"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -93,7 +89,7 @@ esac
 tmp_dir=$(mktemp -d)
 download="${tmp_dir}/herdr"
 url="https://github.com/herdrdev/herdr/releases/download/${HERDR_VERSION}/${target}"
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     url="${GITHUB_RELEASE_PROXY}${url}"
 fi
 

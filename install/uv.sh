@@ -6,23 +6,19 @@ set -e
 
 BIN_DIR="${HOME}/.local/bin"
 UV_VERSION="0.12.9"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -54,7 +50,7 @@ case "$os-$arch" in
 esac
 
 url="https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-${target}.tar.gz"
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     url="${GITHUB_RELEASE_PROXY}${url}"
 fi
 

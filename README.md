@@ -7,7 +7,7 @@ configs/
 ├── AGENTS.md -> README.md
 ├── README.md
 ├── setup.sh                    # 一键初始化: 默认 --init 基础配置，--nvim 等场景需先 --init
-├── install/                    # 所有安装脚本，一个脚本只做一件事
+├── install/                    # 所有安装脚本，一个脚本只做一件事；CN=1 走国内代理/镜像
 │   ├── agent-prompts.sh
 │   ├── clash-for-linux.sh
 │   ├── clashctl.sh

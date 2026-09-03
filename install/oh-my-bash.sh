@@ -4,23 +4,19 @@
 set -e
 
 ENV_DIR="$HOME/.config/env.d"
-USE_CN=false
 GITHUB_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub 文件与克隆仓库
+环境变量:
+  CN=1     通过国内代理下载 GitHub 文件与克隆仓库
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -33,9 +29,8 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# proxy_url <url>: -cn 模式下加代理前缀
 proxy_url() {
-    if [[ "$USE_CN" == "true" ]]; then
+    if [[ "${CN:-}" == "1" ]]; then
         echo "${GITHUB_PROXY}$1"
     else
         echo "$1"

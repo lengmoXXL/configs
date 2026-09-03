@@ -6,7 +6,6 @@ set -e
 
 REPO_URL="https://github.com/lengmoXXL/markdown-oxide.git"
 BRANCH="main"
-USE_CN=false
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 RUST_DIR="${HOME}/.local/rust"
 INSTALL_ROOT="${HOME}/.local/markdown-oxide"
@@ -16,18 +15,15 @@ BINARY="${BIN_DIR}/markdown-oxide"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理 clone GitHub 仓库
+环境变量:
+  CN=1     通过国内代理 clone GitHub 仓库
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -40,7 +36,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
 fi
 

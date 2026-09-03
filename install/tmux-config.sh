@@ -9,23 +9,19 @@ TMUX_SOURCE="$SCRIPT_DIR/../configs/tmux/tmux.conf"
 TMUX_DEST="$HOME/.tmux.conf"
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 TPM_REPO="https://github.com/tmux-plugins/tpm.git"
-USE_CN=false
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理 clone GitHub 仓库
+环境变量:
+  CN=1     通过国内代理 clone GitHub 仓库
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -38,7 +34,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     TPM_REPO="${GITHUB_PROXY_PREFIX}${TPM_REPO}"
 fi
 

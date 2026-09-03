@@ -5,15 +5,14 @@ set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INIT_MARKER="$HOME/.local/share/configs-setup/initialized"
-USE_CN=false
 MODE="init"
 
 usage() {
     cat << EOF
-用法: $0 [-cn] [--init | --nvim]
+用法: $0 [--init | --nvim]
 
-选项:
-  -cn      子脚本使用国内代理/镜像
+环境变量:
+  CN=1     子脚本使用国内代理/镜像
 
 模式:
   --init   基础配置: secrets、shell 环境（env.d）、pi agent（含配置与 extensions）、python、系统配置（默认）
@@ -23,9 +22,6 @@ EOF
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -43,11 +39,6 @@ while [[ $# -gt 0 ]]; do
     esac
     shift
 done
-
-cn_args=()
-if [[ "$USE_CN" == "true" ]]; then
-    cn_args=(-cn)
-fi
 
 run() {
     echo ""
@@ -75,11 +66,11 @@ case "$MODE" in
         # 基础配置: secrets、shell 环境（env.d）、pi agent、python
         run "$ROOT/tools/secrets.sh" init
         if [[ "$(uname -s)" == "Darwin" ]]; then
-            run "$ROOT/install/oh-my-zsh.sh" "${cn_args[@]}"
+            run "$ROOT/install/oh-my-zsh.sh"
         else
-            run "$ROOT/install/oh-my-bash.sh" "${cn_args[@]}"
+            run "$ROOT/install/oh-my-bash.sh"
         fi
-        run "$ROOT/install/pi-agent.sh" "${cn_args[@]}"
+        run "$ROOT/install/pi-agent.sh"
         run python3 "$ROOT/install/pi-config.py"
         run "$ROOT/install/pi-extensions.sh"
         run "$ROOT/install/uv.sh"
@@ -102,7 +93,7 @@ case "$MODE" in
             echo "错误: 尚未初始化，请先运行 $0 --init" >&2
             exit 1
         fi
-        run "$ROOT/install/nvim.sh" "${cn_args[@]}"
+        run "$ROOT/install/nvim.sh"
         run "$ROOT/install/nvim-config.sh"
         ;;
 esac

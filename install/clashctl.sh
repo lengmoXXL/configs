@@ -8,22 +8,18 @@ GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 BRANCH="master"
 INSTALL_DIR="${CLASH_FOR_LINUX_DIR:-${HOME}/.local/share/clash-for-linux}"
 SUBSCRIPTION_PAGE="https://access.fengcheyun.com/#/dashboard"
-USE_CN=false
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理 clone GitHub 仓库
+环境变量:
+  CN=1     通过国内代理 clone GitHub 仓库
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -41,7 +37,7 @@ if ! command -v git &>/dev/null; then
     exit 1
 fi
 
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
 fi
 

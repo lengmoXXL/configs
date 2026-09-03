@@ -11,24 +11,22 @@ PI_PACKAGE="@earendil-works/pi-coding-agent"
 PI_VERSION="0.84.4"
 PI_BIN="${BIN_DIR}/pi"
 MIN_NODE_VERSION="22.19.0"
-USE_CN=false
 NPM_REGISTRY=""
 
 usage() {
     cat << EOF
-用法: $0 [-cn] [--registry URL]
+用法: $0 [--registry URL]
 
 选项:
-  -cn             使用 npmmirror npm registry
   --registry URL  使用指定 npm registry
+
+环境变量:
+  CN=1     使用 npmmirror npm registry
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         --registry)
             if [[ $# -lt 2 ]]; then
                 usage
@@ -49,7 +47,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-if [[ "$USE_CN" == "true" && -z "$NPM_REGISTRY" ]]; then
+if [[ "${CN:-}" == "1" && -z "$NPM_REGISTRY" ]]; then
     NPM_REGISTRY="https://registry.npmmirror.com"
 fi
 

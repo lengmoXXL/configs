@@ -7,23 +7,19 @@ set -euo pipefail
 BIN_DIR="${HOME}/.local/bin"
 OPENCODE_BIN="${BIN_DIR}/opencode"
 OPENCODE_VERSION="1.18.21"
-USE_CN=false
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
     cat << EOF
-用法: $0 [-cn]
+用法: $0
 
-选项:
-  -cn      通过国内代理下载 GitHub Release 文件
+环境变量:
+  CN=1     通过国内代理下载 GitHub Release 文件
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -cn)
-            USE_CN=true
-            ;;
         -h | --help)
             usage
             exit 0
@@ -96,7 +92,7 @@ fi
 tmp_dir=$(mktemp -d)
 archive="${tmp_dir}/opencode.${archive_ext}"
 url="https://github.com/anomalyco/opencode/releases/download/v${OPENCODE_VERSION}/opencode-${target}.${archive_ext}"
-if [[ "$USE_CN" == "true" ]]; then
+if [[ "${CN:-}" == "1" ]]; then
     url="${GITHUB_RELEASE_PROXY}${url}"
 fi
 
