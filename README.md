@@ -15,7 +15,6 @@ configs/
 │   ├── codex-batch.sh
 │   ├── doc-research.sh         # doc-research CLI（固定 commit，对比远端提示更新）
 │   ├── doc-research-init.sh
-│   ├── dprint.sh
 │   ├── fd.sh
 │   ├── fonts.sh
 │   ├── fzf.sh
