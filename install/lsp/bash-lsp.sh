@@ -7,7 +7,7 @@ BINARY="$BIN_DIR/bash-language-server"
 
 if [[ ! -x "$NPM" ]]; then
     echo "错误: npm 未安装在 $NPM"
-    echo "请先运行 install/install-node.sh 安装 Node.js"
+    echo "请先运行 install/compiler/node.sh 安装 Node.js"
     exit 1
 fi
 

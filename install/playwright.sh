@@ -63,8 +63,8 @@ install_chromium_system_deps() {
 }
 
 if ! command -v npm &>/dev/null; then
-    if [[ -x "$SCRIPT_DIR/install-node.sh" ]]; then
-        "$SCRIPT_DIR/install-node.sh"
+    if [[ -x "$SCRIPT_DIR/compiler/node.sh" ]]; then
+        "$SCRIPT_DIR/compiler/node.sh"
         export PATH="$LOCAL_BIN:$PATH"
     else
         echo "Missing dependency: npm" >&2

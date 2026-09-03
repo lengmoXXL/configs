@@ -8,7 +8,7 @@ EXT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PI_BIN="$(command -v pi 2>/dev/null || true)"
 if [[ -z "$PI_BIN" ]]; then
-    echo "错误: 缺少 pi 命令，可先运行 ./install/install-pi-agent.sh"
+    echo "错误: 缺少 pi 命令，可先运行 ./install/pi-agent.sh"
     exit 1
 fi
 

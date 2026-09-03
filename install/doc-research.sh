@@ -42,7 +42,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if ! command -v uv &>/dev/null; then
-    echo "错误: 缺少 uv，请先运行 $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/install-uv.sh" >&2
+    echo "错误: 缺少 uv，请先运行 $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/uv.sh" >&2
     exit 1
 fi
 

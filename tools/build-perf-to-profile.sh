@@ -61,7 +61,7 @@ done
 
 if [[ "$PUSH" == "true" ]] && ! command -v ossutil &>/dev/null; then
     echo "错误: --push 需要 ossutil"
-    echo "请先运行: ${ROOT}/install/install-ossutil.sh"
+    echo "请先运行: ${ROOT}/install/ossutil.sh"
     exit 1
 fi
 

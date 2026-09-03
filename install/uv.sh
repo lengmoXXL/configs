@@ -1,5 +1,5 @@
 #!/bin/bash
-# 安装 uv 到 ~/.local/bin（python/工具链管理器，install-python.sh 等依赖它）
+# 安装 uv 到 ~/.local/bin（python/工具链管理器，compiler/python.sh 等依赖它）
 # 可重入：已安装时跳过；如需升级请提高 UV_VERSION
 
 set -e

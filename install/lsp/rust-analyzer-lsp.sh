@@ -24,7 +24,7 @@ if [[ ! -x "$RUSTUP" ]]; then
         RUSTUP="$(command -v rustup)"
     else
         echo "错误: rustup 未安装"
-        echo "请先运行 install/install-rust.sh 安装 Rust"
+        echo "请先运行 install/compiler/rust.sh 安装 Rust"
         exit 1
     fi
 fi

@@ -68,8 +68,8 @@ ensure_node() {
     fi
 
     echo "Pi Agent 需要 Node.js ${MIN_NODE_VERSION}+ 和 npm"
-    echo "尝试通过 install/install-node.sh 安装 Node.js..."
-    bash "$SCRIPT_DIR/install-node.sh"
+    echo "尝试通过 install/compiler/node.sh 安装 Node.js..."
+    bash "$SCRIPT_DIR/compiler/node.sh"
     export PATH="${HOME}/.local/bin:${HOME}/.local/node/bin:${PATH}"
 
     if ! node_ready; then
@@ -138,4 +138,4 @@ npm "${npm_args[@]}"
 
 echo "Pi Agent 安装完成: $PI_BIN"
 "$PI_BIN" --version
-echo "提示: 可运行 ./install/install-pi-extensions.sh 安装 Pi extensions"
+echo "提示: 可运行 ./install/pi-extensions.sh 安装 Pi extensions"

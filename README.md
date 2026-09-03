@@ -6,68 +6,71 @@
 configs/
 ├── AGENTS.md -> README.md
 ├── README.md
-├── install/                    # 所有安装脚本，扁平放置，一个脚本只做一件事
-│   ├── install-agents.sh
-│   ├── install-bash-lsp.sh
-│   ├── install-clang.sh
-│   ├── install-clash-for-linux.sh
-│   ├── install-clashctl.sh
-│   ├── install-cmake.sh
-│   ├── install-code-report.sh
-│   ├── install-code-style.sh
-│   ├── install-codex.sh
-│   ├── install-codex-batch.sh
-│   ├── install-doc-research.sh   # doc-research CLI（固定 commit，对比远端提示更新）
-│   ├── install-doc-research-init.sh
-│   ├── install-dprint.sh
-│   ├── install-fd.sh
-│   ├── install-fonts.sh
-│   ├── install-frontend-draw.sh
-│   ├── install-fzf.sh
-│   ├── install-gh.sh
-│   ├── install-ghostty-config.sh
-│   ├── install-ghostty-terminfo.sh
-│   ├── install-git-prune-merged.sh
-│   ├── install-go.sh
-│   ├── install-herdr.sh
-│   ├── install-herdr-config.sh
-│   ├── install-hermes-agent.sh
-│   ├── install-kimi.sh
-│   ├── install-kimi-config.sh
-│   ├── install-lua-lsp.sh
-│   ├── install-markdown-oxide.sh
-│   ├── install-neovim-skill.sh
-│   ├── install-node.sh
-│   ├── install-nvim.sh
-│   ├── install-nvim-config.sh
-│   ├── install-nvim-ft.sh
-│   ├── install-oh-my-bash.sh     # Linux: Oh My Bash + ~/.bashrc（env.d 加载、PATH）
-│   ├── install-oh-my-zsh.sh      # macOS: Oh My Zsh + ~/.zshrc（env.d 加载、PATH）
-│   ├── install-opencode.sh
-│   ├── install-opencode-config.py
-│   ├── install-ossutil.sh
-│   ├── install-perf-to-profile.sh
-│   ├── install-pi-agent.sh
-│   ├── install-pi-config.py
-│   ├── install-pi-extensions.sh
-│   ├── install-pj.sh
-│   ├── install-playwright.sh
-│   ├── install-prd.sh
-│   ├── install-python.sh
-│   ├── install-pyright-lsp.sh
-│   ├── install-ripgrep.sh
-│   ├── install-rust.sh
-│   ├── install-rust-analyzer-lsp.sh
-│   ├── install-starpls-lsp.sh
-│   ├── install-style-check.sh
-│   ├── install-tldr.sh
-│   ├── install-tmux.sh
-│   ├── install-tmux-config.sh
-│   ├── install-tree-sitter.sh
-│   ├── install-typescript-lsp.sh
-│   ├── install-typos-lsp.sh
-│   ├── install-uv.sh
-│   └── install-zig.sh
+├── install/                    # 所有安装脚本，一个脚本只做一件事
+│   ├── agents.sh
+│   ├── clash-for-linux.sh
+│   ├── clashctl.sh
+│   ├── cmake.sh
+│   ├── codex.sh
+│   ├── codex-batch.sh
+│   ├── doc-research.sh         # doc-research CLI（固定 commit，对比远端提示更新）
+│   ├── doc-research-init.sh
+│   ├── dprint.sh
+│   ├── fd.sh
+│   ├── fonts.sh
+│   ├── fzf.sh
+│   ├── gh.sh
+│   ├── ghostty-config.sh
+│   ├── ghostty-terminfo.sh
+│   ├── git-prune-merged.sh
+│   ├── herdr.sh
+│   ├── herdr-config.sh
+│   ├── hermes-agent.sh
+│   ├── kimi.sh
+│   ├── kimi-config.sh
+│   ├── nvim.sh
+│   ├── nvim-config.sh
+│   ├── nvim-ft.sh
+│   ├── oh-my-bash.sh           # Linux: Oh My Bash + ~/.bashrc（env.d 加载、PATH）
+│   ├── oh-my-zsh.sh            # macOS: Oh My Zsh + ~/.zshrc（env.d 加载、PATH）
+│   ├── opencode.sh
+│   ├── opencode-config.py
+│   ├── ossutil.sh
+│   ├── perf-to-profile.sh
+│   ├── pi-agent.sh
+│   ├── pi-config.py
+│   ├── pi-extensions.sh
+│   ├── pj.sh
+│   ├── playwright.sh
+│   ├── prd.sh
+│   ├── ripgrep.sh
+│   ├── style-check.sh
+│   ├── tldr.sh
+│   ├── tmux.sh
+│   ├── tmux-config.sh
+│   ├── tree-sitter.sh
+│   ├── uv.sh
+│   ├── compiler/               # 语言编译器/运行时
+│   │   ├── clang.sh
+│   │   ├── go.sh
+│   │   ├── node.sh
+│   │   ├── python.sh
+│   │   ├── rust.sh
+│   │   └── zig.sh
+│   ├── lsp/
+│   │   ├── bash-lsp.sh
+│   │   ├── lua-lsp.sh
+│   │   ├── markdown-oxide.sh
+│   │   ├── pyright-lsp.sh
+│   │   ├── rust-analyzer-lsp.sh
+│   │   ├── starpls-lsp.sh
+│   │   ├── typescript-lsp.sh
+│   │   └── typos-lsp.sh
+│   └── skill/                  # skill 安装
+│       ├── code-report.sh
+│       ├── code-style.sh
+│       ├── frontend-draw.sh
+│       └── neovim-skill.sh
 ├── configs/
 │   ├── agents/
 │   │   ├── editing-constraints.md

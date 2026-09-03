@@ -15,7 +15,7 @@ if [[ -x "$BIN_DIR/tree-sitter" ]]; then
 fi
 
 # 调用 rust 安装脚本
-bash "$SCRIPT_DIR/install-rust.sh"
+bash "$SCRIPT_DIR/compiler/rust.sh"
 
 # 设置 Rust 环境
 export RUSTUP_HOME="${HOME}/.local/rust/rustup"

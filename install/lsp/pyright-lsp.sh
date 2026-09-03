@@ -20,7 +20,7 @@ if [[ ! -x "$NPM" ]]; then
         NPM="$(command -v npm)"
     else
         echo "错误: npm 未安装"
-        echo "请先运行 install/install-node.sh 安装 Node.js"
+        echo "请先运行 install/compiler/node.sh 安装 Node.js"
         exit 1
     fi
 fi

@@ -40,7 +40,7 @@ cp "$HERDR_SOURCE" "$HERDR_DEST"
 echo "Herdr 配置已安装: $HERDR_DEST"
 
 if ! command -v herdr &>/dev/null; then
-    echo "提示: herdr 未安装，可先运行 ./install/install-herdr.sh"
+    echo "提示: herdr 未安装，可先运行 ./install/herdr.sh"
     exit 0
 fi
 

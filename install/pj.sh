@@ -9,7 +9,7 @@ ENV_DIR="$HOME/.config/env.d"
 
 # 检查 fzf 依赖
 if ! command -v fzf &>/dev/null; then
-    echo "错误: fzf 未安装，请先运行 install/install-fzf.sh"
+    echo "错误: fzf 未安装，请先运行 install/fzf.sh"
     exit 1
 fi
 
