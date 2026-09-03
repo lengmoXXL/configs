@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GHOSTTY_SOURCE="$SCRIPT_DIR/ghostty/config"
+GHOSTTY_SOURCE="$SCRIPT_DIR/../configs/ghostty/config"
 GHOSTTY_DIR="$HOME/.config/ghostty"
 GHOSTTY_DEST="$GHOSTTY_DIR/config"
 

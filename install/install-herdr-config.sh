@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HERDR_SOURCE="$SCRIPT_DIR/herdr/config.toml"
+HERDR_SOURCE="$SCRIPT_DIR/../configs/herdr/config.toml"
 HERDR_DIR="$HOME/.config/herdr"
 HERDR_DEST="$HERDR_DIR/config.toml"
 

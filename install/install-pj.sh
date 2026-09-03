@@ -9,7 +9,7 @@ ENV_DIR="$HOME/.config/env.d"
 
 # 检查 fzf 依赖
 if ! command -v fzf &>/dev/null; then
-    echo "错误: fzf 未安装，请先运行 install/install-basic-tools.sh"
+    echo "错误: fzf 未安装，请先运行 install/install-fzf.sh"
     exit 1
 fi
 
@@ -34,7 +34,7 @@ ensure_envd_loader() {
 # 确保 env.d 加载逻辑存在
 ensure_envd_loader
 
-pj_source="$SCRIPT_DIR/pj/pj.sh"
+pj_source="$SCRIPT_DIR/../tools/pj/pj.sh"
 pj_dest="$ENV_DIR/pj.sh"
 
 if [[ ! -f "$pj_source" ]]; then

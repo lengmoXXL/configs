@@ -5,7 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EXT_DIR="$SCRIPT_DIR/pi/extensions"
+EXT_DIR="$SCRIPT_DIR/../configs/pi/extensions"
 TARGET="$HOME/.pi/agent/extensions"
 
 mkdir -p "$TARGET"

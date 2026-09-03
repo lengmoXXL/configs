@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROMPTS_DIR="${PROMPTS_DIR:-$SCRIPT_DIR/agents}"
+PROMPTS_DIR="${PROMPTS_DIR:-$SCRIPT_DIR/../configs/agents}"
 
 install_mode() {
     local mode="$1" dest="$2"

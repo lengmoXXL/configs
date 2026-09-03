@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-THEMES_SOURCE="$SCRIPT_DIR/kimi/themes"
+THEMES_SOURCE="$SCRIPT_DIR/../configs/kimi/themes"
 KIMI_HOME="${KIMI_CODE_HOME:-$HOME/.kimi-code}"
 THEMES_DEST="$KIMI_HOME/themes"
 

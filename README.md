@@ -6,57 +6,69 @@
 configs/
 ├── AGENTS.md -> README.md
 ├── README.md
-├── install.sh                  # 安装 Oh My Zsh / Oh My Bash 与 env.d 加载
-├── install/
-│   ├── install-basic-tools.sh
+├── install/                    # 所有安装脚本，扁平放置，一个脚本只做一件事
+│   ├── install-agents.sh
+│   ├── install-bash-lsp.sh
+│   ├── install-clang.sh
 │   ├── install-clash-for-linux.sh
 │   ├── install-clashctl.sh
+│   ├── install-cmake.sh
+│   ├── install-code-report.sh
+│   ├── install-code-style.sh
 │   ├── install-codex.sh
+│   ├── install-codex-batch.sh
 │   ├── install-doc-research.sh   # doc-research CLI（固定 commit，对比远端提示更新）
+│   ├── install-doc-research-init.sh
 │   ├── install-dprint.sh
 │   ├── install-fd.sh
 │   ├── install-fonts.sh
+│   ├── install-frontend-draw.sh
+│   ├── install-fzf.sh
 │   ├── install-gh.sh
-│   ├── install-go.sh
+│   ├── install-ghostty-config.sh
 │   ├── install-ghostty-terminfo.sh
+│   ├── install-git-prune-merged.sh
+│   ├── install-go.sh
 │   ├── install-herdr.sh
+│   ├── install-herdr-config.sh
 │   ├── install-hermes-agent.sh
 │   ├── install-kimi.sh
+│   ├── install-kimi-config.sh
+│   ├── install-lua-lsp.sh
+│   ├── install-markdown-oxide.sh
+│   ├── install-neovim-skill.sh
 │   ├── install-node.sh
 │   ├── install-nvim.sh
+│   ├── install-nvim-config.sh
+│   ├── install-nvim-ft.sh
+│   ├── install-oh-my-bash.sh     # Linux: Oh My Bash + ~/.bashrc（env.d 加载、PATH）
+│   ├── install-oh-my-zsh.sh      # macOS: Oh My Zsh + ~/.zshrc（env.d 加载、PATH）
 │   ├── install-opencode.sh
+│   ├── install-opencode-config.py
 │   ├── install-ossutil.sh
 │   ├── install-perf-to-profile.sh
 │   ├── install-pi-agent.sh
+│   ├── install-pi-config.py
+│   ├── install-pi-extensions.sh
+│   ├── install-pj.sh
 │   ├── install-playwright.sh
+│   ├── install-prd.sh
+│   ├── install-python.sh
+│   ├── install-pyright-lsp.sh
+│   ├── install-ripgrep.sh
 │   ├── install-rust.sh
+│   ├── install-rust-analyzer-lsp.sh
+│   ├── install-starpls-lsp.sh
+│   ├── install-style-check.sh
 │   ├── install-tldr.sh
 │   ├── install-tmux.sh
-│   ├── install-tree-sitter.sh
-│   ├── install-uv.sh
-│   ├── install-zig.sh
-│   ├── lsp/
-│   │   ├── install-bash-lsp.sh
-│   │   ├── install-lua-lsp.sh
-│   │   ├── install-markdown-oxide.sh
-│   │   ├── install-pyright-lsp.sh
-│   │   ├── install-rust-analyzer-lsp.sh
-│   │   ├── install-starpls-lsp.sh
-│   │   ├── install-typescript-lsp.sh
-│   │   └── install-typos-lsp.sh
-│   └── sys/
-│       ├── install-clang.sh
-│       └── install-python.sh
-├── configs/
-│   ├── install-nvim-config.sh
 │   ├── install-tmux-config.sh
-│   ├── install-herdr-config.sh
-│   ├── install-ghostty-config.sh
-│   ├── install-kimi-config.sh
-│   ├── install-pi-extensions.sh
-│   ├── install-opencode-config.py
-│   ├── install-pi-config.py
-│   ├── install-agents.sh
+│   ├── install-tree-sitter.sh
+│   ├── install-typescript-lsp.sh
+│   ├── install-typos-lsp.sh
+│   ├── install-uv.sh
+│   └── install-zig.sh
+├── configs/
 │   ├── agents/
 │   │   ├── editing-constraints.md
 │   │   ├── git-safety.md
@@ -98,29 +110,22 @@ configs/
 │   └── tmux/
 │       └── tmux.conf
 ├── skills/
-│   ├── install-code-report.sh
-│   ├── install-code-style.sh
-│   ├── install-frontend-draw.sh
-│   ├── install-neovim-skill.sh
 │   ├── code-report/
 │   ├── code-style/
-│   └── frontend-draw/
+│   ├── frontend-draw/
+│   └── publish-frontend-draw-assets.sh
 └── tools/
     ├── build-perf-to-profile.sh
     ├── codex_batch.py
     ├── doc-research-init.sh      # 初始化文献调研项目（raw/tr/dist + 工作流 README）
-    ├── install-codex-batch.sh
-    ├── install-doc-research-init.sh
-    ├── nvim_ft.py               # 按 git URL 管理 Neovim filetype
     ├── github-release-latest.sh
     ├── git-prune-merged.sh
-    ├── install-git-prune-merged.sh
-    ├── install-nvim-ft.sh
-    ├── install-prd.sh
-    ├── secrets.sh               # 同步 provider API keys
+    ├── hermes/
+    ├── nvim_ft.py               # 按 git URL 管理 Neovim filetype
+    ├── pj/                      # 仓库命令工具
+    │   └── ...
     ├── prd/                     # 本机文件 HTTP 预览工具
     │   └── src/preview_server.ts
-    ├── install-pj.sh
-    └── pj/                      # 仓库命令工具
-        └── ...
+    ├── secrets.sh               # 同步 provider API keys
+    └── style-check.sh
 ```

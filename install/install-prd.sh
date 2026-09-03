@@ -4,7 +4,7 @@ set -euo pipefail
 
 BIN_DIR="${HOME}/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="${SCRIPT_DIR}/prd"
+PROJECT_DIR="${SCRIPT_DIR}/../tools/prd"
 SOURCE_PATH="${PROJECT_DIR}/dist/prd.cjs"
 TARGET_PATH="${BIN_DIR}/prd"
 
@@ -42,5 +42,5 @@ echo "Run it with: prd <file>"
 echo "Default server: http://127.0.0.1:7000/"
 
 if ! command -v markdown-oxide >/dev/null 2>&1; then
-    echo "Note: markdown-oxide not found; install it (install/lsp/install-markdown-oxide.sh) to resolve [[wiki]] links"
+    echo "Note: markdown-oxide not found; install it (install/install-markdown-oxide.sh) to resolve [[wiki]] links"
 fi

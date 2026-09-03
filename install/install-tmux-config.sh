@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TMUX_SOURCE="$SCRIPT_DIR/tmux/tmux.conf"
+TMUX_SOURCE="$SCRIPT_DIR/../configs/tmux/tmux.conf"
 TMUX_DEST="$HOME/.tmux.conf"
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 TPM_REPO="https://github.com/tmux-plugins/tpm.git"
