@@ -7,7 +7,7 @@ configs/
 ├── AGENTS.md -> README.md
 ├── README.md
 ├── install/                    # 所有安装脚本，一个脚本只做一件事
-│   ├── agents.sh
+│   ├── agent-prompts.sh
 │   ├── clash-for-linux.sh
 │   ├── clashctl.sh
 │   ├── cmake.sh
