@@ -95,8 +95,6 @@ configs/
 │   │       │   └── ...
 │   │       └── themes/
 │   │           └── ...
-│   ├── opencode/
-│   │   └── opencode.json
 │   ├── pi/
 │   │   ├── models.json
 │   │   ├── settings.json
