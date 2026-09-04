@@ -66,29 +66,28 @@ if [[ "$PUSH" == "true" ]] && ! command -v ossutil &>/dev/null; then
 fi
 
 if ! command -v g++ &>/dev/null || [[ ! -f /usr/include/libelf.h || ! -f /usr/include/sys/capability.h ]]; then
-    sudo_cmd=()
-    if [[ "$(id -u)" -ne 0 ]]; then
-        if ! command -v sudo &>/dev/null; then
-            echo "错误: 安装编译依赖需要 root 权限或 sudo"
-            exit 1
-        fi
-        sudo_cmd=(sudo)
+    sudo_cmd="sudo"
+    if [[ "$(id -u)" -eq 0 ]]; then
+        sudo_cmd=""
+    elif ! command -v sudo &>/dev/null; then
+        echo "错误: 安装编译依赖需要 root 权限或 sudo"
+        exit 1
     fi
 
     echo "安装 perf_to_profile 编译依赖..."
     if command -v apt-get &>/dev/null; then
-        "${sudo_cmd[@]}" apt-get update
-        "${sudo_cmd[@]}" apt-get install -y g++ libelf-dev libcap-dev
+        $sudo_cmd apt-get update
+        $sudo_cmd apt-get install -y g++ libelf-dev libcap-dev
     elif command -v dnf &>/dev/null; then
-        "${sudo_cmd[@]}" dnf install -y gcc-c++ elfutils-libelf-devel libcap-devel
+        $sudo_cmd dnf install -y gcc-c++ elfutils-libelf-devel libcap-devel
     elif command -v yum &>/dev/null; then
-        "${sudo_cmd[@]}" yum install -y gcc-c++ elfutils-libelf-devel libcap-devel
+        $sudo_cmd yum install -y gcc-c++ elfutils-libelf-devel libcap-devel
     elif command -v pacman &>/dev/null; then
-        "${sudo_cmd[@]}" pacman -Sy --noconfirm gcc libelf libcap
+        $sudo_cmd pacman -Sy --noconfirm gcc libelf libcap
     elif command -v apk &>/dev/null; then
-        "${sudo_cmd[@]}" apk add g++ libelf-dev libcap-dev
+        $sudo_cmd apk add g++ libelf-dev libcap-dev
     elif command -v zypper &>/dev/null; then
-        "${sudo_cmd[@]}" zypper install -y gcc-c++ libelf-devel libcap-devel
+        $sudo_cmd zypper install -y gcc-c++ libelf-devel libcap-devel
     else
         echo "错误: 未找到支持的包管理器，无法安装 g++、libelf 和 libcap 开发包"
         exit 1
