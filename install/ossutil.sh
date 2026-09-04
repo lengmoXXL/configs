@@ -83,7 +83,7 @@ if [[ "${UPDATE:-}" == "1" && -z "$existing_ossutil" ]]; then
 fi
 
 if [[ -n "$existing_ossutil" ]]; then
-    existing_version="$("$existing_ossutil" version 2>/dev/null | sed -n 's/.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p' | head -1)"
+    existing_version="$("$existing_ossutil" version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
     if [[ "$existing_version" == "$OSSUTIL_VERSION" && "$existing_ossutil" == "$OSSUTIL_BIN" ]]; then
         echo "ossutil ${OSSUTIL_VERSION} 已安装: $OSSUTIL_BIN"
         "$OSSUTIL_BIN" version

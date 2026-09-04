@@ -3,7 +3,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/neovim-skill.git}"
-REF="${REF:-master}"
+PINNED_COMMIT="d2efe90ee3c94f188a13243202ef4ba866de011d"
 SKILL_PATH="${SKILL_PATH:-skills/neovim-skill}"
 DEST_ROOT="${AGENTS_HOME:-$HOME/.agents}/skills"
 DEST="$DEST_ROOT/neovim-skill"
@@ -40,19 +40,33 @@ if [[ "${UPDATE:-}" == "1" && ! -d "$DEST" ]]; then
     exit 0
 fi
 
-if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "neovim-skill 到最新 ${REF}" || exit 0
+VERSIONS_DIR="$HOME/.local/share/configs-setup/versions"
+MARKER="$VERSIONS_DIR/neovim-skill"
+
+if [[ -d "$DEST" && "${UPDATE:-}" != "1" ]]; then
+    echo "neovim-skill 已安装: $DEST"
+    exit 0
 fi
 
 if [[ "${CN:-}" == "1" && "$REPO_URL" == https://github.com/* ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
 fi
 
-echo "Cloning $REPO_URL..."
-git clone --filter=blob:none --sparse --depth 1 --branch "$REF" "$REPO_URL" "$TMP_DIR/repo"
+if [[ -d "$DEST" && "$(cat "$MARKER" 2>/dev/null)" == "$PINNED_COMMIT" ]]; then
+    echo "neovim-skill 已是最新: ${PINNED_COMMIT:0:12}"
+    exit 0
+fi
 
-echo "Checking out $SKILL_PATH..."
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "neovim-skill -> ${PINNED_COMMIT:0:12}" || exit 0
+fi
+
+echo "Cloning $REPO_URL @ ${PINNED_COMMIT:0:12}..."
+git -C "$TMP_DIR" init repo
+git -C "$TMP_DIR/repo" remote add origin "$REPO_URL"
 git -C "$TMP_DIR/repo" sparse-checkout set "$SKILL_PATH"
+git -C "$TMP_DIR/repo" fetch --filter=blob:none --depth 1 origin "$PINNED_COMMIT"
+git -C "$TMP_DIR/repo" checkout FETCH_HEAD
 
 SRC="$TMP_DIR/repo/$SKILL_PATH"
 if [[ ! -f "$SRC/SKILL.md" ]]; then
@@ -63,6 +77,9 @@ fi
 mkdir -p "$DEST_ROOT"
 rm -rf "$DEST"
 cp -a "$SRC" "$DEST"
+
+mkdir -p "$VERSIONS_DIR"
+echo "$PINNED_COMMIT" > "$MARKER"
 
 echo "Installed neovim-skill to $DEST"
 echo "Restart your agent to pick up new skills."

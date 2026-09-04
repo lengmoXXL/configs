@@ -1,4 +1,5 @@
 #!/bin/bash
+# sync: skip
 
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"

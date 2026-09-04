@@ -16,6 +16,8 @@ if [[ "${UPDATE:-}" == "1" && ! -x "$PYRIGHT_LANGSERVER" ]]; then
     exit 0
 fi
 
+VERSION="1.1.413"
+
 if [[ -x "$PYRIGHT_LANGSERVER" && "${UPDATE:-}" != "1" ]]; then
     echo "pyright-langserver 已安装"
     exit 0
@@ -32,7 +34,12 @@ if [[ ! -x "$NPM" ]]; then
 fi
 
 if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "pyright 到最新版" || exit 0
+    installed_version="$("$PYRIGHT" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "$installed_version" == "$VERSION" ]]; then
+        echo "pyright 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "pyright: ${installed_version:-unknown} -> $VERSION" || exit 0
 fi
 
 echo "安装 pyright LSP"
@@ -40,7 +47,7 @@ echo "安装 pyright LSP"
 mkdir -p "$BIN_DIR"
 mkdir -p "$INSTALL_DIR"
 
-"$NPM" install --prefix "$INSTALL_DIR" pyright
+"$NPM" install --prefix "$INSTALL_DIR" "pyright@$VERSION"
 
 ln -sf "$INSTALL_DIR/node_modules/.bin/pyright" "$PYRIGHT"
 ln -sf "$INSTALL_DIR/node_modules/.bin/pyright-langserver" "$PYRIGHT_LANGSERVER"

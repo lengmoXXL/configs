@@ -1,6 +1,6 @@
 #!/bin/bash
 # 安装 Go 到 ~/.local/go
-# 可重入：已安装时跳过；UPDATE=1 时对比最新版按需更新
+# 可重入：已安装时跳过；UPDATE=1 时对比固定版本按需更新
 
 set -e
 
@@ -8,6 +8,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local/go"
 BIN_DIR="${HOME}/.local/bin"
+GO_VERSION="1.27.1"
+GOPLS_VERSION="v0.23.0"
 
 if [[ "${UPDATE:-}" == "1" && ! -x "$INSTALL_DIR/bin/go" ]]; then
     echo "未安装，跳过: $INSTALL_DIR/bin/go"
@@ -30,12 +32,6 @@ elif [[ "${UPDATE:-}" != "1" ]]; then
     echo "Go 已安装: $($INSTALL_DIR/bin/go version)"
 else
     installed_version="$("$INSTALL_DIR/bin/go" version | awk '{print $3}' | sed 's/go//')"
-    echo "获取最新版本..."
-    GO_VERSION=$(curl -sL "https://go.dev/VERSION?m=text" | head -1 | sed 's/go//')
-    if [[ -z "$GO_VERSION" ]]; then
-        echo "错误：无法获取 Go 版本"
-        exit 1
-    fi
     if [[ "$installed_version" == "$GO_VERSION" ]]; then
         echo "Go 已是最新: $installed_version"
     else
@@ -45,16 +41,7 @@ else
 fi
 
 if [[ "$should_install" == "true" ]]; then
-    echo "安装 Go 到: $INSTALL_DIR"
-
-    GO_VERSION="${GO_VERSION:-$(curl -sL "https://go.dev/VERSION?m=text" | head -1 | sed 's/go//')}"
-
-    if [[ -z "$GO_VERSION" ]]; then
-        echo "错误：无法获取 Go 版本"
-        exit 1
-    fi
-
-    echo "版本: $GO_VERSION"
+    echo "安装 Go $GO_VERSION 到: $INSTALL_DIR"
 
     OS=$(uname -s)
     case "$OS" in
@@ -88,12 +75,20 @@ if [[ "$should_install" == "true" ]]; then
     ln -sf "$INSTALL_DIR/bin/gofmt" "$BIN_DIR/gofmt"
 fi
 
-if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "gopls 到最新版" || exit 0
+if [[ -x "$BIN_DIR/gopls" ]]; then
+    installed_gopls="$("$BIN_DIR/gopls" version 2>/dev/null | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "$installed_gopls" == "$GOPLS_VERSION" ]]; then
+        echo "gopls 已是最新: $installed_gopls"
+        exit 0
+    fi
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        confirm_update "gopls: ${installed_gopls:-unknown} -> $GOPLS_VERSION" || exit 0
+    fi
 fi
-echo "安装 gopls..."
+
+echo "安装 gopls $GOPLS_VERSION..."
 GOPATH="$HOME/.local/go-packages" GOPROXY="https://goproxy.cn,direct" \
-    "$INSTALL_DIR/bin/go" install golang.org/x/tools/gopls@latest
+    "$INSTALL_DIR/bin/go" install "golang.org/x/tools/gopls@$GOPLS_VERSION"
 
 GOPATH="$HOME/.local/go-packages" \
     ln -sf "$HOME/.local/go-packages/bin/gopls" "$BIN_DIR/gopls"

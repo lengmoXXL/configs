@@ -62,13 +62,24 @@ install_chromium_system_deps() {
     fi
 }
 
+PLAYWRIGHT_VERSION="1.62.1"
+
 if [[ "${UPDATE:-}" == "1" ]] && ! command -v playwright &>/dev/null; then
     echo "未安装，跳过: playwright"
     exit 0
 fi
 
-if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "playwright 到最新版" || exit 0
+if command -v playwright &>/dev/null; then
+    installed_version="$(playwright --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "playwright 已安装: $installed_version"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$PLAYWRIGHT_VERSION" ]]; then
+        echo "playwright 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "playwright: ${installed_version:-unknown} -> $PLAYWRIGHT_VERSION" || exit 0
 fi
 
 if ! command -v npm &>/dev/null; then
@@ -80,7 +91,7 @@ mkdir -p "$LOCAL_BIN"
 npm config set prefix "$HOME/.local"
 
 echo "Installing Playwright npm package..."
-npm install -g playwright
+npm install -g "playwright@$PLAYWRIGHT_VERSION"
 
 if command -v playwright &>/dev/null; then
     PLAYWRIGHT_CMD=(playwright)

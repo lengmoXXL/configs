@@ -1,5 +1,6 @@
 #!/bin/bash
 # 安装 Oh My Zsh 并配置 ~/.zshrc（theme、env.d 加载、PATH）
+# sync: skip
 
 set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"

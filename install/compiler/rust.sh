@@ -8,6 +8,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local/rust"
 BIN_DIR="${HOME}/.local/bin"
+RUST_VERSION="1.96.0"
 
 export RUSTUP_HOME="$INSTALL_DIR/rustup"
 export CARGO_HOME="$INSTALL_DIR"
@@ -26,7 +27,7 @@ cat > "$tmp_config" << 'EOF'
 replace-with = 'ustc'
 
 [source.ustc]
-registry = "https://mirrors.ustc.edu.cn/crates.io-index"
+registry = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
 
 [net]
 git-fetch-with-cli = true
@@ -45,12 +46,18 @@ EOF
 write_file_if_changed "$ENV_DIR/rust.sh" "$tmp_env"
 
 if [[ -x "$INSTALL_DIR/bin/cargo" ]]; then
+    installed_version="$("$INSTALL_DIR/bin/rustc" --version | awk '{print $2}')"
     if [[ "${UPDATE:-}" != "1" ]]; then
-        echo "Rust 已安装: $($INSTALL_DIR/bin/rustc --version)"
+        echo "Rust 已安装: $installed_version"
         exit 0
     fi
-    confirm_update "rust toolchain 到最新 stable" || exit 0
-    "$INSTALL_DIR/bin/rustup" update
+    if [[ "$installed_version" == "$RUST_VERSION" ]]; then
+        echo "Rust 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "rust: $installed_version -> $RUST_VERSION" || exit 0
+    "$INSTALL_DIR/bin/rustup" toolchain install "$RUST_VERSION"
+    "$INSTALL_DIR/bin/rustup" default "$RUST_VERSION"
     echo "Rust 已更新: $($INSTALL_DIR/bin/rustc --version)"
     exit 0
 fi
@@ -61,7 +68,7 @@ mkdir -p "$INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y --no-modify-path --default-toolchain stable
+    | sh -s -- -y --no-modify-path --default-toolchain "$RUST_VERSION"
 
 ln -sf "$INSTALL_DIR/bin/cargo" "$BIN_DIR/cargo"
 ln -sf "$INSTALL_DIR/bin/rustc" "$BIN_DIR/rustc"

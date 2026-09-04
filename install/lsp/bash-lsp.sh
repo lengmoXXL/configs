@@ -17,16 +17,23 @@ if [[ "${UPDATE:-}" == "1" && ! -x "$BINARY" ]]; then
     exit 0
 fi
 
+VERSION="5.6.0"
+
 if [[ -x "$BINARY" && "${UPDATE:-}" != "1" ]]; then
     echo "bash-language-server 已安装"
     exit 0
 fi
 
 if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "bash-language-server 到最新版" || exit 0
+    installed_version="$("$BINARY" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "$installed_version" == "$VERSION" ]]; then
+        echo "bash-language-server 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "bash-language-server: ${installed_version:-unknown} -> $VERSION" || exit 0
 fi
 
 echo "==> Installing bash-language-server..."
-"$NPM" install -g bash-language-server
+"$NPM" install -g "bash-language-server@$VERSION"
 
 echo "==> Done! bash-language-server installed to $BIN_DIR"

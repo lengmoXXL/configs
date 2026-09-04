@@ -1,12 +1,12 @@
 #!/bin/bash
 # 安装/更新 doc-research CLI（PDF/EPUB/网页 → Markdown，Markdown → HTML 站点）
-# PINNED_COMMIT 固定安装版本；对比远端 HEAD，不一致则提示有更新（需人工更新此常量后重跑）
+# PINNED_COMMIT 固定安装版本；升级时人工更新此常量后重跑
 
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/doc-research.git}"
-PINNED_COMMIT="2d004122b57ac358e95401ed269648f133d6f954"
+PINNED_COMMIT="05e8199bdb320d3189cb369bbb7c39feca7a8eff"
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 
 usage() {
@@ -53,8 +53,17 @@ if [[ "${CN:-}" == "1" && "$REPO_URL" == https://github.com/* ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
 fi
 
+VERSIONS_DIR="$HOME/.local/share/configs-setup/versions"
+MARKER="$VERSIONS_DIR/doc-research"
+
 if [[ "${UPDATE:-}" == "1" ]] && ! uv tool list 2>/dev/null | grep -q "^doc-research "; then
     echo "未安装，跳过: doc-research"
+    exit 0
+fi
+
+if uv tool list 2>/dev/null | grep -q "^doc-research " \
+    && [[ "$(cat "$MARKER" 2>/dev/null)" == "$PINNED_COMMIT" ]]; then
+    echo "doc-research 已是最新: ${PINNED_COMMIT:0:12}"
     exit 0
 fi
 
@@ -62,15 +71,8 @@ if [[ "${UPDATE:-}" == "1" ]]; then
     confirm_update "doc-research 到固定版本 ${PINNED_COMMIT:0:12}" || exit 0
 fi
 
-remote_head="$(git ls-remote "$REPO_URL" HEAD | awk '{print $1}')"
-if [[ -z "$remote_head" ]]; then
-    echo "错误: 无法获取远端 HEAD: $REPO_URL" >&2
-    exit 1
-fi
-if [[ "$remote_head" != "$PINNED_COMMIT" ]]; then
-    echo "提示: 远端有新提交 ${remote_head}（当前固定 ${PINNED_COMMIT}），确认后更新 PINNED_COMMIT 再装"
-fi
-
 uv tool install --force "git+${REPO_URL}@${PINNED_COMMIT}"
+mkdir -p "$VERSIONS_DIR"
+echo "$PINNED_COMMIT" > "$MARKER"
 
 echo "Installed doc-research CLI ($PINNED_COMMIT)"

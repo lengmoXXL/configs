@@ -1,6 +1,6 @@
 #!/bin/bash
 # 安装 Node.js 到 ~/.local/node
-# 可重入：已安装时跳过；UPDATE=1 时对比最新 LTS 按需更新
+# 可重入：已安装时跳过；UPDATE=1 时对比固定版本按需更新
 
 set -e
 
@@ -8,10 +8,20 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local/node"
 BIN_DIR="${HOME}/.local/bin"
+NODE_VERSION="v26.8.1"
+# Node.js 20+ 需要 macOS 11+，旧系统使用 Node.js 18
+NODE_VERSION_LEGACY_MAC="v18.20.8"
 
 if [[ "${UPDATE:-}" == "1" && ! -x "$INSTALL_DIR/bin/node" ]]; then
     echo "未安装，跳过: $INSTALL_DIR/bin/node"
     exit 0
+fi
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    MACOS_MAJOR="$(sw_vers -productVersion 2>/dev/null | cut -d. -f1)"
+    if [[ "${MACOS_MAJOR:-0}" -lt 11 ]]; then
+        NODE_VERSION="$NODE_VERSION_LEGACY_MAC"
+    fi
 fi
 
 sync_npm_config() {
@@ -38,12 +48,6 @@ elif [[ "${UPDATE:-}" != "1" ]]; then
     echo "Node.js 已安装: $($INSTALL_DIR/bin/node --version)"
 else
     installed_version="$("$INSTALL_DIR/bin/node" --version)"
-    echo "获取最新 LTS 版本..."
-    NODE_VERSION=$(curl -sL https://nodejs.org/dist/index.json | grep '"lts":' | sed 's/.*"version":"\([^"]*\)".*/\1/' | head -1)
-    if [[ -z "$NODE_VERSION" ]]; then
-        echo "错误：无法获取 Node.js 版本"
-        exit 1
-    fi
     if [[ "$installed_version" == "$NODE_VERSION" ]]; then
         echo "Node.js 已是最新: $installed_version"
     else
@@ -53,36 +57,7 @@ else
 fi
 
 if [[ "$should_install" == "true" ]]; then
-    echo "安装 Node.js 到: $INSTALL_DIR"
-
-    if [[ -z "${NODE_VERSION:-}" ]]; then
-        echo "获取最新 LTS 版本..."
-        LTS_VERSIONS=$(curl -sL https://nodejs.org/dist/index.json | grep '"lts":' | sed 's/.*"version":"\([^"]*\)".*/\1/')
-
-        # Node.js 20+ 需要 macOS 11+，旧系统使用 Node.js 18
-        NODE_VERSION=""
-        if [[ "$(uname -s)" == "Darwin" ]]; then
-            MACOS_VERSION=$(sw_vers -productVersion 2>/dev/null || echo "0")
-            MACOS_MAJOR=$(echo "$MACOS_VERSION" | cut -d. -f1)
-            echo "macOS 版本: $MACOS_VERSION"
-
-            if [[ "$MACOS_MAJOR" -lt 11 ]]; then
-                NODE_VERSION=$(echo "$LTS_VERSIONS" | grep "^v18\." | head -1)
-                echo "使用 Node.js 18 以兼容旧版 macOS"
-            fi
-        fi
-
-        if [[ -z "$NODE_VERSION" ]]; then
-            NODE_VERSION=$(echo "$LTS_VERSIONS" | head -1)
-        fi
-
-        if [[ -z "$NODE_VERSION" ]]; then
-            echo "错误：无法获取 Node.js 版本"
-            exit 1
-        fi
-    fi
-
-    echo "版本: $NODE_VERSION"
+    echo "安装 Node.js $NODE_VERSION 到: $INSTALL_DIR"
 
     # 下载地址（使用淘宝镜像）
     # 支持: linux-x64, linux-arm64, darwin-x64 (Intel Mac), darwin-arm64 (Apple Silicon)

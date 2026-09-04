@@ -8,7 +8,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 ZIG_DIR="${HOME}/.local/zig"
 BIN_DIR="${HOME}/.local/bin"
 
-ZIG_VERSION="${1:-0.14.0}"
+ZIG_VERSION="${1:-0.15.1}"
 
 ZIG_BIN="$ZIG_DIR/zig"
 

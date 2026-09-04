@@ -2,23 +2,30 @@
 # 安装 tree-sitter 到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 
 echo "安装目录: $BIN_DIR/tree-sitter"
 
-if [[ "${UPDATE:-}" == "1" ]]; then
-    if [[ -x "$BIN_DIR/tree-sitter" ]]; then
-        echo "tree-sitter 已安装，跳过（未固定版本）"
-    else
-        echo "未安装，跳过: $BIN_DIR/tree-sitter"
-    fi
+VERSION="0.27.0"
+
+if [[ "${UPDATE:-}" == "1" && ! -x "$BIN_DIR/tree-sitter" ]]; then
+    echo "未安装，跳过: $BIN_DIR/tree-sitter"
     exit 0
 fi
 
 if [[ -x "$BIN_DIR/tree-sitter" ]]; then
-    echo "tree-sitter 已安装: $($BIN_DIR/tree-sitter --version)"
-    exit 0
+    installed_version="$("$BIN_DIR/tree-sitter" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "tree-sitter 已安装: $installed_version"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$VERSION" ]]; then
+        echo "tree-sitter 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "tree-sitter: ${installed_version:-unknown} -> $VERSION" || exit 0
 fi
 
 RUST_DIR="${HOME}/.local/rust"
@@ -36,7 +43,7 @@ fi
 mkdir -p "$BIN_DIR"
 
 echo "编译安装 tree-sitter-cli..."
-"$CARGO" install tree-sitter-cli
+"$CARGO" install tree-sitter-cli --version "$VERSION"
 
 ln -sf "$(dirname "$CARGO")/tree-sitter" "$BIN_DIR/tree-sitter"
 

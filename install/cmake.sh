@@ -5,7 +5,7 @@ set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
-CMAKE_VERSION="4.4.2"
+CMAKE_VERSION="4.4.3"
 CMAKE_DIR="${HOME}/.local/cmake"
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
@@ -41,9 +41,11 @@ for dep in curl tar ln; do
     fi
 done
 
-existing_cmake="$(command -v cmake 2>/dev/null || true)"
-if [[ -z "$existing_cmake" && -x "$BIN_DIR/cmake" ]]; then
+existing_cmake=""
+if [[ -x "$BIN_DIR/cmake" ]]; then
     existing_cmake="$BIN_DIR/cmake"
+elif command -v cmake &>/dev/null; then
+    existing_cmake="$(command -v cmake)"
 fi
 
 if [[ "${UPDATE:-}" == "1" && -z "$existing_cmake" ]]; then

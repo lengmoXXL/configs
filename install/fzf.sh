@@ -41,9 +41,11 @@ for dep in curl tar install; do
     fi
 done
 
-fzf_bin="$(command -v fzf 2>/dev/null || true)"
-if [[ -z "$fzf_bin" && -x "$BIN_DIR/fzf" ]]; then
+fzf_bin=""
+if [[ -x "$BIN_DIR/fzf" ]]; then
     fzf_bin="$BIN_DIR/fzf"
+elif command -v fzf &>/dev/null; then
+    fzf_bin="$(command -v fzf)"
 fi
 
 download_needed=false

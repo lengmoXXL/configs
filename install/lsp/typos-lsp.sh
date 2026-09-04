@@ -6,7 +6,7 @@ set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 MODE="binary"
-VERSION="0.1.55"
+VERSION="0.1.56"
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 
 usage() {
@@ -34,18 +34,24 @@ done
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/typos-lsp"
 
+VERSIONS_DIR="$HOME/.local/share/configs-setup/versions"
+MARKER="$VERSIONS_DIR/typos-lsp"
+
 if [[ "${UPDATE:-}" == "1" && ! -x "$BINARY" ]]; then
     echo "未安装，跳过: $BINARY"
     exit 0
 fi
 
-if [[ "${UPDATE:-}" == "1" && -x "$BINARY" ]]; then
-    confirm_update "typos-lsp (固定 $VERSION)" || exit 0
-fi
-
-if [[ -x "$BINARY" && "${UPDATE:-}" != "1" ]]; then
-    echo "typos-lsp 已安装"
-    exit 0
+if [[ -x "$BINARY" ]]; then
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "typos-lsp 已安装"
+        exit 0
+    fi
+    if [[ "$(cat "$MARKER" 2>/dev/null)" == "$VERSION" ]]; then
+        echo "typos-lsp 已是最新: $VERSION"
+        exit 0
+    fi
+    confirm_update "typos-lsp -> $VERSION" || exit 0
 fi
 
 mkdir -p "$BIN_DIR"
@@ -88,6 +94,9 @@ else
     "$RUST_DIR/bin/cargo" install --git "$REPO_URL" --tag "v${VERSION}" --locked
     ln -sf "$RUST_DIR/bin/typos-lsp" "$BINARY"
 fi
+
+mkdir -p "$VERSIONS_DIR"
+echo "$VERSION" > "$MARKER"
 
 echo ""
 echo "typos-lsp 安装完成: $BINARY"

@@ -24,8 +24,15 @@ if ! command -v npm &>/dev/null; then
     exit 1
 fi
 
+VERSION="6.0.0"
+
 if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "typescript-language-server 到最新版" || exit 0
+    installed_version="$("$BINARY" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "$installed_version" == "$VERSION" ]]; then
+        echo "typescript-language-server 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "typescript-language-server: ${installed_version:-unknown} -> $VERSION" || exit 0
 fi
 
 echo "安装 typescript-language-server"
@@ -33,7 +40,7 @@ echo "安装 typescript-language-server"
 mkdir -p "$BIN_DIR"
 mkdir -p "$INSTALL_DIR"
 
-npm install --prefix "$INSTALL_DIR" typescript@^6 typescript-language-server
+npm install --prefix "$INSTALL_DIR" typescript@^6 "typescript-language-server@$VERSION"
 
 ln -sf "$INSTALL_DIR/node_modules/.bin/typescript-language-server" "$BINARY"
 ln -sf "$INSTALL_DIR/node_modules/.bin/tsserver" "$BIN_DIR/tsserver"

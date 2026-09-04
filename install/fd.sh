@@ -5,7 +5,7 @@ set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
-FD_VERSION="v10.4.2"
+FD_VERSION="v10.5.0"
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
@@ -40,9 +40,11 @@ for dep in curl tar find install; do
     fi
 done
 
-existing_fd="$(command -v fd 2>/dev/null || true)"
-if [[ -z "$existing_fd" && -x "$BIN_DIR/fd" ]]; then
+existing_fd=""
+if [[ -x "$BIN_DIR/fd" ]]; then
     existing_fd="$BIN_DIR/fd"
+elif command -v fd &>/dev/null; then
+    existing_fd="$(command -v fd)"
 fi
 
 if [[ "${UPDATE:-}" == "1" && -z "$existing_fd" ]]; then
@@ -55,10 +57,7 @@ version="$FD_VERSION"
 os=$(uname -s)
 arch=$(uname -m)
 case "${os}-${arch}" in
-    Darwin-x86_64)
-        target="x86_64-apple-darwin"
-        version="v10.3.0" # v10.4.0 起不再发布 Intel mac 包
-        ;;
+    Darwin-x86_64) target="x86_64-apple-darwin" ;;
     Darwin-arm64 | Darwin-aarch64) target="aarch64-apple-darwin" ;;
     Linux-x86_64) target="x86_64-unknown-linux-musl" ;;
     Linux-aarch64 | Linux-arm64) target="aarch64-unknown-linux-gnu" ;;

@@ -10,15 +10,26 @@
 set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
+KIMI_VERSION="0.41.0"
+
 if [[ "${UPDATE:-}" == "1" ]] && ! command -v kimi &>/dev/null; then
     echo "未安装，跳过: kimi"
     exit 0
 fi
 
-if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "kimi 到最新版" || exit 0
+if command -v kimi &>/dev/null; then
+    installed_version="$(kimi --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "kimi 已安装: $installed_version"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$KIMI_VERSION" ]]; then
+        echo "kimi 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "kimi: ${installed_version:-unknown} -> $KIMI_VERSION" || exit 0
 fi
 
-curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash
+curl -fsSL https://code.kimi.com/kimi-code/install.sh | KIMI_VERSION="$KIMI_VERSION" bash
 
 kimi --version

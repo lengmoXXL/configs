@@ -32,15 +32,23 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-if [[ "${UPDATE:-}" == "1" ]] && ! command -v uv &>/dev/null; then
+UV_BIN="$BIN_DIR/uv"
+uv_cmd=""
+if [[ -x "$UV_BIN" ]]; then
+    uv_cmd="$UV_BIN"
+elif command -v uv &>/dev/null; then
+    uv_cmd="$(command -v uv)"
+fi
+
+if [[ "${UPDATE:-}" == "1" && -z "$uv_cmd" ]]; then
     echo "未安装，跳过: uv"
     exit 0
 fi
 
-if command -v uv &>/dev/null; then
-    installed_version="$(uv --version | awk '{print $2}')"
+if [[ -n "$uv_cmd" ]]; then
+    installed_version="$("$uv_cmd" --version | awk '{print $2}')"
     if [[ "${UPDATE:-}" != "1" ]]; then
-        echo "uv 已安装: $(uv --version)"
+        echo "uv 已安装: $("$uv_cmd" --version)"
         exit 0
     fi
     if [[ "$installed_version" == "$UV_VERSION" ]]; then

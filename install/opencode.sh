@@ -7,7 +7,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 OPENCODE_BIN="${BIN_DIR}/opencode"
-OPENCODE_VERSION="1.18.21"
+OPENCODE_VERSION="1.18.27"
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {

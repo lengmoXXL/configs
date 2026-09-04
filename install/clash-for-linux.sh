@@ -45,12 +45,19 @@ if [[ "${UPDATE:-}" == "1" && ! -d "$INSTALL_DIR/.git" ]]; then
 fi
 
 if [[ -d "$INSTALL_DIR/.git" ]]; then
-    if [[ "${UPDATE:-}" == "1" ]]; then
-        confirm_update "clash-for-linux 到最新 ${BRANCH}" || exit 0
-    fi
-    echo "仓库已存在，更新到最新 ${BRANCH}: $INSTALL_DIR"
     git -C "$INSTALL_DIR" remote set-url origin "$REPO_URL"
     git -C "$INSTALL_DIR" fetch --depth 1 origin "$BRANCH"
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        local_head="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
+        remote_head="$(git -C "$INSTALL_DIR" rev-parse "origin/$BRANCH")"
+        if [[ "$local_head" == "$remote_head" ]]; then
+            echo "clash-for-linux 已是最新: ${local_head:0:12}"
+            exit 0
+        fi
+        confirm_update "clash-for-linux: ${local_head:0:12} -> ${remote_head:0:12}" || exit 0
+    else
+        echo "仓库已存在，更新到最新 ${BRANCH}: $INSTALL_DIR"
+    fi
     git -C "$INSTALL_DIR" checkout "$BRANCH"
     git -C "$INSTALL_DIR" reset --hard "origin/$BRANCH"
 elif [[ -e "$INSTALL_DIR" ]]; then

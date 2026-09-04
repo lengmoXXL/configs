@@ -19,6 +19,10 @@ for script in "$ROOT"/install/*.sh "$ROOT"/install/compiler/*.sh \
     [[ -f "$script" ]] || continue
     echo ""
     echo "==> ${script#"$ROOT"/}"
+    if grep -q '^# sync: skip$' "$script"; then
+        echo "跳过（sync: skip）"
+        continue
+    fi
     if ! run_script "$script"; then
         failed+=("${script#"$ROOT"/}")
     fi

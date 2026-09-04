@@ -6,7 +6,7 @@ set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 REPO_URL="https://github.com/lengmoXXL/markdown-oxide.git"
-BRANCH="main"
+PINNED_COMMIT="8add9dbc17009762c22859960195af6c8d3e2bf1"  # fork HEAD，即上游 0.25.12
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
 RUST_DIR="${HOME}/.local/rust"
 INSTALL_ROOT="${HOME}/.local/markdown-oxide"
@@ -55,29 +55,45 @@ else
     exit 1
 fi
 
+VERSIONS_DIR="$HOME/.local/share/configs-setup/versions"
+MARKER="$VERSIONS_DIR/markdown-oxide"
+
 if [[ "${UPDATE:-}" == "1" && ! -x "$BINARY" ]]; then
     echo "未安装，跳过: $BINARY"
     exit 0
 fi
 
+if [[ -x "$BINARY" && "${UPDATE:-}" != "1" ]]; then
+    echo "markdown-oxide 已安装: $("$BINARY" --version)"
+    exit 0
+fi
+
+if [[ -x "$BINARY" && "$(cat "$MARKER" 2>/dev/null)" == "$PINNED_COMMIT" ]]; then
+    echo "markdown-oxide 已是最新: $VERSION"
+    exit 0
+fi
+
 if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "markdown-oxide (branch $BRANCH)" || exit 0
+    confirm_update "markdown-oxide -> $VERSION" || exit 0
 fi
 
 echo "从源码安装 markdown-oxide"
 echo "  repo: $REPO_URL"
-echo "  branch: $BRANCH"
+echo "  tag: $VERSION"
 
 mkdir -p "$BIN_DIR" "$INSTALL_ROOT"
 
 "$CARGO" install \
     --git "$REPO_URL" \
-    --branch "$BRANCH" \
+    --rev "$PINNED_COMMIT" \
     --locked \
     --force \
     --root "$INSTALL_ROOT"
 
 ln -sf "${INSTALL_ROOT}/bin/markdown-oxide" "$BINARY"
+
+mkdir -p "$VERSIONS_DIR"
+echo "$PINNED_COMMIT" > "$MARKER"
 
 echo ""
 echo "markdown-oxide LSP 安装完成:"

@@ -4,6 +4,8 @@
 set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
+TLDR_VERSION="3.4.4"
+
 BIN_DIR="${HOME}/.local/bin"
 PYTHON_DIR="${HOME}/.local/python3.11"
 UV_BIN="${BIN_DIR}/uv"
@@ -17,7 +19,6 @@ fi
 
 if command -v tldr &>/dev/null && [[ "${UPDATE:-}" != "1" ]]; then
     echo "tldr 已安装: $(command -v tldr)"
-    tldr --version
     exit 0
 fi
 
@@ -42,11 +43,16 @@ else
 fi
 
 if [[ "${UPDATE:-}" == "1" ]]; then
-    confirm_update "tldr 到最新版" || exit 0
+    installed_version=$("$UV_CMD" pip list --python "$PYTHON_DIR/bin/python3" 2>/dev/null | awk '$1 == "tldr" {print $2}')
+    if [[ "$installed_version" == "$TLDR_VERSION" ]]; then
+        echo "tldr 已是最新: $installed_version"
+        exit 0
+    fi
+    confirm_update "tldr: ${installed_version:-unknown} -> $TLDR_VERSION" || exit 0
 fi
 
-echo "安装 tldr 到 Python 3.11 环境..."
-"$UV_CMD" pip install --python "$PYTHON_DIR/bin/python3" tldr
+echo "安装 tldr $TLDR_VERSION 到 Python 3.11 环境..."
+"$UV_CMD" pip install --python "$PYTHON_DIR/bin/python3" "tldr==$TLDR_VERSION"
 
 if [[ ! -x "$PYTHON_DIR/bin/tldr" ]]; then
     echo "错误: tldr 安装后未找到: $PYTHON_DIR/bin/tldr"

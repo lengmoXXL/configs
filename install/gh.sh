@@ -5,7 +5,7 @@ set -e
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
-GH_VERSION="v2.98.0"
+GH_VERSION="v2.100.0"
 GITHUB_RELEASE_PROXY="https://gh-proxy.com/"
 
 usage() {
