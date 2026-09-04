@@ -38,8 +38,8 @@ configs/
 │   ├── ossutil.sh
 │   ├── perf-to-profile.sh
 │   ├── pi-agent.sh
-│   ├── pi-config.py
-│   ├── pi-extensions.sh
+│   ├── pi-auth.py             # auth.json 合并式更新（sync: skip，手动执行）
+│   ├── pi-config.sh           # 配置 + 自研 extensions
 │   ├── pj.sh
 │   ├── playwright.sh
 │   ├── prd.sh

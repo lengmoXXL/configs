@@ -57,8 +57,8 @@ case "$MODE" in
         fi
         run "$ROOT/install/compiler/node.sh"
         run "$ROOT/install/pi-agent.sh"
-        run python3 "$ROOT/install/pi-config.py"
-        run "$ROOT/install/pi-extensions.sh"
+        run "$ROOT/install/pi-config.sh"
+        run python3 "$ROOT/install/pi-auth.py"
         run "$ROOT/install/uv.sh"
         run "$ROOT/install/compiler/python.sh"
 

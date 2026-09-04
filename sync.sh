@@ -31,6 +31,10 @@ done
 for script in "$ROOT"/install/*.py; do
     echo ""
     echo "==> ${script#"$ROOT"/}"
+    if grep -q '^# sync: skip$' "$script"; then
+        echo "跳过（sync: skip）"
+        continue
+    fi
     if ! run_script python3 "$script"; then
         failed+=("${script#"$ROOT"/}")
     fi

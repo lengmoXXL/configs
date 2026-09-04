@@ -135,4 +135,4 @@ npm "${npm_args[@]}"
 
 echo "Pi Agent 安装完成: $PI_BIN"
 "$PI_BIN" --version
-echo "提示: 可运行 ./install/pi-extensions.sh 安装 Pi extensions"
+echo "提示: 可运行 ./install/pi-config.sh 安装 Pi 配置与 extensions"
