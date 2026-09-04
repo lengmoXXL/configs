@@ -7,13 +7,19 @@ set -e
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export UPDATE=1
 
+# sync 自身忽略 SIGINT，Ctrl+C 只杀当前子脚本（子 shell 里恢复默认处理）
+trap '' INT
+run_script() {
+    ( trap - INT; exec "$@" )
+}
+
 failed=()
 for script in "$ROOT"/install/*.sh "$ROOT"/install/compiler/*.sh \
     "$ROOT"/install/lsp/*.sh "$ROOT"/install/skill/*.sh; do
     [[ -f "$script" ]] || continue
     echo ""
     echo "==> ${script#"$ROOT"/}"
-    if ! "$script"; then
+    if ! run_script "$script"; then
         failed+=("${script#"$ROOT"/}")
     fi
 done
@@ -21,7 +27,7 @@ done
 for script in "$ROOT"/install/*.py; do
     echo ""
     echo "==> ${script#"$ROOT"/}"
-    if ! python3 "$script"; then
+    if ! run_script python3 "$script"; then
         failed+=("${script#"$ROOT"/}")
     fi
 done
