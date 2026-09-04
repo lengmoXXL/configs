@@ -132,3 +132,16 @@ configs/
     ├── secrets.sh               # 同步 provider API keys
     └── style-check.sh
 ```
+
+## install 脚本约束
+
+新增 `install/` 脚本必须实现以下协议，以接入 `setup.sh` / `sync.sh`：
+
+- **一件事**：一个脚本只安装一个工具；依赖其它工具缺失时只报错并指引对应脚本，不自动安装
+- **幂等**：重复执行结果一致；已安装检测优先本仓库管理路径（如 `~/.local/bin`），再退到 `command -v`
+- **固定版本**：版本/commit/tag 写成脚本常量，不查询最新版；无版本输出的工具把版本写入 `~/.local/share/configs-setup/versions/` 标记比对
+- **环境变量**：`CN=1` 走国内代理/镜像（读取处直接 `[[ "${CN:-}" == "1" ]]`，不要加 `-cn` 参数）
+- **UPDATE=1**（sync 更新模式）：未安装 → 跳过退出；已安装 → 比对版本/内容，不一致先 `confirm_update` 再执行
+- **文本修改统一 guard**：文件内片段用 `write_managed_block`（BEGIN/END 标记）；整文件配置用 `write_file_if_changed`（cmp 一致跳过）；目录用 `rsync -ai --delete`（dry-run 列差异后确认）——都在 `tools/common.sh`，脚本开头 `source` 它
+- **sync 豁免**：不希望 sync 执行的脚本（构建型、交互型）在头部加 `# sync: skip`
+- **bash 3.2 兼容**（macOS 自带）：`$VAR` 后紧贴多字节字符必须写 `${VAR}`；`set -u` 下空数组展开前用 `${#arr[@]}` 守卫
