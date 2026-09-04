@@ -1,8 +1,10 @@
 #!/bin/bash
 # 安装隔离的 Rust 环境到 ~/.local/rust
-# 可重入：已安装时跳过
+# 可重入：已安装时跳过；UPDATE=1 时 rustup 更新到最新 stable
 
 set -e
+
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local/rust"
 BIN_DIR="${HOME}/.local/bin"
@@ -10,23 +12,16 @@ BIN_DIR="${HOME}/.local/bin"
 export RUSTUP_HOME="$INSTALL_DIR/rustup"
 export CARGO_HOME="$INSTALL_DIR"
 
-# 配置 rustup 阿里云镜像
 export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
 export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 
-# 检查是否已安装
-if [[ -x "$INSTALL_DIR/bin/cargo" ]]; then
-    echo "Rust 已安装: $($INSTALL_DIR/bin/rustc --version)"
+if [[ "${UPDATE:-}" == "1" && ! -x "$INSTALL_DIR/bin/cargo" ]]; then
+    echo "未安装，跳过: $INSTALL_DIR/bin/cargo"
     exit 0
 fi
 
-echo "安装 Rust 到: $INSTALL_DIR"
-
-mkdir -p "$INSTALL_DIR"
-mkdir -p "$BIN_DIR"
-
-# 配置 cargo 中科大镜像
-cat > "$INSTALL_DIR/config.toml" << 'EOF'
+tmp_config="$(mktemp)"
+cat > "$tmp_config" << 'EOF'
 [source.crates-io]
 replace-with = 'ustc'
 
@@ -36,25 +31,41 @@ registry = "https://mirrors.ustc.edu.cn/crates.io-index"
 [net]
 git-fetch-with-cli = true
 EOF
+write_file_if_changed "$INSTALL_DIR/config.toml" "$tmp_config"
 
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y --no-modify-path --default-toolchain stable
-
-# 创建符号链接到 ~/.local/bin
-ln -sf "$INSTALL_DIR/bin/cargo" "$BIN_DIR/cargo"
-ln -sf "$INSTALL_DIR/bin/rustc" "$BIN_DIR/rustc"
-ln -sf "$INSTALL_DIR/bin/rustup" "$BIN_DIR/rustup"
-
-# 配置 Rust 环境变量
 ENV_DIR="$HOME/.config/env.d"
-mkdir -p "$ENV_DIR"
-cat > "$ENV_DIR/rust.sh" << 'EOF'
+tmp_env="$(mktemp)"
+cat > "$tmp_env" << 'EOF'
 # Rust 环境配置
 export RUSTUP_HOME="$HOME/.local/rust/rustup"
 export CARGO_HOME="$HOME/.local/rust"
 export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
 export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 EOF
+write_file_if_changed "$ENV_DIR/rust.sh" "$tmp_env"
+
+if [[ -x "$INSTALL_DIR/bin/cargo" ]]; then
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "Rust 已安装: $($INSTALL_DIR/bin/rustc --version)"
+        exit 0
+    fi
+    confirm_update "rust toolchain 到最新 stable" || exit 0
+    "$INSTALL_DIR/bin/rustup" update
+    echo "Rust 已更新: $($INSTALL_DIR/bin/rustc --version)"
+    exit 0
+fi
+
+echo "安装 Rust 到: $INSTALL_DIR"
+
+mkdir -p "$INSTALL_DIR"
+mkdir -p "$BIN_DIR"
+
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --no-modify-path --default-toolchain stable
+
+ln -sf "$INSTALL_DIR/bin/cargo" "$BIN_DIR/cargo"
+ln -sf "$INSTALL_DIR/bin/rustc" "$BIN_DIR/rustc"
+ln -sf "$INSTALL_DIR/bin/rustup" "$BIN_DIR/rustup"
 
 echo ""
 echo "Rust 安装完成"

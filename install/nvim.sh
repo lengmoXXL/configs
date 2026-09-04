@@ -4,6 +4,7 @@
 #   Linux: 源码编译
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
@@ -52,7 +53,13 @@ cleanup() {
 trap cleanup EXIT
 
 exit_if_same_version_or_confirm_upgrade() {
-    [[ -x "$NVIM_BIN" ]] || return 0
+    if [[ ! -x "$NVIM_BIN" ]]; then
+        if [[ "${UPDATE:-}" == "1" ]]; then
+            echo "未安装，跳过: $NVIM_BIN"
+            exit 0
+        fi
+        return 0
+    fi
 
     local installed_version
     installed_version="$("$NVIM_BIN" --version | head -1 | awk '{print $2}')"
@@ -65,12 +72,7 @@ exit_if_same_version_or_confirm_upgrade() {
     echo "检测到已安装 Neovim: ${installed_version:-unknown}"
     echo "目标版本: ${VERSION}"
 
-    local answer=""
-    read -r -p "是否升级到 ${VERSION} 并重新安装? [y/N] " answer || answer=""
-    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-        echo "已取消升级"
-        exit 0
-    fi
+    confirm_update "nvim: ${installed_version:-unknown} -> ${VERSION}" || exit 0
 }
 
 # 下载并解压到临时目录，输出解压后的根目录路径
@@ -128,25 +130,36 @@ install_linux() {
 }
 
 setup_alias() {
+    if [[ "${UPDATE:-}" == "1" && ! -x "$NVIM_BIN" ]]; then
+        return 0
+    fi
+
     local env_dir="${HOME}/.config/env.d"
     local alias_file="${env_dir}/alias.sh"
 
     mkdir -p "$env_dir"
 
-    if [[ -f "$alias_file" ]] && grep -q '^alias v=' "$alias_file"; then
+    # 旧版无 guard 的写法直接删除，改用 managed block
+    if ! grep -qF '# BEGIN configs nvim-alias' "$alias_file" 2>/dev/null \
+        && grep -q '^alias v=' "$alias_file" 2>/dev/null; then
         local tmp_alias
         tmp_alias="$(mktemp)"
-        sed 's|^alias v=.*|alias v="nvim"|' "$alias_file" > "$tmp_alias"
+        sed '/^alias v=/d' "$alias_file" > "$tmp_alias"
         mv "$tmp_alias" "$alias_file"
-    else
-        echo 'alias v="nvim"' >> "$alias_file"
     fi
+
+    local block
+    block="$(mktemp)"
+    echo 'alias v="nvim"' > "$block"
+    write_managed_block "$alias_file" nvim-alias "$block"
+    rm -f "$block"
 
     echo ""
     echo "已配置 alias v='nvim' 在 $alias_file"
 }
 
 require_deps awk curl find head mktemp sed tar
+setup_alias
 exit_if_same_version_or_confirm_upgrade
 
 case "$(uname -s)" in
@@ -159,5 +172,3 @@ echo "Neovim ${VERSION} 安装完成"
 echo "  binary: $NVIM_BIN"
 echo "  clipboard: OSC 52 (终端协议，无需额外工具)"
 "$NVIM_BIN" --version | head -1
-
-setup_alias

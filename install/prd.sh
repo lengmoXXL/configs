@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,6 +22,15 @@ fi
 if ! command -v npm >/dev/null 2>&1; then
     echo "Error: npm is required to install prd" >&2
     exit 1
+fi
+
+if [[ "${UPDATE:-}" == "1" && ! -e "$TARGET_PATH" ]]; then
+    echo "未安装，跳过: $TARGET_PATH"
+    exit 0
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "prd" || exit 0
 fi
 
 echo "Updating prd dependencies..."

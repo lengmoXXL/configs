@@ -3,8 +3,8 @@
 # 可重入：重复执行会更新 Playwright，并复用已安装依赖和已下载的浏览器缓存
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCAL_BIN="$HOME/.local/bin"
 
 export PATH="$LOCAL_BIN:$PATH"
@@ -62,14 +62,18 @@ install_chromium_system_deps() {
     fi
 }
 
+if [[ "${UPDATE:-}" == "1" ]] && ! command -v playwright &>/dev/null; then
+    echo "未安装，跳过: playwright"
+    exit 0
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "playwright 到最新版" || exit 0
+fi
+
 if ! command -v npm &>/dev/null; then
-    if [[ -x "$SCRIPT_DIR/compiler/node.sh" ]]; then
-        "$SCRIPT_DIR/compiler/node.sh"
-        export PATH="$LOCAL_BIN:$PATH"
-    else
-        echo "Missing dependency: npm" >&2
-        exit 1
-    fi
+    echo "Missing dependency: npm (run install/compiler/node.sh first)" >&2
+    exit 1
 fi
 
 mkdir -p "$LOCAL_BIN"

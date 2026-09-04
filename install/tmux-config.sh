@@ -1,8 +1,9 @@
 #!/bin/bash
 # 安装 tmux 配置到 ~/.tmux.conf
-# 可重入：重复执行会覆盖旧配置
+# 可重入：内容变化才写入
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TMUX_SOURCE="$SCRIPT_DIR/../configs/tmux/tmux.conf"
@@ -43,15 +44,26 @@ if [[ ! -f "$TMUX_SOURCE" ]]; then
     exit 1
 fi
 
+if [[ "${UPDATE:-}" == "1" && ! -d "$TPM_DIR" && ! -f "$TMUX_DEST" ]]; then
+    echo "未安装，跳过: $TMUX_DEST"
+    exit 0
+fi
+
 if ! command -v git &>/dev/null; then
     echo "错误: 缺少依赖 git"
     exit 1
 fi
 
 if [[ -d "$TPM_DIR/.git" ]]; then
-    echo "更新 TPM: $TPM_DIR"
-    git -C "$TPM_DIR" remote set-url origin "$TPM_REPO"
-    git -C "$TPM_DIR" pull --ff-only
+    if [[ "${UPDATE:-}" == "1" ]] && ! confirm_update "TPM 到最新"; then
+        echo "跳过 TPM 更新"
+    else
+        echo "更新 TPM: $TPM_DIR"
+        git -C "$TPM_DIR" remote set-url origin "$TPM_REPO"
+        git -C "$TPM_DIR" pull --ff-only
+    fi
+elif [[ "${UPDATE:-}" == "1" ]]; then
+    echo "TPM 未安装，跳过"
 elif [[ ! -e "$TPM_DIR" ]]; then
     echo "安装 TPM: $TPM_DIR"
     git clone --depth 1 "$TPM_REPO" "$TPM_DIR"
@@ -60,5 +72,11 @@ else
     exit 1
 fi
 
-cp "$TMUX_SOURCE" "$TMUX_DEST"
-echo "tmux 配置已安装: $TMUX_DEST"
+if [[ "${UPDATE:-}" == "1" && ! -e "$TMUX_DEST" ]]; then
+    echo "未安装，跳过: $TMUX_DEST"
+    exit 0
+fi
+
+tmp_config="$(mktemp)"
+cp "$TMUX_SOURCE" "$tmp_config"
+write_file_if_changed "$TMUX_DEST" "$tmp_config"

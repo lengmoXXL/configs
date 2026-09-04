@@ -3,6 +3,7 @@
 # The installed version is pinned here; use tools/github-release-latest.sh to check updates.
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 OPENCODE_BIN="${BIN_DIR}/opencode"
@@ -39,10 +40,23 @@ for dep in curl find grep head install mktemp uname; do
     fi
 done
 
-if [[ -x "$OPENCODE_BIN" ]]; then
-    echo "opencode 已安装: $OPENCODE_BIN"
-    "$OPENCODE_BIN" --version
+if [[ "${UPDATE:-}" == "1" && ! -x "$OPENCODE_BIN" ]]; then
+    echo "未安装，跳过: $OPENCODE_BIN"
     exit 0
+fi
+
+if [[ -x "$OPENCODE_BIN" ]]; then
+    installed_version="$("$OPENCODE_BIN" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "opencode 已安装: $OPENCODE_BIN ($installed_version)"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$OPENCODE_VERSION" ]]; then
+        echo "opencode 已是最新: $installed_version"
+        exit 0
+    fi
+    echo "更新 opencode: ${installed_version:-unknown} -> $OPENCODE_VERSION"
+    confirm_update "opencode: ${installed_version:-unknown} -> $OPENCODE_VERSION" || exit 0
 fi
 
 os=$(uname -s)

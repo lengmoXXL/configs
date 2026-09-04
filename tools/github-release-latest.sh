@@ -20,7 +20,6 @@ Packages:
   codex
   opencode
   herdr
-  hermes-agent
   sarasa
   aurulent
   droid, droidsansmono
@@ -41,7 +40,6 @@ repo_for_package() {
         codex) echo "openai/codex" ;;
         opencode) echo "anomalyco/opencode" ;;
         herdr) echo "herdrdev/herdr" ;;
-        hermes-agent) echo "NousResearch/hermes-agent" ;;
         sarasa) echo "laishulu/Sarasa-Term-SC-Nerd" ;;
         aurulent | droid | droidsansmono) echo "ryanoasis/nerd-fonts" ;;
         uv) echo "astral-sh/uv" ;;

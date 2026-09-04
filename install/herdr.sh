@@ -3,6 +3,7 @@
 # The installed release tag is pinned here; use tools/github-release-latest.sh to check updates.
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 HERDR_BIN="${BIN_DIR}/herdr"
@@ -54,10 +55,12 @@ if [[ -n "$local_herdr" ]]; then
     local_version=$("$local_herdr" --version 2>/dev/null | sed -n 's/.* \([0-9][0-9.]*\).*/\1/p' | head -1)
 fi
 
-should_install=false
 if [[ -z "$local_herdr" || -z "$local_version" ]]; then
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        echo "未安装，跳过: herdr"
+        exit 0
+    fi
     echo "Herdr 未安装，将安装目标版本 ${HERDR_VERSION}"
-    should_install=true
 else
     echo "当前 Herdr: ${local_version} (${local_herdr})"
     echo "目标 Herdr: ${target_version}"
@@ -68,11 +71,7 @@ else
     fi
 
     echo "Herdr 版本不匹配，将重装目标版本 ${HERDR_VERSION}"
-    should_install=true
-fi
-
-if [[ "$should_install" != "true" ]]; then
-    exit 0
+    confirm_update "herdr: ${local_version} -> ${target_version}" || exit 0
 fi
 
 os=$(uname -s)

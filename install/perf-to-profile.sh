@@ -2,6 +2,7 @@
 # Download a prebuilt perf_to_profile binary from OSS.
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 BINARY="${BIN_DIR}/perf_to_profile"
@@ -30,6 +31,11 @@ case "${1:-}" in
         ;;
 esac
 
+if [[ "${UPDATE:-}" == "1" && ! -x "$BINARY" ]]; then
+    echo "未安装，跳过: $BINARY"
+    exit 0
+fi
+
 if [[ -x "$BINARY" && -f "$VERSION_FILE" && "$(<"$VERSION_FILE")" == "$SOURCE_COMMIT" ]]; then
     echo "perf_to_profile 已安装: $BINARY"
     echo "  source commit: ${SOURCE_COMMIT:0:12}"
@@ -39,6 +45,10 @@ fi
 if [[ "$(uname -s)" != "Linux" ]]; then
     echo "错误: perf_to_profile 仅支持 Linux"
     exit 1
+fi
+
+if [[ "${UPDATE:-}" == "1" && -x "$BINARY" ]]; then
+    confirm_update "perf_to_profile: $(<"$VERSION_FILE" 2>/dev/null || echo unknown) -> ${SOURCE_COMMIT:0:12}" || exit 0
 fi
 
 for dep in awk curl install mktemp sha256sum uname; do

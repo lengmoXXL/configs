@@ -4,6 +4,7 @@
 # 无需参数；可重入：重复执行会替换 managed block，保留块外其它内容
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROMPTS_DIR="${PROMPTS_DIR:-$SCRIPT_DIR/../configs/agents}"
@@ -56,6 +57,9 @@ install_mode() {
                 print
             }
         ' "$dest" > "$tmp_dest"
+    elif [[ "${UPDATE:-}" == "1" ]]; then
+        echo "未安装，跳过: $dest"
+        return
     elif [[ -f "$dest" && -s "$dest" ]]; then
         cp "$dest" "$tmp_dest"
         echo "" >> "$tmp_dest"
@@ -64,6 +68,13 @@ install_mode() {
         cp "$managed_block" "$tmp_dest"
     fi
 
+    if [[ -f "$dest" ]] && cmp -s "$tmp_dest" "$dest"; then
+        echo "已是最新 ($mode): $dest"
+        return
+    fi
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        confirm_update "$dest ($mode)" || return
+    fi
     mv "$tmp_dest" "$dest"
     echo "AGENTS.md 已更新 ($mode): $dest"
 }

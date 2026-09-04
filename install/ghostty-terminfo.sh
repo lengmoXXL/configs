@@ -17,6 +17,11 @@ if ! command -v tic &>/dev/null; then
     exit 1
 fi
 
+if [[ "${UPDATE:-}" == "1" ]]; then
+    echo "未安装，跳过: xterm-ghostty terminfo"
+    exit 0
+fi
+
 TERMINFO_SRC="$(mktemp)"
 trap 'rm -f "$TERMINFO_SRC"' EXIT
 

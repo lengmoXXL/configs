@@ -2,6 +2,7 @@
 # 安装 CMake 到 ~/.local/cmake，符号链接到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 CMAKE_VERSION="4.4.2"
@@ -45,10 +46,23 @@ if [[ -z "$existing_cmake" && -x "$BIN_DIR/cmake" ]]; then
     existing_cmake="$BIN_DIR/cmake"
 fi
 
-if [[ -n "$existing_cmake" ]]; then
-    echo "cmake 已安装: $existing_cmake"
-    "$existing_cmake" --version | head -1
+if [[ "${UPDATE:-}" == "1" && -z "$existing_cmake" ]]; then
+    echo "未安装，跳过: cmake"
     exit 0
+fi
+
+if [[ -n "$existing_cmake" ]]; then
+    installed_version="$("$existing_cmake" --version | head -1 | awk '{print $3}')"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "cmake 已安装: $existing_cmake ($installed_version)"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$CMAKE_VERSION" ]]; then
+        echo "cmake 已是最新: $installed_version"
+        exit 0
+    fi
+    echo "更新 cmake: $installed_version -> $CMAKE_VERSION"
+    confirm_update "cmake: $installed_version -> $CMAKE_VERSION" || exit 0
 fi
 
 version="$CMAKE_VERSION"

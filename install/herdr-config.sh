@@ -1,8 +1,9 @@
 #!/bin/bash
 # 安装 Herdr 配置到 ~/.config/herdr/config.toml
-# 可重入：重复执行会覆盖旧配置
+# 可重入：内容变化才写入
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HERDR_SOURCE="$SCRIPT_DIR/../configs/herdr/config.toml"
@@ -35,9 +36,14 @@ if [[ ! -f "$HERDR_SOURCE" ]]; then
     exit 1
 fi
 
-mkdir -p "$HERDR_DIR"
-cp "$HERDR_SOURCE" "$HERDR_DEST"
-echo "Herdr 配置已安装: $HERDR_DEST"
+if [[ "${UPDATE:-}" == "1" && ! -e "$HERDR_DEST" ]]; then
+    echo "未安装，跳过: $HERDR_DEST"
+    exit 0
+fi
+
+tmp_config="$(mktemp)"
+cp "$HERDR_SOURCE" "$tmp_config"
+write_file_if_changed "$HERDR_DEST" "$tmp_config"
 
 if ! command -v herdr &>/dev/null; then
     echo "提示: herdr 未安装，可先运行 ./install/herdr.sh"

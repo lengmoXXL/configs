@@ -2,6 +2,7 @@
 # 安装 fzf 到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 FZF_VERSION="0.74.3"
@@ -45,10 +46,29 @@ if [[ -z "$fzf_bin" && -x "$BIN_DIR/fzf" ]]; then
     fzf_bin="$BIN_DIR/fzf"
 fi
 
-if [[ -n "$fzf_bin" ]]; then
-    echo "fzf 已安装: $fzf_bin"
-    "$fzf_bin" --version
+download_needed=false
+if [[ -z "$fzf_bin" ]]; then
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        echo "未安装，跳过: fzf"
+        exit 0
+    fi
+    download_needed=true
 else
+    installed_version="$("$fzf_bin" --version | awk '{print $1}')"
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        if [[ "$installed_version" == "$FZF_VERSION" ]]; then
+            echo "fzf 已是最新: $installed_version"
+        else
+            echo "更新 fzf: $installed_version -> $FZF_VERSION"
+            confirm_update "fzf: $installed_version -> $FZF_VERSION" || exit 0
+            download_needed=true
+        fi
+    else
+        echo "fzf 已安装: $fzf_bin ($installed_version)"
+    fi
+fi
+
+if [[ "$download_needed" == "true" ]]; then
     os=$(uname -s)
     arch=$(uname -m)
     case "${os}-${arch}" in
@@ -76,8 +96,8 @@ else
     "$BIN_DIR/fzf" --version
 fi
 
-mkdir -p "$ENV_DIR"
-cat > "${ENV_DIR}/fzf.sh" << 'EOF'
+tmp_env="$(mktemp)"
+cat > "$tmp_env" << 'EOF'
 # fzf key bindings
 if command -v fzf &>/dev/null; then
     if [ -n "$ZSH_VERSION" ]; then
@@ -87,4 +107,4 @@ if command -v fzf &>/dev/null; then
     fi
 fi
 EOF
-echo "创建 fzf 配置: ${ENV_DIR}/fzf.sh"
+write_file_if_changed "${ENV_DIR}/fzf.sh" "$tmp_env"

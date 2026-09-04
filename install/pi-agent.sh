@@ -3,8 +3,8 @@
 # The installed version is pinned here; use `npm view @earendil-works/pi-coding-agent version` to check updates.
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN_DIR="${HOME}/.local/bin"
 NPM_PREFIX="${HOME}/.local"
 PI_PACKAGE="@earendil-works/pi-coding-agent"
@@ -65,17 +65,10 @@ ensure_node() {
         return
     fi
 
-    echo "Pi Agent 需要 Node.js ${MIN_NODE_VERSION}+ 和 npm"
-    echo "尝试通过 install/compiler/node.sh 安装 Node.js..."
-    bash "$SCRIPT_DIR/compiler/node.sh"
-    export PATH="${HOME}/.local/bin:${HOME}/.local/node/bin:${PATH}"
-
-    if ! node_ready; then
-        echo "错误: Node.js 或 npm 不满足 Pi Agent 要求"
-        echo "当前 node: $(node --version 2>/dev/null || echo missing)"
-        echo "当前 npm: $(npm --version 2>/dev/null || echo missing)"
-        exit 1
-    fi
+    echo "错误: Pi Agent 需要 Node.js ${MIN_NODE_VERSION}+ 和 npm，请先运行 install/compiler/node.sh" >&2
+    echo "当前 node: $(node --version 2>/dev/null || echo missing)" >&2
+    echo "当前 npm: $(npm --version 2>/dev/null || echo missing)" >&2
+    exit 1
 }
 
 for dep in grep head; do
@@ -99,6 +92,11 @@ if [[ -n "$local_pi" ]]; then
     local_version=$("$local_pi" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 fi
 
+if [[ "${UPDATE:-}" == "1" && -z "$local_pi" ]]; then
+    echo "未安装，跳过: pi"
+    exit 0
+fi
+
 if [[ -n "$local_pi" && "$local_version" == "$PI_VERSION" ]]; then
     echo "Pi Agent ${PI_VERSION} 已安装: $local_pi"
     exit 0
@@ -108,6 +106,7 @@ if [[ -n "$local_pi" ]]; then
     echo "当前 Pi Agent: ${local_version:-unknown} (${local_pi})"
     echo "目标 Pi Agent: ${PI_VERSION}"
     echo "版本不匹配，将安装目标版本"
+    confirm_update "pi: ${local_version:-unknown} -> ${PI_VERSION}" || exit 0
 else
     echo "Pi Agent 未安装，将安装目标版本 ${PI_VERSION}"
 fi

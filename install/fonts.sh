@@ -82,6 +82,11 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+if [[ "${UPDATE:-}" == "1" ]]; then
+    echo "跳过字体更新（未固定版本）"
+    exit 0
+fi
+
 if [[ ${#FONT_NAMES[@]} -eq 0 ]]; then
     echo "安装全部字体..."
     FONT_NAMES=(dejavu aurulent droid yunhei)

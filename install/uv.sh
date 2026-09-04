@@ -3,6 +3,7 @@
 # 可重入：已安装时跳过；如需升级请提高 UV_VERSION
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 UV_VERSION="0.12.9"
@@ -31,9 +32,23 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-if command -v uv &>/dev/null; then
-    echo "uv 已安装: $(uv --version)"
+if [[ "${UPDATE:-}" == "1" ]] && ! command -v uv &>/dev/null; then
+    echo "未安装，跳过: uv"
     exit 0
+fi
+
+if command -v uv &>/dev/null; then
+    installed_version="$(uv --version | awk '{print $2}')"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "uv 已安装: $(uv --version)"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$UV_VERSION" ]]; then
+        echo "uv 已是最新: $installed_version"
+        exit 0
+    fi
+    echo "更新 uv: $installed_version -> $UV_VERSION"
+    confirm_update "uv: $installed_version -> $UV_VERSION" || exit 0
 fi
 
 os="$(uname -s)"

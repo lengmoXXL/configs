@@ -2,6 +2,7 @@
 # 安装 GitHub CLI (gh) 到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 GH_VERSION="v2.98.0"
@@ -32,10 +33,23 @@ done
 
 mkdir -p "$BIN_DIR"
 
-if command -v gh &>/dev/null; then
-    echo "gh 已安装: $(command -v gh)"
-    gh --version | head -1
+if [[ "${UPDATE:-}" == "1" ]] && ! command -v gh &>/dev/null; then
+    echo "未安装，跳过: gh"
     exit 0
+fi
+
+if command -v gh &>/dev/null; then
+    installed_version="$(gh --version | head -1 | awk '{print $3}')"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "gh 已安装: $(command -v gh) ($installed_version)"
+        exit 0
+    fi
+    if [[ "$installed_version" == "${GH_VERSION#v}" ]]; then
+        echo "gh 已是最新: $installed_version"
+        exit 0
+    fi
+    echo "更新 gh: $installed_version -> ${GH_VERSION#v}"
+    confirm_update "gh: $installed_version -> ${GH_VERSION#v}" || exit 0
 fi
 
 os=$(uname -s)

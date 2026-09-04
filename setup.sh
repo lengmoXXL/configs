@@ -46,21 +46,6 @@ run() {
     "$@"
 }
 
-install_ghostty_macos() {
-    if [[ -d "/Applications/Ghostty.app" ]]; then
-        echo "Ghostty 已安装"
-        return
-    fi
-
-    echo "Ghostty 未安装，打开下载页面，请手动下载并安装到 /Applications"
-    open "https://ghostty.org/download"
-    read -rp "安装完成后按回车继续... "
-    if [[ ! -d "/Applications/Ghostty.app" ]]; then
-        echo "错误: 未检测到 /Applications/Ghostty.app" >&2
-        exit 1
-    fi
-}
-
 case "$MODE" in
     init)
         # 基础配置: secrets、shell 环境（env.d）、pi agent、python
@@ -70,6 +55,7 @@ case "$MODE" in
         else
             run "$ROOT/install/oh-my-bash.sh"
         fi
+        run "$ROOT/install/compiler/node.sh"
         run "$ROOT/install/pi-agent.sh"
         run python3 "$ROOT/install/pi-config.py"
         run "$ROOT/install/pi-extensions.sh"
@@ -79,7 +65,17 @@ case "$MODE" in
         # 系统配置
         if [[ "$(uname -s)" == "Darwin" ]]; then
             run "$ROOT/install/fonts.sh"
-            install_ghostty_macos
+            if [[ -d "/Applications/Ghostty.app" ]]; then
+                echo "Ghostty 已安装"
+            else
+                echo "Ghostty 未安装，打开下载页面，请手动下载并安装到 /Applications"
+                open "https://ghostty.org/download"
+                read -rp "安装完成后按回车继续... "
+                if [[ ! -d "/Applications/Ghostty.app" ]]; then
+                    echo "错误: 未检测到 /Applications/Ghostty.app" >&2
+                    exit 1
+                fi
+            fi
             run "$ROOT/install/ghostty-config.sh"
         else
             run "$ROOT/install/ghostty-terminfo.sh"

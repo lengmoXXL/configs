@@ -2,6 +2,7 @@
 # 安装 tldr 命令行帮助工具到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 PYTHON_DIR="${HOME}/.local/python3.11"
@@ -9,7 +10,12 @@ UV_BIN="${BIN_DIR}/uv"
 
 mkdir -p "$BIN_DIR"
 
-if command -v tldr &>/dev/null; then
+if [[ "${UPDATE:-}" == "1" ]] && ! command -v tldr &>/dev/null; then
+    echo "未安装，跳过: tldr"
+    exit 0
+fi
+
+if command -v tldr &>/dev/null && [[ "${UPDATE:-}" != "1" ]]; then
     echo "tldr 已安装: $(command -v tldr)"
     tldr --version
     exit 0
@@ -22,8 +28,8 @@ if [[ ! -x "$PYTHON_DIR/bin/python3" ]]; then
 fi
 
 if ! command -v uv &>/dev/null && [[ ! -x "$UV_BIN" ]]; then
-    echo "安装 uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "错误: 缺少 uv，请先运行 install/uv.sh" >&2
+    exit 1
 fi
 
 if command -v uv &>/dev/null; then
@@ -33,6 +39,10 @@ elif [[ -x "$UV_BIN" ]]; then
 else
     echo "错误: uv 安装后未找到，请确认 $BIN_DIR 在 PATH 中"
     exit 1
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "tldr 到最新版" || exit 0
 fi
 
 echo "安装 tldr 到 Python 3.11 环境..."

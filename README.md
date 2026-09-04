@@ -7,7 +7,8 @@ configs/
 ├── AGENTS.md -> README.md
 ├── README.md
 ├── setup.sh                    # 一键初始化: 默认 --init 基础配置，--nvim 等场景需先 --init
-├── install/                    # 所有安装脚本，一个脚本只做一件事；CN=1 走国内代理/镜像
+├── sync.sh                     # UPDATE=1 遍历 install/ 更新已安装的工具与配置
+├── install/                    # 安装脚本；CN=1 走国内代理，UPDATE=1 更新模式（未安装跳过，配置类按需增删改）
 │   ├── agent-prompts.sh
 │   ├── clash-for-linux.sh
 │   ├── clashctl.sh
@@ -25,7 +26,6 @@ configs/
 │   ├── git-prune-merged.sh
 │   ├── herdr.sh
 │   ├── herdr-config.sh
-│   ├── hermes-agent.sh
 │   ├── kimi.sh
 │   ├── kimi-config.sh
 │   ├── nvim.sh
@@ -120,10 +120,10 @@ configs/
 └── tools/
     ├── build-perf-to-profile.sh
     ├── codex_batch.py
+    ├── common.sh                # install 脚本共享函数（confirm_update / managed block / write-if-changed）
     ├── doc-research-init.sh      # 初始化文献调研项目（raw/tr/dist + 工作流 README）
     ├── github-release-latest.sh
     ├── git-prune-merged.sh
-    ├── hermes/
     ├── nvim_ft.py               # 按 git URL 管理 Neovim filetype
     ├── pj/                      # 仓库命令工具
     │   └── ...

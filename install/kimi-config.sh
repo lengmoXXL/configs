@@ -1,8 +1,9 @@
 #!/bin/bash
 # 安装 Kimi Code 主题到 ${KIMI_CODE_HOME:-~/.kimi-code}/themes/
-# 可重入：重复执行会覆盖旧文件
+# 可重入：内容变化才写入
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 THEMES_SOURCE="$SCRIPT_DIR/../configs/kimi/themes"
@@ -35,6 +36,25 @@ if [[ ! -d "$THEMES_SOURCE" ]]; then
     exit 1
 fi
 
+if [[ "${UPDATE:-}" == "1" && ! -d "$THEMES_DEST" ]]; then
+    echo "未安装，跳过: $THEMES_DEST"
+    exit 0
+fi
+
+if ! command -v rsync &>/dev/null; then
+    echo "错误: 缺少依赖 rsync" >&2
+    exit 1
+fi
+
 mkdir -p "$THEMES_DEST"
-cp "$THEMES_SOURCE"/*.json "$THEMES_DEST/"
+if [[ "${UPDATE:-}" == "1" ]]; then
+    changes="$(rsync -nai --delete "$THEMES_SOURCE/" "$THEMES_DEST/")"
+    if [[ -z "$changes" ]]; then
+        echo "已是最新: $THEMES_DEST"
+        exit 0
+    fi
+    echo "$changes"
+    confirm_update "kimi 主题" || exit 0
+fi
+rsync -ai --delete "$THEMES_SOURCE/" "$THEMES_DEST/"
 echo "Kimi Code 主题已安装: $THEMES_DEST"

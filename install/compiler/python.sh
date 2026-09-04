@@ -25,7 +25,20 @@ else
     exit 1
 fi
 
-# 检查是否已创建虚拟环境
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
+
+if [[ "${UPDATE:-}" == "1" && ! -x "$INSTALL_DIR/bin/python3" ]]; then
+    echo "未安装，跳过: $INSTALL_DIR/bin/python3"
+    exit 0
+fi
+
+tmp_env="$(mktemp)"
+cat > "$tmp_env" << 'EOF'
+# Python 环境配置
+export PATH="$HOME/.local/python3.11/bin:$PATH"
+EOF
+write_file_if_changed "$ENV_DIR/python.sh" "$tmp_env"
+
 if [[ -x "$INSTALL_DIR/bin/python3" ]]; then
     echo "Python 3.11 虚拟环境已存在: $($INSTALL_DIR/bin/python3 --version)"
     exit 0
@@ -36,20 +49,12 @@ echo "创建 Python 3.11 虚拟环境: $INSTALL_DIR"
 "$UV_CMD" python install 3.11
 "$UV_CMD" venv --seed --python 3.11 "$INSTALL_DIR"
 
-# 创建符号链接到 ~/.local/bin
 ln -sf "$INSTALL_DIR/bin/python3" "$BIN_DIR/python3"
 if [[ -x "$INSTALL_DIR/bin/pip3" ]]; then
     ln -sf "$INSTALL_DIR/bin/pip3" "$BIN_DIR/pip3"
 elif [[ -x "$INSTALL_DIR/bin/pip" ]]; then
     ln -sf "$INSTALL_DIR/bin/pip" "$BIN_DIR/pip3"
 fi
-
-# 配置 Python 环境变量
-mkdir -p "$ENV_DIR"
-cat > "$ENV_DIR/python.sh" << 'EOF'
-# Python 环境配置
-export PATH="$HOME/.local/python3.11/bin:$PATH"
-EOF
 
 echo ""
 echo "Python 3.11 虚拟环境创建完成"

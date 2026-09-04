@@ -3,6 +3,7 @@
 # 从 fork 源码编译安装: https://github.com/lengmoXXL/markdown-oxide
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 REPO_URL="https://github.com/lengmoXXL/markdown-oxide.git"
 BRANCH="main"
@@ -52,6 +53,15 @@ else
     echo "错误: cargo 未安装"
     echo "请先运行 install/compiler/rust.sh 安装 Rust"
     exit 1
+fi
+
+if [[ "${UPDATE:-}" == "1" && ! -x "$BINARY" ]]; then
+    echo "未安装，跳过: $BINARY"
+    exit 0
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "markdown-oxide (branch $BRANCH)" || exit 0
 fi
 
 echo "从源码安装 markdown-oxide"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 REPO_URL="${REPO_URL:-https://github.com/lengmoXXL/neovim-skill.git}"
 REF="${REF:-master}"
@@ -33,6 +34,15 @@ while [[ $# -gt 0 ]]; do
     esac
     shift
 done
+
+if [[ "${UPDATE:-}" == "1" && ! -d "$DEST" ]]; then
+    echo "未安装，跳过: $DEST"
+    exit 0
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "neovim-skill 到最新 ${REF}" || exit 0
+fi
 
 if [[ "${CN:-}" == "1" && "$REPO_URL" == https://github.com/* ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"

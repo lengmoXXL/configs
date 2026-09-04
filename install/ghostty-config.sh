@@ -1,8 +1,9 @@
 #!/bin/bash
 # 安装 Ghostty 配置到 ~/.config/ghostty/config
-# 可重入：重复执行会覆盖旧配置
+# 可重入：内容变化才写入
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GHOSTTY_SOURCE="$SCRIPT_DIR/../configs/ghostty/config"
@@ -35,9 +36,14 @@ if [[ ! -f "$GHOSTTY_SOURCE" ]]; then
     exit 1
 fi
 
-mkdir -p "$GHOSTTY_DIR"
-cp "$GHOSTTY_SOURCE" "$GHOSTTY_DEST"
-echo "Ghostty 配置已安装: $GHOSTTY_DEST"
+if [[ "${UPDATE:-}" == "1" && ! -e "$GHOSTTY_DEST" ]]; then
+    echo "未安装，跳过: $GHOSTTY_DEST"
+    exit 0
+fi
+
+tmp_config="$(mktemp)"
+cp "$GHOSTTY_SOURCE" "$tmp_config"
+write_file_if_changed "$GHOSTTY_DEST" "$tmp_config"
 
 if ! command -v ghostty &>/dev/null; then
     echo "提示: ghostty 未安装"

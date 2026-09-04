@@ -2,6 +2,7 @@
 # 安装 ripgrep 到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 RIPGREP_VERSION="15.2.0"
@@ -44,10 +45,23 @@ if [[ -z "$existing_rg" && -x "$BIN_DIR/rg" ]]; then
     existing_rg="$BIN_DIR/rg"
 fi
 
-if [[ -n "$existing_rg" ]]; then
-    echo "rg 已安装: $existing_rg"
-    "$existing_rg" --version | head -1
+if [[ "${UPDATE:-}" == "1" && -z "$existing_rg" ]]; then
+    echo "未安装，跳过: rg"
     exit 0
+fi
+
+if [[ -n "$existing_rg" ]]; then
+    installed_version="$("$existing_rg" --version | head -1 | awk '{print $2}')"
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "rg 已安装: $existing_rg ($installed_version)"
+        exit 0
+    fi
+    if [[ "$installed_version" == "$RIPGREP_VERSION" ]]; then
+        echo "rg 已是最新: $installed_version"
+        exit 0
+    fi
+    echo "更新 rg: $installed_version -> $RIPGREP_VERSION"
+    confirm_update "rg: $installed_version -> $RIPGREP_VERSION" || exit 0
 fi
 
 version="$RIPGREP_VERSION"

@@ -3,6 +3,7 @@
 # The installed version is pinned here; use tools/github-release-latest.sh to check updates.
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 CODEX_BIN="${BIN_DIR}/codex"
@@ -85,10 +86,12 @@ compare_versions() {
     echo 0
 }
 
-should_install=false
 if [[ -z "$local_codex" || -z "$local_version" ]]; then
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        echo "未安装，跳过: codex"
+        exit 0
+    fi
     echo "Codex 未安装，将安装目标版本 ${CODEX_VERSION}"
-    should_install=true
 else
     echo "当前 Codex: ${local_version} (${local_codex})"
     echo "目标 Codex: ${CODEX_VERSION}"
@@ -100,22 +103,13 @@ else
             exit 0
         fi
         echo "Codex 已是目标版本，但缺少 codex-code-mode-host，将补充安装"
-        should_install=true
+        confirm_update "codex-code-mode-host 补装" || exit 0
     elif [[ "$version_cmp" == "1" ]]; then
         echo "本地 Codex 版本高于目标版本，不执行更新"
         exit 0
     else
-        answer=""
-        read -r -p "是否更新 Codex 到 ${CODEX_VERSION}? [y/N] " answer || true
-        case "$answer" in
-            y | Y | yes | YES) should_install=true ;;
-            *) echo "已取消更新"; exit 0 ;;
-        esac
+        confirm_update "codex: ${local_version} -> ${CODEX_VERSION}" || exit 0
     fi
-fi
-
-if [[ "$should_install" != "true" ]]; then
-    exit 0
 fi
 
 os=$(uname -s)

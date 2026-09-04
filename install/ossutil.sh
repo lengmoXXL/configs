@@ -3,6 +3,7 @@
 # https://www.alibabacloud.com/help/en/oss/developer-reference/ossutil-overview/
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local/ossutil"
 BIN_DIR="${HOME}/.local/bin"
@@ -76,6 +77,11 @@ else
     existing_ossutil="$(command -v ossutil 2>/dev/null || true)"
 fi
 
+if [[ "${UPDATE:-}" == "1" && -z "$existing_ossutil" ]]; then
+    echo "未安装，跳过: ossutil"
+    exit 0
+fi
+
 if [[ -n "$existing_ossutil" ]]; then
     existing_version="$("$existing_ossutil" version 2>/dev/null | sed -n 's/.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p' | head -1)"
     if [[ "$existing_version" == "$OSSUTIL_VERSION" && "$existing_ossutil" == "$OSSUTIL_BIN" ]]; then
@@ -86,6 +92,7 @@ if [[ -n "$existing_ossutil" ]]; then
 
     echo "检测到 ossutil: ${existing_version:-unknown} (${existing_ossutil})"
     echo "目标版本: ${OSSUTIL_VERSION}"
+    confirm_update "ossutil: ${existing_version:-unknown} -> ${OSSUTIL_VERSION}" || exit 0
 fi
 
 tmp_dir="$(mktemp -d)"

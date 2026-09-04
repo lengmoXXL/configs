@@ -3,39 +3,54 @@
 # 可重入：重复执行会更新托管文件
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_DIR="$HOME/.config/env.d"
 
-# 检查 fzf 依赖
 if ! command -v fzf &>/dev/null; then
     echo "错误: fzf 未安装，请先运行 install/fzf.sh"
     exit 1
 fi
 
-# 确保 env.d 遍历逻辑存在于 bashrc
 ensure_envd_loader() {
     local bashrc="$HOME/.bashrc"
-    local loader_line='for env_file in "$HOME/.config/env.d"/*.sh; do'
 
-    if ! grep -qF "$loader_line" "$bashrc" 2>/dev/null; then
-        mkdir -p "$ENV_DIR"
-        echo "" >> "$bashrc"
-        echo "# 加载环境变量配置" >> "$bashrc"
-        echo 'for env_file in "$HOME/.config/env.d"/*.sh; do' >> "$bashrc"
-        echo '    [ -f "$env_file" ] && source "$env_file"' >> "$bashrc"
-        echo 'done' >> "$bashrc"
-        echo "已添加 env.d 加载逻辑到 .bashrc"
-    else
-        echo "env.d 加载逻辑已存在于 .bashrc"
+    # 旧版无 guard 的写法直接删除，改用 managed block
+    if ! grep -qF '# BEGIN configs envd-loader' "$bashrc" 2>/dev/null \
+        && grep -qF '# 加载环境变量配置' "$bashrc" 2>/dev/null; then
+        strip_block "$bashrc" '^# 加载环境变量配置$' '^done$'
     fi
-}
 
-# 确保 env.d 加载逻辑存在
-ensure_envd_loader
+    mkdir -p "$ENV_DIR"
+    local block
+    block="$(mktemp)"
+    cat > "$block" << 'EOF'
+# 加载环境变量配置
+for env_file in "$HOME/.config/env.d"/*.sh; do
+    [ -f "$env_file" ] && source "$env_file"
+done
+EOF
+    write_managed_block "$bashrc" envd-loader "$block"
+    rm -f "$block"
+}
 
 pj_source="$SCRIPT_DIR/../tools/pj/pj.sh"
 pj_dest="$ENV_DIR/pj.sh"
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    if [[ ! -e "$pj_dest" ]]; then
+        echo "未安装，跳过: $pj_dest"
+        exit 0
+    fi
+    if cmp -s "$pj_source" "$pj_dest"; then
+        echo "已是最新: $pj_dest"
+        exit 0
+    fi
+    confirm_update "pj" || exit 0
+fi
+
+ensure_envd_loader
 
 if [[ ! -f "$pj_source" ]]; then
     echo "错误: 源文件不存在: $pj_source"
@@ -43,7 +58,6 @@ if [[ ! -f "$pj_source" ]]; then
 fi
 
 mkdir -p "$HOME/.pjs"
-mkdir -p "$ENV_DIR"
 
 cp "$pj_source" "$pj_dest"
 echo "已安装: $pj_source -> $pj_dest"

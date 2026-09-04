@@ -2,6 +2,7 @@
 # 安装 fd 到 ~/.local/bin
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 BIN_DIR="${HOME}/.local/bin"
 FD_VERSION="v10.4.2"
@@ -44,9 +45,8 @@ if [[ -z "$existing_fd" && -x "$BIN_DIR/fd" ]]; then
     existing_fd="$BIN_DIR/fd"
 fi
 
-if [[ -n "$existing_fd" ]]; then
-    echo "fd 已安装: $existing_fd"
-    "$existing_fd" --version | head -1
+if [[ "${UPDATE:-}" == "1" && -z "$existing_fd" ]]; then
+    echo "未安装，跳过: fd"
     exit 0
 fi
 
@@ -64,6 +64,20 @@ case "${os}-${arch}" in
     Linux-aarch64 | Linux-arm64) target="aarch64-unknown-linux-gnu" ;;
     *) echo "错误: 不支持的平台 ${os}-${arch}"; exit 1 ;;
 esac
+
+if [[ -n "$existing_fd" ]]; then
+    installed_version="$("$existing_fd" --version | head -1 | awk '{print $2}')"
+    if [[ "$installed_version" == "${version#v}" ]]; then
+        echo "fd 已是最新: $installed_version"
+        exit 0
+    fi
+    if [[ "${UPDATE:-}" != "1" ]]; then
+        echo "fd 已安装: $existing_fd ($installed_version)"
+        exit 0
+    fi
+    echo "更新 fd: $installed_version -> ${version#v}"
+    confirm_update "fd: $installed_version -> ${version#v}" || exit 0
+fi
 
 tmp_dir=$(mktemp -d)
 tarball="${tmp_dir}/fd.tar.gz"

@@ -3,6 +3,7 @@
 # 可重入：已安装时跳过
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 MODE="binary"
 VERSION="0.1.55"
@@ -33,7 +34,16 @@ done
 BIN_DIR="${HOME}/.local/bin"
 BINARY="$BIN_DIR/typos-lsp"
 
-if [[ -x "$BINARY" ]]; then
+if [[ "${UPDATE:-}" == "1" && ! -x "$BINARY" ]]; then
+    echo "未安装，跳过: $BINARY"
+    exit 0
+fi
+
+if [[ "${UPDATE:-}" == "1" && -x "$BINARY" ]]; then
+    confirm_update "typos-lsp (固定 $VERSION)" || exit 0
+fi
+
+if [[ -x "$BINARY" && "${UPDATE:-}" != "1" ]]; then
     echo "typos-lsp 已安装"
     exit 0
 fi

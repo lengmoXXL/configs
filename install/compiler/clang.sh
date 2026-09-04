@@ -4,6 +4,11 @@
 
 set -e
 
+if [[ "${UPDATE:-}" == "1" ]] && ! rpm -q clang &>/dev/null; then
+    echo "未安装，跳过: clang"
+    exit 0
+fi
+
 if rpm -q clang &>/dev/null; then
     echo "clang 已安装"
     clang --version | head -1

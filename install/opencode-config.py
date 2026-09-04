@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Install opencode config to ~/.config/opencode/opencode.json."""
+"""Install opencode config to ~/.config/opencode/opencode.json.
+
+UPDATE=1 时按需更新：未安装则跳过，内容一致则不写入。
+"""
 
 import json
 import os
 import sys
 from pathlib import Path
+
+UPDATE = os.environ.get("UPDATE") == "1"
 
 
 def main() -> int:
@@ -33,11 +38,23 @@ def main() -> int:
             provider["options"]["apiKey"] = api_key
 
         target = Path.home() / ".config" / "opencode" / "opencode.json"
+        if UPDATE and not target.exists():
+            print(f"未安装，跳过: {target}")
+            return 0
+        content = json.dumps(config, ensure_ascii=False, indent=2) + "\n"
+        if target.exists() and target.read_text(encoding="utf-8") == content:
+            print(f"配置已是最新: {target}")
+            return 0
+        if UPDATE:
+            try:
+                answer = input(f"将写入: {target}\n应用以上变更? [y/N] ")
+            except EOFError:
+                answer = ""
+            if answer.strip().lower() not in ("y", "yes"):
+                print("已取消")
+                return 0
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(
-            json.dumps(config, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        target.write_text(content, encoding="utf-8")
         target.chmod(0o600)
         print(f"installed: {target}")
         return 0

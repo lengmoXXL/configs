@@ -8,6 +8,16 @@
 # the PATH update (see the header of the official script).
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
+
+if [[ "${UPDATE:-}" == "1" ]] && ! command -v kimi &>/dev/null; then
+    echo "未安装，跳过: kimi"
+    exit 0
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "kimi 到最新版" || exit 0
+fi
 
 curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash
 

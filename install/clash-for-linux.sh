@@ -2,6 +2,7 @@
 # 安装 clash-for-linux-install 到 ~/.local/share/clash-for-linux-install
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 REPO_URL="https://github.com/nelvko/clash-for-linux-install.git"
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
@@ -38,7 +39,15 @@ fi
 
 mkdir -p "$SHARE_DIR"
 
+if [[ "${UPDATE:-}" == "1" && ! -d "$INSTALL_DIR/.git" ]]; then
+    echo "未安装，跳过: $INSTALL_DIR"
+    exit 0
+fi
+
 if [[ -d "$INSTALL_DIR/.git" ]]; then
+    if [[ "${UPDATE:-}" == "1" ]]; then
+        confirm_update "clash-for-linux 到最新 ${BRANCH}" || exit 0
+    fi
     echo "仓库已存在，更新到最新 ${BRANCH}: $INSTALL_DIR"
     git -C "$INSTALL_DIR" remote set-url origin "$REPO_URL"
     git -C "$INSTALL_DIR" fetch --depth 1 origin "$BRANCH"
@@ -58,16 +67,18 @@ bash install.sh
 
 # 在 .bashrc 中关闭 noclobber（oh-my-bash 默认开启会导致文件覆盖报错）
 BASHRC="${HOME}/.bashrc"
-start_flag="# noclobber-off START"
-end_flag="# noclobber-off END"
 
-if ! grep -q "$start_flag" "$BASHRC" 2>/dev/null; then
-    cat >> "$BASHRC" <<EOF
+# 旧版标记不同名，直接删除，改用 managed block
+if ! grep -qF '# BEGIN configs noclobber-off' "$BASHRC" 2>/dev/null \
+    && grep -qF '# noclobber-off START' "$BASHRC" 2>/dev/null; then
+    strip_block "$BASHRC" '^# noclobber-off START$' '^# noclobber-off END$'
+fi
 
-$start_flag
+noclobber_block="$(mktemp)"
+cat > "$noclobber_block" << 'EOF'
 # 关闭 noclobber，允许 > 覆盖已存在文件
 set +o noclobber
-$end_flag
 EOF
-    echo "已添加 noclobber 关闭配置到 .bashrc"
-fi
+write_managed_block "$BASHRC" noclobber-off "$noclobber_block"
+rm -f "$noclobber_block"
+

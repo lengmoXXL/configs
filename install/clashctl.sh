@@ -2,6 +2,7 @@
 # Install clashctl from wnlen/clash-for-linux.
 
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 REPO_URL="https://github.com/wnlen/clash-for-linux.git"
 GITHUB_PROXY_PREFIX="https://gh-proxy.com/"
@@ -41,6 +42,11 @@ if [[ "${CN:-}" == "1" ]]; then
     REPO_URL="${GITHUB_PROXY_PREFIX}${REPO_URL}"
 fi
 
+if [[ "${UPDATE:-}" == "1" && ! -d "$INSTALL_DIR/.git" ]]; then
+    echo "未安装，跳过: $INSTALL_DIR"
+    exit 0
+fi
+
 if [[ -d "$INSTALL_DIR/.git" ]]; then
     echo "clash-for-linux 仓库已存在: $INSTALL_DIR"
 elif [[ -e "$INSTALL_DIR" ]]; then
@@ -50,6 +56,10 @@ else
     mkdir -p "$(dirname "$INSTALL_DIR")"
     echo "克隆 clash-for-linux 到: $INSTALL_DIR"
     git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$INSTALL_DIR"
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "clashctl（重跑官方安装流程）" || exit 0
 fi
 
 echo "订阅后台: $SUBSCRIPTION_PAGE"

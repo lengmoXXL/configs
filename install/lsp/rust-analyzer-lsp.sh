@@ -3,6 +3,7 @@
 # 可重入：已安装时跳过
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../tools" && pwd)/common.sh"
 
 RUST_DIR="${HOME}/.local/rust"
 BIN_DIR="${HOME}/.local/bin"
@@ -14,7 +15,12 @@ export CARGO_HOME="${RUST_DIR}"
 export RUSTUP_DIST_SERVER="https://mirrors.aliyun.com/rustup"
 export RUSTUP_UPDATE_ROOT="https://mirrors.aliyun.com/rustup/rustup"
 
-if [[ -x "$RUST_ANALYZER" ]]; then
+if [[ "${UPDATE:-}" == "1" && ! -x "$RUST_ANALYZER" ]]; then
+    echo "未安装，跳过: $RUST_ANALYZER"
+    exit 0
+fi
+
+if [[ -x "$RUST_ANALYZER" && "${UPDATE:-}" != "1" ]]; then
     echo "rust-analyzer 已安装: $("$RUST_ANALYZER" --version)"
     exit 0
 fi
@@ -27,6 +33,10 @@ if [[ ! -x "$RUSTUP" ]]; then
         echo "请先运行 install/compiler/rust.sh 安装 Rust"
         exit 1
     fi
+fi
+
+if [[ "${UPDATE:-}" == "1" ]]; then
+    confirm_update "rust-analyzer 到最新版" || exit 0
 fi
 
 echo "安装 rust-analyzer LSP"

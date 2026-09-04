@@ -3,6 +3,7 @@
 # 可重入：已安装目标版本时跳过
 
 set -e
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../tools" && pwd)/common.sh"
 
 INSTALL_DIR="${HOME}/.local"
 BIN_DIR="${INSTALL_DIR}/bin"
@@ -96,6 +97,11 @@ make_jobs() {
     fi
 }
 
+if [[ "${UPDATE:-}" == "1" && ! -x "$TMUX_BIN" ]]; then
+    echo "未安装，跳过: $TMUX_BIN"
+    exit 0
+fi
+
 if [[ -x "$TMUX_BIN" ]]; then
     INSTALLED_VERSION="$("$TMUX_BIN" -V | awk '{print $2}')"
     if [[ "$INSTALLED_VERSION" == "$VERSION" ]]; then
@@ -105,6 +111,7 @@ if [[ -x "$TMUX_BIN" ]]; then
 
     echo "检测到已安装 tmux: ${INSTALLED_VERSION:-unknown}"
     echo "目标版本: $VERSION"
+    confirm_update "tmux: ${INSTALLED_VERSION:-unknown} -> $VERSION" || exit 0
 fi
 
 if build_deps_ready; then
