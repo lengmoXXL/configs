@@ -11,7 +11,8 @@
     "npm:pi-hashline-edit-pro",
     "npm:pi-web-access",
     "npm:@narumitw/pi-plan-mode",
-    "npm:pi-footer"
+    "npm:pi-footer",
+    "npm:@juicesharp/rpiv-ask-user-question"
   ],
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,
