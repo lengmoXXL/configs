@@ -33,8 +33,9 @@ configs/
 │   ├── nvim-ft.sh
 │   ├── oh-my-bash.sh           # Linux: Oh My Bash + ~/.bashrc（env.d 加载、PATH）
 │   ├── oh-my-zsh.sh            # macOS: Oh My Zsh + ~/.zshrc（env.d 加载、PATH）
+│   ├── opencode-auth.sh        # auth.json 合并式更新（sync: skip，手动执行）
+│   ├── opencode-config.sh
 │   ├── opencode.sh
-│   ├── opencode-config.py
 │   ├── ossutil.sh
 │   ├── perf-to-profile.sh
 │   ├── pi-agent.sh
